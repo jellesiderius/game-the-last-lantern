@@ -2,6 +2,7 @@ extends Control
 ## The reference plate stays fixed; only its light and the saved particle layers animate.
 @export_file("*.tscn") var new_game_scene := "res://scenes/levels/ForestOpening.tscn"
 @export_file("*.tscn") var test_scene := "res://scenes/levels/TestArena.tscn"
+@export var new_game_loading_title := "Een nieuw avontuur"
 @export_range(0.0, 1.0, .05) var flicker_strength := 1.0
 var animation_time := 0.0
 var starting := false
@@ -50,7 +51,8 @@ func _ready() -> void:
 		button.focus_entered.connect(_focus.bind(button))
 		button.mouse_entered.connect(button.grab_focus)
 	_wire_focus(buttons)
-	$Artwork/Options/NewGame.pressed.connect(_launch.bind(new_game_scene))
+	$Artwork/Options/NewGame.pressed.connect(_launch_new_game)
+	SceneTransit.transition_failed.connect(_launch_failed)
 	$Artwork/Options/TestScene.pressed.connect(_launch_test_scene)
 	$Artwork/Options/Settings.pressed.connect(_open_settings)
 	$Artwork/Options/Quit.pressed.connect(func(): get_tree().quit())
@@ -77,6 +79,13 @@ func _ready() -> void:
 	):
 		var replay := load("res://tests/intro_replay.gd").new() as Node
 		replay.name = "IntroReplay"
+		get_tree().root.add_child.call_deferred(replay)
+	if (
+		"--loading-replay" in OS.get_cmdline_user_args()
+		and not get_tree().root.has_node("LoadingReplay")
+	):
+		var replay := load("res://tests/loading_replay.gd").new() as Node
+		replay.name = "LoadingReplay"
 		get_tree().root.add_child.call_deferred(replay)
 
 
@@ -170,20 +179,25 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func _launch_new_game() -> void:
+	_launch(new_game_scene, new_game_loading_title, true)
+
+
 func _launch_test_scene() -> void:
 	_launch(test_scene)
 
 
-func _launch(scene_path: String) -> void:
+func _launch(scene_path: String, heading := "De wereld ontwaakt", always_show := false) -> void:
 	if starting or scene_path.is_empty():
 		return
 	starting = true
-	GameClock.reset()
-	AttackTokenManager.reset()
-	InputRouter.block_gameplay_input()
-	var error := get_tree().change_scene_to_file(scene_path)
-	if error != OK:
+	$Artwork/LaunchError.hide()
+	if not SceneTransit.change_scene(scene_path, heading, always_show):
 		starting = false
-		$Artwork/LaunchError.text = "This scene could not be opened."
+
+
+func _launch_failed(reason: String) -> void:
+	if starting:
+		starting = false
+		$Artwork/LaunchError.text = reason
 		$Artwork/LaunchError.show()
-		push_error("Title scene could not open %s: %s" % [scene_path, error])

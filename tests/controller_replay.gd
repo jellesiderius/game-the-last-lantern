@@ -2,11 +2,27 @@ extends "res://tests/runtime_replay.gd"
 ## Uses real InputEvents and the saved InputMap, including native GUI focus/activation.
 var held_axes: Dictionary = {}
 var held_buttons: Dictionary = {}
+var replay_device := 0
+
+
+func isolate_controller_input() -> void:
+	# Keep saved buttons/axes/deadzones, but direct them to an unused replay device.
+	# A connected pad's neutral jitter must not overwrite injected held axes.
+	while replay_device in Input.get_connected_joypads():
+		replay_device += 1
+	for action in InputMap.get_actions():
+		for event in InputMap.action_get_events(action):
+			if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+				var binding := event.duplicate() as InputEvent
+				binding.device = replay_device
+				InputMap.action_erase_event(action, event)
+				InputMap.action_add_event(action, binding)
+		Input.action_release(action)
 
 
 func axis(index: int, value: float) -> void:
 	var event := InputEventJoypadMotion.new()
-	event.device = 0
+	event.device = replay_device
 	event.axis = index
 	event.axis_value = value
 	held_axes[index] = value
@@ -15,7 +31,7 @@ func axis(index: int, value: float) -> void:
 
 func button(index: int, pressed: bool) -> void:
 	var event := InputEventJoypadButton.new()
-	event.device = 0
+	event.device = replay_device
 	event.button_index = index
 	event.pressed = pressed
 	held_buttons[index] = pressed
@@ -50,6 +66,7 @@ func run() -> void:
 	p = arena.player
 	targets = get_tree().get_nodes_in_group("damageable")
 	render_cap = Engine.max_fps
+	isolate_controller_input()
 	await clean()
 	var camera := get_viewport().get_camera_3d()
 	var camera_basis := camera.global_basis
@@ -57,7 +74,15 @@ func run() -> void:
 	await step(40)
 	check(
 		"left stick reaches full speed",
-		is_equal_approx(Vector2(p.velocity.x, p.velocity.z).length(), p.settings.max_speed)
+		is_equal_approx(Vector2(p.velocity.x, p.velocity.z).length(), p.settings.max_speed),
+		{
+			"velocity": p.velocity,
+			"position": p.position,
+			"stick": Input.get_vector("move_left", "move_right", "move_up", "move_down"),
+			"paused": GameClock.paused,
+			"state": p.state,
+			"blocked": InputRouter.gameplay_input_blocked()
+		}
 	)
 	axis(JOY_AXIS_LEFT_X, 1)
 	await step(16)
@@ -295,7 +320,7 @@ func run() -> void:
 	await step(5)
 	button(JOY_BUTTON_B, true)
 	await step(10)
-	InputRouter._controller_connection_changed(0, false)
+	InputRouter._controller_connection_changed(replay_device, false)
 	await step(5)
 	check(
 		"controller disconnect pauses and cancels draw",

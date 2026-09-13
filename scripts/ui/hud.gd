@@ -218,15 +218,8 @@ func _health_changed(current: float, maximum: float) -> void:
 
 
 func _choose_character() -> void:
-	GameClock.reset()
-	AttackTokenManager.reset()
-	InputRouter.block_gameplay_input()
-	get_tree().change_scene_to_file("res://scenes/ui/CharacterSelect.tscn")
+	SceneTransit.change_scene("res://scenes/ui/CharacterSelect.tscn", "Kies je reiziger")
 
 
 func _return_to_title() -> void:
-	arena.player.suspend_controls()
-	GameClock.reset()
-	AttackTokenManager.reset()
-	InputRouter.block_gameplay_input()
-	get_tree().change_scene_to_file("res://scenes/ui/TitleScreen.tscn")
+	SceneTransit.change_scene("res://scenes/ui/TitleScreen.tscn", "Terug bij het licht")

@@ -39,8 +39,10 @@ class Scene:
    self.node(name+'Body','StaticBody3D','Collision',props='position = '+self.xyz(pos));self.node('Shape','CollisionShape3D','Collision/'+name+'Body',props='shape = '+shape)
  def spawn(self,name,pos,yaw=0):
   self.node('Spawn'+name,'Marker3D',props='position = '+self.xyz(pos)+'\nrotation_degrees = '+self.xyz((0,yaw,0))+'\nscript = ExtResource("Spawn")\nspawn_id = &"'+name+'"')
- def portal(self,name,pos,target,spawn,yaw=0,size=(6,3,2)):
+ def portal(self,name,pos,target,spawn,yaw=0,size=(6,3,2),door=False):
+  if door:self.ext("DoorTravel","Resource","settings/transitions/door.tres")
   self.node(name,instance='Portal',props='position = '+self.xyz(pos)+'\nrotation_degrees = '+self.xyz((0,yaw,0))+'\ntarget_scene = "res://scenes/levels/'+target+'.tscn"\ntarget_spawn = &"'+spawn+'"\ntrigger_size = '+self.xyz(size))
+  if door:self.nodes[-1]+='settings = ExtResource("DoorTravel")\nallow_loading_screen = false\n'
  def save(self,name):
   text='[gd_scene format=3]\n'+''.join(f'[ext_resource type="{t}" path="res://{p}" id="{k}"]\n' for k,(t,p) in self.exts.items())+'\n'+''.join(self.res)+''.join(self.nodes)
   text=re.sub(r'(?<![0-9])\.(?=[0-9])','0.',text)
@@ -66,7 +68,7 @@ s.node('GateLantern',parent='Assets',instance='Lantern',props='position = Vector
 s.asset('cottage',(0,0,-7),1.35,180,name='Cottage')
 # Door faces south. Its transition starts before the doorstep and main house collision.
 s.box('Cottage',(0,1.2,-7.15),(4.1,2.4,2.8))
-s.portal('HouseDoor',(0,0,-4.5),'ForestHouse','Door',size=(2.8,3,1.2))
+s.portal('HouseDoor',(0,0,-4.5),'ForestHouse','Door',size=(2.8,3,1.2),door=True)
 s.spawn('HouseDoor',(0,0,-3.65),180)
 s.portal('SouthGate',(0,0,11.0),'ForestOpening','NorthGate',180)
 s.spawn('SouthGate',(0,0,9.6))
@@ -106,7 +108,7 @@ s.ext('Keeper','PackedScene','scenes/actors/npcs/friendly/forest_keeper/Keeper.t
 s.node('Linde',instance='Keeper',props='position = Vector3(-.5,0,-1.1)\nrotation_degrees = Vector3(0,180,0)')
 s.nodes.append('[node name="Conversation" parent="Linde" index="2"]\nconversation = ExtResource("Conversation")\n')
 s.spawn('Door',(0,0,3.0))
-s.portal('Door',(0,0,4.7),'ForestPassage','HouseDoor',180,size=(2.7,3,1.2))
+s.portal('Door',(0,0,4.7),'ForestPassage','HouseDoor',180,size=(2.7,3,1.2),door=True)
 s.nodes.append('[editable path="Linde"]\n')
 s.save('ForestHouse.tscn')
 print('AUTHORED_CONNECTED_FOREST_AND_HOUSE')

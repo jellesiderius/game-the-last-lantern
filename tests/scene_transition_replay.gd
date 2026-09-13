@@ -2,6 +2,7 @@ extends "res://tests/forest_replay.gd"
 ## Lives outside the replaced level. Cross the real portals in both directions.
 var switches := 0
 var transition_errors: Array[String] = []
+var travel_measurements: Array = []
 
 
 func key(code: Key, pressed: bool) -> void:
@@ -20,16 +21,37 @@ func tap(code: Key) -> void:
 
 
 func cross_portal(direction: Vector3, expected: String, label: String, disconnect := false) -> void:
+	var door := label in ["inside_house", "outside_house"]
+	var expected_path := "res://scenes/levels/" + expected + ".tscn"
+	var prefetched_before_crossing := false
 	p = get_tree().current_scene.get_node("Player")
 	p.use_test_input = true
 	p.test_input = world_input(direction)
 	for i in 1600:
+		if not SceneTransit.active and SceneTransit.is_scene_cached(expected_path):
+			prefetched_before_crossing = true
 		await step(1)
 		if SceneTransit.active:
 			break
-	check(label + " starts from walking into the area", SceneTransit.active)
+	check(
+		label + " starts from walking into the area",
+		SceneTransit.active,
+		{
+			"position": p.position,
+			"state": p.state,
+			"paused": GameClock.paused,
+			"dialogue": Dialogue.active,
+			"input": p.test_input,
+			"velocity": p.velocity
+		}
+	)
 	if not SceneTransit.active:
+		await capture(label + "_failed")
 		return
+	var started_at := Time.get_ticks_msec()
+	var loading_card_seen := false
+	var opaque_started := 0
+	var opaque_msec := 0
 	var departing: PlayerCharacter = p
 	var start: Vector3 = p.position
 	var departure_distance := 0.0
@@ -52,10 +74,16 @@ func cross_portal(direction: Vector3, expected: String, label: String, disconnec
 	if disconnect:
 		previous_scene.get_node("HUD")._controller_disconnected()
 	for i in 1200:
+		loading_card_seen = loading_card_seen or SceneTransit.loading_screen.visible
 		if is_instance_valid(departing):
 			departure_distance = departing.position.distance_to(start)
 		if SceneTransit.fade.modulate.a > .99:
 			opaque_before_change = true
+			if opaque_started == 0:
+				opaque_started = Time.get_ticks_msec()
+		elif opaque_started > 0:
+			opaque_msec += Time.get_ticks_msec() - opaque_started
+			opaque_started = 0
 		if get_tree().current_scene != previous_scene and get_tree().current_scene != null:
 			var candidate := get_tree().current_scene.get_node("Player") as PlayerCharacter
 			if arriving == null:
@@ -66,12 +94,37 @@ func cross_portal(direction: Vector3, expected: String, label: String, disconnec
 			break
 		await step(1)
 	check(label + " finishes without locking input", not SceneTransit.active)
+	var elapsed := (Time.get_ticks_msec() - started_at) / 1000.0
+	travel_measurements.append(
+		{
+			"portal": label,
+			"seconds": elapsed,
+			"opaque_ms": opaque_msec,
+			"loading_card": loading_card_seen,
+			"prefetched": prefetched_before_crossing
+		}
+	)
+	check(label + " never shows a loading screen", not loading_card_seen)
+	if door:
+		check(label + " resources are ready before entering", prefetched_before_crossing)
+		check(label + " finishes promptly", elapsed < 1.4, elapsed)
+		check(label + " has no long black wait", opaque_msec < 350, opaque_msec)
 	arena = get_tree().current_scene
 	p = arena.get_node("Player")
+	p.use_test_input = true
+	p.test_input = Vector2.ZERO
 	check(label + " loads expected map", arena.name == expected, arena.name)
-	check(label + " walks farther before departing", departure_distance > 1.2, departure_distance)
+	check(
+		label + " walks farther before departing",
+		departure_distance > (.8 if door else 1.2),
+		departure_distance
+	)
 	check(label + " hides map replacement under full fade", opaque_before_change)
-	check(label + " walks into the destination", entry_distance > 1.2, entry_distance)
+	check(
+		label + " walks into the destination",
+		entry_distance > (.8 if door else 1.2),
+		entry_distance
+	)
 	check(label + " returns normal player control", p.state == "locomotion")
 	check(
 		label + " preserves health and magic",
@@ -156,6 +209,10 @@ func run() -> void:
 	await cross_portal(Vector3.BACK, "ForestPassage", "outside_house", true)
 	await cross_portal(Vector3.BACK, "ForestOpening", "back_in_first_forest")
 	check("all four real portal crossings completed", switches == 4, switches)
+	check(
+		"prefetch cache stays bounded",
+		SceneTransit._scene_cache.size() <= SceneTransit.cached_scene_limit
+	)
 	var portal := preload("res://scenes/components/ScenePortal.tscn").instantiate() as ScenePortal
 	arena.add_child(portal)
 	portal.enabled = false
@@ -189,7 +246,8 @@ func run() -> void:
 		"cap": render_cap,
 		"checks": results,
 		"failures": failures,
-		"render_frames": Engine.get_frames_drawn() - initial_render_frame
+		"render_frames": Engine.get_frames_drawn() - initial_render_frame,
+		"travel_measurements": travel_measurements
 	}
 	(
 		FileAccess

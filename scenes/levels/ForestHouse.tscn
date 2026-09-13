@@ -6,6 +6,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/impact.wav" id="Sound"]
 [ext_resource type="PackedScene" path="res://scenes/components/ScenePortal.tscn" id="Portal"]
 [ext_resource type="Script" path="res://scripts/world/scene_spawn_point.gd" id="Spawn"]
+[ext_resource type="Resource" path="res://settings/transitions/door.tres" id="DoorTravel"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/barrel/Visual.tscn" id="barrel"]
 [ext_resource type="PackedScene" path="res://scenes/assets/props/hand_lantern/Visual.tscn" id="Lantern"]
 [ext_resource type="PackedScene" path="res://scenes/actors/npcs/friendly/forest_keeper/Keeper.tscn" id="Keeper"]
@@ -594,6 +595,8 @@ rotation_degrees = Vector3(0,0,0)
 script = ExtResource("Spawn")
 spawn_id = &"Door"
 [node name="Door" parent="." instance=ExtResource("Portal")]
+settings = ExtResource("DoorTravel")
+allow_loading_screen = false
 position = Vector3(0,0,4.7)
 rotation_degrees = Vector3(0,180,0)
 target_scene = "res://scenes/levels/ForestPassage.tscn"

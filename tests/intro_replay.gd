@@ -13,6 +13,15 @@ func frames(count: int) -> void:
 		await get_tree().process_frame
 
 
+func finish_transition() -> void:
+	for i in 1200:
+		if not SceneTransit.active:
+			break
+		await frames(1)
+	check("scene loading finishes", not SceneTransit.active)
+	await frames(3)
+
+
 func check(label: String, passed: bool, data: Variant = null) -> void:
 	results.append({"check": label, "passed": passed, "data": data})
 	if not passed:
@@ -136,7 +145,7 @@ func run() -> void:
 	)
 	await tap(JOY_BUTTON_DPAD_UP)
 	await tap(JOY_BUTTON_A)
-	await frames(20)
+	await finish_transition()
 	var arena := get_tree().current_scene
 	check(
 		"test scene opens TestArena", arena.scene_file_path == "res://scenes/levels/TestArena.tscn"
@@ -151,7 +160,7 @@ func run() -> void:
 	await frames(3)
 	arena.get_node("HUD/Root/PausePanel/Layout/Tabs/Game/Title").grab_focus()
 	await tap(JOY_BUTTON_A)
-	await frames(10)
+	await finish_transition()
 	title = get_tree().current_scene
 	check(
 		"pause menu returns to title", title.scene_file_path == "res://scenes/ui/TitleScreen.tscn"
@@ -161,7 +170,7 @@ func run() -> void:
 	title.test_scene = "res://scenes/levels/PrototypeRoom.tscn"
 	title.get_node("Artwork/Options/TestScene").grab_focus()
 	await tap(JOY_BUTTON_A)
-	await frames(20)
+	await finish_transition()
 	arena = get_tree().current_scene
 	check(
 		"test scene honors an edited target",
@@ -169,11 +178,11 @@ func run() -> void:
 	)
 	check("new room starts with the panda", arena.player.definition.id == "red_panda")
 	arena.get_node("HUD")._return_to_title()
-	await frames(10)
+	await finish_transition()
 	title = get_tree().current_scene
 	title.get_node("Artwork/Options/NewGame").grab_focus()
 	await tap(JOY_BUTTON_A)
-	await frames(20)
+	await finish_transition()
 	check(
 		"new game opens ForestOpening",
 		get_tree().current_scene.scene_file_path == "res://scenes/levels/ForestOpening.tscn"

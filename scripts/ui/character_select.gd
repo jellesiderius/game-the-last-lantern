@@ -7,6 +7,7 @@ var choices: Array[CharacterChoice] = []
 func _ready() -> void:
 	GameClock.reset()
 	AttackTokenManager.reset()
+	SceneTransit.transition_failed.connect(func(_reason): starting = false)
 	for child in $UI/Root/Choices.get_children():
 		if child is CharacterChoice:
 			choices.append(child)
@@ -50,5 +51,5 @@ func _start(index: int) -> void:
 		return
 	starting = true
 	GameSession.select_character(choices[index].definition.id)
-	InputRouter.block_gameplay_input()
-	get_tree().change_scene_to_file("res://scenes/levels/TestArena.tscn")
+	if not SceneTransit.change_scene("res://scenes/levels/TestArena.tscn"):
+		starting = false

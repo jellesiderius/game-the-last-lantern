@@ -6,6 +6,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/impact.wav" id="Sound"]
 [ext_resource type="PackedScene" path="res://scenes/components/ScenePortal.tscn" id="Portal"]
 [ext_resource type="Script" path="res://scripts/world/scene_spawn_point.gd" id="Spawn"]
+[ext_resource type="Resource" path="res://settings/transitions/door.tres" id="DoorTravel"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_passage_ground/Visual.tscn" id="forest_passage_ground"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_cliff/Visual.tscn" id="forest_cliff"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine/Visual.tscn" id="forest_pine"]
@@ -360,6 +361,8 @@ position = Vector3(0,1.2,-7.15)
 [node name="Shape" type="CollisionShape3D" parent="Collision/CottageBody"]
 shape = SubResource("CottageShape")
 [node name="HouseDoor" parent="." instance=ExtResource("Portal")]
+settings = ExtResource("DoorTravel")
+allow_loading_screen = false
 position = Vector3(0,0,-4.5)
 rotation_degrees = Vector3(0,0,0)
 target_scene = "res://scenes/levels/ForestHouse.tscn"

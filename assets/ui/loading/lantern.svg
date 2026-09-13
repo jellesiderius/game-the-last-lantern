@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="240" viewBox="0 0 180 240">
+<defs>
+ <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4d899"/><stop offset=".48" stop-color="#b58a48"/><stop offset="1" stop-color="#76592f"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#172e2c"/><stop offset="1" stop-color="#344337"/></linearGradient>
+</defs>
+<circle cx="90" cy="32" r="19" fill="none" stroke="#765c34" stroke-width="7"/>
+<path d="M74 39 A18 18 0 0 1 103 19" fill="none" stroke="#e2bd76" stroke-width="3" stroke-linecap="round"/>
+<path d="M84 46 H96 V59 H84 Z" fill="url(#brass)"/>
+<path d="M52 78 L76 60 H104 L128 78 L138 88 H42 Z" fill="url(#brass)"/>
+<path d="M76 60 L67 78 H113 L104 60 Z" fill="#e1b56a"/>
+<path d="M49 92 H131 L126 205 H54 Z" fill="url(#glass)" stroke="#a98245" stroke-width="3"/>
+<path d="M54 95 L58 199 M126 95 L122 199" stroke="#f0cd8a" stroke-width="3"/>
+<path d="M42 86 H138 L131 97 H49 Z" fill="#97713d"/>
+<path d="M45 85 H135" stroke="#eac580" stroke-width="3"/>
+<path d="M54 202 H126 L137 214 L128 225 H52 L43 214 Z" fill="url(#brass)"/>
+<path d="M54 202 H126 L137 213 H43 Z" fill="#c19953"/>
+<path d="M62 208 H118" stroke="#e8c787" stroke-width="2"/>
+<path d="M66 105 L111 193 M114 105 L69 193" stroke="#95733d" stroke-width="2" opacity=".65"/>
+<path d="M79 194 H101 L106 202 H74 Z" fill="#d5aa5e"/>
+</svg>

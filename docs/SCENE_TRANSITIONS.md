@@ -27,6 +27,8 @@ Klap **Settings** op de portal open. Standaard gebruikt hij `settings/transition
 
 Deze Resource wordt gedeeld. Kies **Make Unique** of dupliceer de `.tres` als één deur een ander tempo moet hebben. **Enabled** schakelt een doorgang uit zonder de scene te verwijderen.
 
+Gebouwen gebruiken het snellere `settings/transitions/door.tres`: 1 m uit-/inlopen, 2,8 m/s, 0,28 s fade en geen ingestelde zwarte wachttijd. Ze laden vooraf vanaf 8 m afstand en tonen geen laadscherm. De huidige bospoorten tonen ook alleen de fade. Zie [LOADING_SCREEN.md](LOADING_SCREEN.md) voor de instellingen en de afzonderlijke New Game-presentatie.
+
 ## Huidige verbindingen
 
 | Vertrek | Doel | Aankomstmarker |
@@ -40,7 +42,7 @@ Deze Resource wordt gedeeld. Kies **Make Unique** of dupliceer de `.tres` als é
 
 ## Gedrag en opbouw
 
-`SceneTransit` is een blijvende autoload met een opgeslagen fade-overlay. Hij vraagt de volgende PackedScene asynchroon op, controleert Player en aankomstmarker vóór de oude map wordt verwijderd, en vervangt de map wanneer het beeld volledig donker is. Een foutieve bestemming geeft de speler de controle terug in de bestaande map.
+`SceneTransit` is een blijvende autoload met een opgeslagen fade-overlay. Hij laadt de volgende PackedScene vooraf asynchroon, houdt recent gebruikte scene-resources beschikbaar, controleert Player en aankomstmarker vóór de oude map wordt verwijderd, en vervangt de map wanneer het beeld volledig donker is. Een foutieve bestemming geeft de speler de controle terug in de bestaande map.
 
 De echte korte bewegingen behoren tot `PlayerCharacter.scene_travel`, op de bestaande GameClock, met collision en loopanimatie. Het is geen teleportatie-animatie van de camera. Levens en magie worden meegenomen. Scenes worden opnieuw geladen; wereldstatus zoals verslagen vijanden wordt nog niet opgeslagen. Aanvallen/rollen kunnen de overgang niet onderbreken; bevestigings- of annuleerknoppen worden na aankomst geen onbedoelde aanval, rol of schot. Aankomen in een overlappende portal veroorzaakt geen directe terugreis: eerst uit het gebied stappen en opnieuw binnenlopen. Wie een gebied binnenrolt, maakt eerst zijn huidige actie af.
 
