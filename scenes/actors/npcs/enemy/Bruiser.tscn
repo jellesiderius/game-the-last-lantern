@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://scenes/actors/npcs/enemy/PracticeEnemy.tscn" id="Base"]
+[ext_resource type="Resource" path="res://settings/enemies/bruiser.tres" id="Settings"]
+[node name="Bruiser" instance=ExtResource("Base")]
+[node name="Brain" parent="." index="5"]
+settings = ExtResource("Settings")
+[editable path="Brain"]

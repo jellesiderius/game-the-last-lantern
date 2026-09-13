@@ -1,0 +1,272 @@
+[gd_scene format=3 uid="uid://ctrxuusvndefe"]
+
+[ext_resource type="Texture2D" uid="uid://cwgbewiqm73fg" path="res://assets/ui/title/background.png" id="Background"]
+[ext_resource type="Texture2D" uid="uid://ceiipqvycv0mh" path="res://assets/ui/title/ember.svg" id="Ember"]
+[ext_resource type="Shader" uid="uid://d2eic35vgsnyk" path="res://shaders/title_flame.gdshader" id="FlameShader"]
+[ext_resource type="FontFile" uid="uid://biiib5ulf7pvf" path="res://assets/ui/fonts/EBGaramond.ttf" id="Font"]
+[ext_resource type="Shader" uid="uid://ye2yc0s3dqkq" path="res://shaders/title_lantern.gdshader" id="LanternShader"]
+[ext_resource type="Texture2D" uid="uid://d12wmmpuu2lk5" path="res://assets/ui/title/logo_source.png" id="Logo"]
+[ext_resource type="Shader" uid="uid://2japkwdgk74k" path="res://shaders/title_logo.gdshader" id="LogoShader"]
+[ext_resource type="Script" uid="uid://hbl7rg4k2y2e" path="res://scripts/ui/title_screen.gd" id="Script"]
+[ext_resource type="Texture2D" uid="uid://5tr743ktht2i" path="res://assets/ui/title/selection.svg" id="Selection"]
+
+[sub_resource type="StyleBoxEmpty" id="Empty"]
+
+[sub_resource type="Theme" id="Theme"]
+default_font = ExtResource("Font")
+default_font_size = 30
+Button/colors/font_color = Color(0.9, 0.84, 0.7, 1)
+Button/colors/font_disabled_color = Color(0.4, 0.46, 0.45, 1)
+Button/colors/font_focus_color = Color(1, 0.92, 0.71, 1)
+Button/colors/font_hover_color = Color(1, 0.92, 0.71, 1)
+Button/colors/font_pressed_color = Color(1, 0.76, 0.32, 1)
+Button/styles/disabled = SubResource("Empty")
+Button/styles/focus = SubResource("Empty")
+Button/styles/hover = SubResource("Empty")
+Button/styles/normal = SubResource("Empty")
+Button/styles/pressed = SubResource("Empty")
+CheckButton/colors/font_color = Color(0.9, 0.84, 0.7, 1)
+CheckButton/colors/font_focus_color = Color(1, 0.75, 0.33, 1)
+Label/colors/font_color = Color(0.97, 0.88, 0.69, 1)
+
+[sub_resource type="ShaderMaterial" id="BackgroundMaterial"]
+shader = ExtResource("LanternShader")
+shader_parameter/animation_time = 0.0
+shader_parameter/flicker_strength = 1.0
+shader_parameter/foreground_only = false
+
+[sub_resource type="CanvasItemMaterial" id="Additive"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="EmberLife"]
+offsets = PackedFloat32Array(0, 0.16, 0.55, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 0.8, 0.45, 0.9, 1, 0.35, 0.1, 0)
+
+[sub_resource type="GradientTexture1D" id="EmberRamp"]
+gradient = SubResource("EmberLife")
+
+[sub_resource type="ParticleProcessMaterial" id="EmberProcess"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(224, 16, 0)
+direction = Vector3(0, -1, 0)
+spread = 23.0
+initial_velocity_min = 24.0
+initial_velocity_max = 48.0
+angular_velocity_min = -16.0
+angular_velocity_max = 16.0
+gravity = Vector3(0, -4, 0)
+scale_min = 0.42
+scale_max = 0.92
+color_ramp = SubResource("EmberRamp")
+
+[sub_resource type="ParticleProcessMaterial" id="DustProcess"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(142, 16, 0)
+direction = Vector3(0, -1, 0)
+spread = 30.0
+initial_velocity_min = 38.0
+initial_velocity_max = 61.0
+gravity = Vector3(2, -3, 0)
+scale_min = 0.1
+scale_max = 0.23
+color_ramp = SubResource("EmberRamp")
+
+[sub_resource type="ShaderMaterial" id="FlameMaterial"]
+shader = ExtResource("FlameShader")
+shader_parameter/animation_time = 0.0
+
+[sub_resource type="ShaderMaterial" id="ForegroundMaterial"]
+shader = ExtResource("LanternShader")
+shader_parameter/animation_time = 0.0
+shader_parameter/flicker_strength = 1.0
+shader_parameter/foreground_only = true
+
+[sub_resource type="ShaderMaterial" id="LogoMaterial"]
+shader = ExtResource("LogoShader")
+
+[sub_resource type="StyleBoxFlat" id="Panel"]
+content_margin_left = 30.0
+content_margin_top = 20.0
+content_margin_right = 30.0
+content_margin_bottom = 20.0
+bg_color = Color(0.013, 0.11, 0.13, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.8, 0.61, 0.3, 0.5)
+
+[node name="TitleScreen" type="Control" unique_id=2040575613]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme")
+script = ExtResource("Script")
+
+[node name="Surround" type="ColorRect" parent="." unique_id=180718711]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.006, 0.09, 0.11, 1)
+
+[node name="Artwork" type="Control" parent="." unique_id=992880622]
+anchors_preset = 0
+offset_right = 1672.0
+offset_bottom = 941.0
+mouse_filter = 2
+
+[node name="Background" type="TextureRect" parent="Artwork" unique_id=1612423001]
+material = SubResource("BackgroundMaterial")
+layout_mode = 0
+offset_right = 1672.0
+offset_bottom = 941.0
+mouse_filter = 2
+texture = ExtResource("Background")
+expand_mode = 1
+
+[node name="EmbersBehindLantern" type="GPUParticles2D" parent="Artwork" unique_id=374250703]
+material = SubResource("Additive")
+position = Vector2(836, 752)
+amount = 7
+texture = ExtResource("Ember")
+lifetime = 5.2
+preprocess = 5.2
+randomness = 0.65
+fixed_fps = 60
+visibility_rect = Rect2(-400, -480, 800, 540)
+local_coords = true
+process_material = SubResource("EmberProcess")
+
+[node name="FineSparks" type="GPUParticles2D" parent="Artwork" unique_id=37434549]
+material = SubResource("Additive")
+position = Vector2(836, 746)
+amount = 4
+texture = ExtResource("Ember")
+lifetime = 3.5
+preprocess = 3.5
+randomness = 0.8
+fixed_fps = 60
+visibility_rect = Rect2(-360, -440, 720, 520)
+local_coords = true
+process_material = SubResource("DustProcess")
+
+[node name="Flame" type="ColorRect" parent="Artwork" unique_id=721258683]
+material = SubResource("FlameMaterial")
+layout_mode = 0
+offset_left = 803.0
+offset_top = 622.0
+offset_right = 868.0
+offset_bottom = 709.0
+mouse_filter = 2
+
+[node name="LanternForeground" type="TextureRect" parent="Artwork" unique_id=1901558924]
+material = SubResource("ForegroundMaterial")
+layout_mode = 0
+offset_right = 1672.0
+offset_bottom = 941.0
+mouse_filter = 2
+texture = ExtResource("Background")
+expand_mode = 1
+
+[node name="TitleLogo" type="TextureRect" parent="Artwork" unique_id=403626738]
+modulate = Color(1, 1, 1, 0)
+material = SubResource("LogoMaterial")
+layout_mode = 0
+offset_right = 1672.0
+offset_bottom = 941.0
+mouse_filter = 2
+texture = ExtResource("Logo")
+expand_mode = 1
+
+[node name="Options" type="VBoxContainer" parent="Artwork" unique_id=345046819]
+layout_mode = 0
+offset_left = 626.0
+offset_top = 274.0
+offset_right = 1046.0
+offset_bottom = 484.0
+theme_override_constants/separation = 0
+
+[node name="Continue" type="Button" parent="Artwork/Options" unique_id=55204170]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+disabled = true
+text = "Continue"
+
+[node name="NewGame" type="Button" parent="Artwork/Options" unique_id=316255566]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "New Game"
+
+[node name="TestScene" type="Button" parent="Artwork/Options" unique_id=984481728]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "Testscene"
+
+[node name="Settings" type="Button" parent="Artwork/Options" unique_id=1824358028]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "Settings"
+
+[node name="Quit" type="Button" parent="Artwork/Options" unique_id=1544671584]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "Quit"
+
+[node name="Selection" type="TextureRect" parent="Artwork" unique_id=194208390]
+layout_mode = 0
+offset_left = 704.0
+offset_top = 328.0
+offset_right = 740.0
+offset_bottom = 368.0
+mouse_filter = 2
+texture = ExtResource("Selection")
+
+[node name="SettingsPanel" type="PanelContainer" parent="Artwork" unique_id=984971020]
+visible = false
+layout_mode = 0
+offset_left = 575.0
+offset_top = 282.0
+offset_right = 1097.0
+offset_bottom = 506.0
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Layout" type="VBoxContainer" parent="Artwork/SettingsPanel" unique_id=1641572041]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Heading" type="Label" parent="Artwork/SettingsPanel/Layout" unique_id=1549030555]
+layout_mode = 2
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="Fullscreen" type="CheckButton" parent="Artwork/SettingsPanel/Layout" unique_id=654329708]
+layout_mode = 2
+text = "Fullscreen"
+
+[node name="Vibration" type="CheckButton" parent="Artwork/SettingsPanel/Layout" unique_id=1922649243]
+layout_mode = 2
+text = "Controller vibration"
+
+[node name="Back" type="Button" parent="Artwork/SettingsPanel/Layout" unique_id=92780483]
+layout_mode = 2
+text = "Back"
+
+[node name="LaunchError" type="Label" parent="Artwork" unique_id=1283465712]
+visible = false
+layout_mode = 0
+offset_left = 400.0
+offset_top = 901.0
+offset_right = 1272.0
+offset_bottom = 941.0
+theme_override_font_sizes/font_size = 24
+text = "This scene could not be opened."
+horizontal_alignment = 1

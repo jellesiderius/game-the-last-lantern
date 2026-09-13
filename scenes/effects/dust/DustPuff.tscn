@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/world/dust_puff.gd" id="Script"]
+[ext_resource type="Shader" path="res://shaders/foot_dust.gdshader" id="Shader"]
+[sub_resource type="ShaderMaterial" id="Material"]
+shader = ExtResource("Shader")
+[sub_resource type="SphereMesh" id="Mesh"]
+material = SubResource("Material")
+radius = 0.10
+height = 0.14
+radial_segments = 16
+rings = 8
+[node name="DustPuff" type="Node3D"]
+script = ExtResource("Script")
+[node name="Cloud" type="Node3D" parent="."]
+[node name="PuffA" type="MeshInstance3D" parent="Cloud"]
+position = Vector3(0, 0.035, 0)
+mesh = SubResource("Mesh")
+cast_shadow = 0
+[node name="PuffB" type="MeshInstance3D" parent="Cloud"]
+position = Vector3(-0.08, 0.02, 0.015)
+scale = Vector3(0.7, 0.7, 0.7)
+mesh = SubResource("Mesh")
+cast_shadow = 0
+[node name="PuffC" type="MeshInstance3D" parent="Cloud"]
+position = Vector3(0.07, 0.035, -0.035)
+scale = Vector3(0.85, 0.85, 0.85)
+mesh = SubResource("Mesh")
+cast_shadow = 0

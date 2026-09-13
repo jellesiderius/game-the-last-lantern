@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3]
+[resource]
+resource_name = "Crow_Body_Feather_Colours"
+albedo_color = Color(1,1,1,1)
+vertex_color_use_as_albedo = true
+vertex_color_is_srgb = false
+roughness = 0.45
+metallic_specular = 0.26

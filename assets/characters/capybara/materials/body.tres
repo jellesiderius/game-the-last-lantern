@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3]
+[ext_resource type="Texture2D" path="res://assets/characters/capybara/textures/coat_albedo.png" id="Albedo"]
+[ext_resource type="Texture2D" path="res://assets/characters/capybara/textures/coat_normal.png" id="Normal"]
+[resource]
+resource_name = "Capybara_Caramel_Fur"
+albedo_texture = ExtResource("Albedo")
+normal_enabled = true
+normal_texture = ExtResource("Normal")
+roughness = 0.83
+metallic_specular = 0.20
+texture_filter = 5

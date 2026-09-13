@@ -1,0 +1,65 @@
+[gd_resource type="Resource" script_class="EnemySettings" format=3 uid="uid://67hb7j45jl4y"]
+
+[ext_resource type="Script" uid="uid://brm2bg3fnj0u0" path="res://scripts/ai/enemy_attack_definition.gd" id="Beat"]
+[ext_resource type="Script" uid="uid://6p10atgdgjbs" path="res://scripts/ai/enemy_movement_settings.gd" id="Movement"]
+[ext_resource type="Script" uid="uid://dybt8h1rf8yj7" path="res://scripts/ai/enemy_settings.gd" id="Settings"]
+[ext_resource type="Script" uid="uid://c8a6sqxlrbt4t" path="res://scripts/ai/enemy_tactics.gd" id="Tactics"]
+[ext_resource type="Script" uid="uid://b8xijj5rsdvgf" path="res://scripts/ai/enemy_variation.gd" id="Variation"]
+
+[sub_resource type="Resource" id="QuickSwing"]
+script = ExtResource("Beat")
+start_range = 0.83
+clip = &"strike"
+windup = 0.42
+active_duration = 0.16
+recovery = 0.34
+enemy_contact_fraction = 0.45
+
+[sub_resource type="Resource" id="LungeSwing"]
+script = ExtResource("Beat")
+start_range = 1.35
+half_angle = 45.0
+lunge = 0.65
+windup_clip = &"lunge_windup"
+recovery_clip = &"lunge_recover"
+clip = &"lunge_strike"
+windup = 0.56
+active_duration = 0.22
+recovery = 0.5
+enemy_contact_fraction = 0.4
+
+[sub_resource type="Resource" id="GroundMovement"]
+script = ExtResource("Movement")
+
+[sub_resource type="Resource" id="GuardTactics"]
+script = ExtResource("Tactics")
+
+[sub_resource type="Resource" id="Individuality"]
+script = ExtResource("Variation")
+
+[resource]
+script = ExtResource("Settings")
+display_name = "Eikelwacht"
+maximum_health = 6.0
+move_speed = 2.25
+orbit_speed = 1.55
+orbit_radius = 1.55
+engagement_range = 3.0
+attack_range = 0.78
+strike_range = 0.98
+strike_half_angle = 60.0
+attack = SubResource("QuickSwing")
+attack_variants = Array[ExtResource("Beat")]([SubResource("QuickSwing"), SubResource("LungeSwing")])
+tactics = SubResource("GuardTactics")
+variation = SubResource("Individuality")
+movement = SubResource("GroundMovement")
+reaction_time = 0.08
+aggro_range = 5.5
+memory_duration = 6.0
+leash_distance = 24.0
+turn_speed = 420.0
+face_travel_direction = true
+path_update_interval = 0.08
+alternate_orbit_after_attack = true
+patrol_offsets = PackedVector3Array(0.65, 0, 0.25, -0.45, 0, -0.4, 0, 0, 0)
+post_attack_cooldown = 0.16

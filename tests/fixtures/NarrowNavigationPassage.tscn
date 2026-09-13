@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[sub_resource type="BoxShape3D" id="Platform"]
+size = Vector3(3, 0.2, 2)
+[sub_resource type="BoxShape3D" id="Passage"]
+size = Vector3(0.8, 0.2, 4)
+
+[node name="NarrowNavigationPassage" type="StaticBody3D"]
+collision_layer = 1
+collision_mask = 0
+[node name="Start" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.1, -3)
+shape = SubResource("Platform")
+[node name="Passage" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.1, 0)
+shape = SubResource("Passage")
+[node name="End" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.1, 3)
+shape = SubResource("Platform")

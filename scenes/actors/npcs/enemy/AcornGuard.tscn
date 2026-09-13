@@ -1,0 +1,62 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/components/damageable.gd" id="Actor"]
+[ext_resource type="Script" path="res://scripts/components/health.gd" id="Health"]
+[ext_resource type="Script" path="res://scripts/ai/enemy_brain.gd" id="Brain"]
+[ext_resource type="Script" path="res://scripts/ai/skinned_enemy_visual.gd" id="Presenter"]
+[ext_resource type="Resource" path="res://settings/enemies/acorn_guard.tres" id="Settings"]
+[ext_resource type="PackedScene" path="res://scenes/assets/characters/acorn_guard/Visual.tscn" id="Visual"]
+[ext_resource type="Shader" path="res://shaders/enemy_telegraph.gdshader" id="TelegraphShader"]
+[sub_resource type="CapsuleShape3D" id="Body"]
+radius = 0.25
+height = 0.90
+[sub_resource type="SphereShape3D" id="CapHurtbox"]
+radius = 0.30
+[sub_resource type="ShaderMaterial" id="TelegraphMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("TelegraphShader")
+[sub_resource type="PlaneMesh" id="TelegraphMesh"]
+size = Vector2(2.1,2.1)
+[node name="AcornGuard" type="CharacterBody3D" groups=["acorn_guards"]]
+script = ExtResource("Actor")
+enemy = true
+label_text = "Eikelwacht"
+collision_layer = 4
+collision_mask = 7
+[node name="Collision" type="CollisionShape3D" parent="."]
+shape = SubResource("Body")
+position = Vector3(0,0.45,0)
+[node name="Health" type="Node" parent="."]
+script = ExtResource("Health")
+maximum = 6.0
+[node name="Hurtbox" type="Area3D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+[node name="Shape" type="CollisionShape3D" parent="Hurtbox"]
+shape = SubResource("Body")
+position = Vector3(0,0.45,0)
+[node name="ExtraHurtbox" type="Area3D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+[node name="Shape" type="CollisionShape3D" parent="ExtraHurtbox"]
+shape = SubResource("CapHurtbox")
+position = Vector3(0,0.71,0)
+[node name="TargetVisual" parent="." instance=ExtResource("Visual")]
+script = ExtResource("Presenter")
+walk_cycle_speed = 1.05
+[node name="HealthLabel" type="Label3D" parent="."]
+visible = false
+position = Vector3(0,1.2,0)
+billboard = 1
+font_size = 32
+pixel_size = 0.003
+[node name="Brain" type="Node" parent="."]
+script = ExtResource("Brain")
+settings = ExtResource("Settings")
+[node name="Telegraph" type="MeshInstance3D" parent="."]
+visible = false
+position = Vector3(0,0.02,0)
+mesh = SubResource("TelegraphMesh")
+material_override = SubResource("TelegraphMaterial")
+cast_shadow = 0

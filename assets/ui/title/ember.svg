@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+<defs><radialGradient id="glow"><stop stop-color="#ffb62e" stop-opacity=".6"/><stop offset=".4" stop-color="#ff9d16" stop-opacity=".2"/><stop offset="1" stop-color="#ff8b00" stop-opacity="0"/></radialGradient></defs>
+<circle cx="24" cy="24" r="24" fill="url(#glow)"/>
+<path d="M24 15 L29 24 L24 33 L19 24Z" fill="#ffbc46"/>
+<path d="M24 18 L27 24 L24 30 L21 24Z" fill="#ffe9a2"/>
+</svg>

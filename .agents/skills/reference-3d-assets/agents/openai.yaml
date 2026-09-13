@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reference 3D Assets"
+  short_description: "Consistente 3D assets met referentie- en runtimecontrole"
+  default_prompt: "Gebruik $reference-3d-assets om de assets te verbeteren en visueel te controleren."

@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="Shader" path="res://shaders/heavy_energy.gdshader" id="Shader"]
+[sub_resource type="ShaderMaterial" id="Material"]
+resource_local_to_scene = true
+shader = ExtResource("Shader")
+[sub_resource type="PlaneMesh" id="Plane"]
+size = Vector2(5.2,5.2)
+[node name="HeavyEnergy" type="MeshInstance3D"]
+visible = false
+position = Vector3(0,0.025,0)
+mesh = SubResource("Plane")
+material_override = SubResource("Material")
+cast_shadow = 0

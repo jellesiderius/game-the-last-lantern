@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/levels/PrototypeRoom.tscn" id="Room"]
+[ext_resource type="Script" path="res://tests/occlusion_replay.gd" id="Replay"]
+
+[sub_resource type="StandardMaterial3D" id="WallColor"]
+albedo_color = Color(0.43, 0.58, 0.62, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="WallMesh"]
+size = Vector3(5.5, 1.8, 0.25)
+material = SubResource("WallColor")
+
+[node name="PrototypeRoom" instance=ExtResource("Room")]
+
+[node name="OcclusionReviewWall" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.9, 6)
+mesh = SubResource("WallMesh")
+
+[node name="OcclusionReplay" type="Node" parent="."]
+script = ExtResource("Replay")

@@ -1,0 +1,16 @@
+{
+  "red_panda_walk": {
+    "fps": 30.0,
+    "first_frame": 0,
+    "last_frame": 24,
+    "duration_seconds": 0.8,
+    "sha256": "9e5ea34547b99866edfd79f423c4ccfadfdb615069e022c9e642b44eea8666eb"
+  },
+  "red_panda_sword_combat": {
+    "fps": 120.0,
+    "first_frame": 0,
+    "last_frame": 990,
+    "duration_seconds": 8.25,
+    "sha256": "67508dfa6cab07e7c53c81bc1fde8d4983de6c80a162cefaab59dbff101d6aad"
+  }
+}

@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="CombatMoveset" format=3 uid="uid://dudytmula46ut"]
+
+[ext_resource type="Script" uid="uid://bpjanp2li2rw6" path="res://scripts/combat/attack_definition.gd" id="Attack"]
+[ext_resource type="Script" uid="uid://btgngktyxkbg4" path="res://scripts/combat/combat_moveset.gd" id="Moveset"]
+
+[sub_resource type="Resource" id="Light1"]
+script = ExtResource("Attack")
+clip = &"attack_1"
+
+[sub_resource type="Resource" id="Light2"]
+script = ExtResource("Attack")
+clip = &"attack_2"
+windup = 0.09
+recovery = 0.19
+
+[sub_resource type="Resource" id="Light3"]
+script = ExtResource("Attack")
+clip = &"attack_3"
+windup = 0.12
+active_duration = 0.12
+recovery = 0.24
+damage = 1.5
+charged_damage = 1.5
+
+[sub_resource type="Resource" id="Heavy"]
+script = ExtResource("Attack")
+clip = &"heavy_release"
+windup = 0.16
+active_duration = 0.16
+recovery = 0.33
+damage = 2.0
+charged_damage = 3.0
+charged_clip = &"heavy_release_charged"
+charged_knockback = 4.5
+
+[sub_resource type="Resource" id="Roll"]
+script = ExtResource("Attack")
+clip = &"roll_attack"
+windup = 0.07
+active_duration = 0.12
+recovery = 0.26
+damage = 2.0
+charged_damage = 2.0
+
+[resource]
+script = ExtResource("Moveset")
+attacks = Array[ExtResource("Attack")]([SubResource("Light1"), SubResource("Light2"), SubResource("Light3"), SubResource("Heavy"), SubResource("Roll")])

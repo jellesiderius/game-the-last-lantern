@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="40" viewBox="0 0 36 40">
+<defs><radialGradient id="glow"><stop stop-color="#ffa914" stop-opacity=".45"/><stop offset="1" stop-color="#ff9800" stop-opacity="0"/></radialGradient></defs>
+<ellipse cx="17" cy="20" rx="18" ry="20" fill="url(#glow)"/>
+<path d="M10 7 L29 20 L10 33Z" fill="#ffc04d"/>
+<path d="M11 9 L15 20 L11 31Z" fill="#ffd877"/>
+</svg>

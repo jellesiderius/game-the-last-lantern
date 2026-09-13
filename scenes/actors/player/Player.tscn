@@ -1,0 +1,96 @@
+[gd_scene load_steps=23 format=3]
+[ext_resource type="Script" path="res://scripts/characters/player_controller.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/assets/characters/crow/Visual.tscn" id="2"]
+[ext_resource type="Resource" path="res://settings/player_movement.tres" id="3"]
+[ext_resource type="Script" path="res://scripts/components/health.gd" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ForwardSlash.tscn" id="5"]
+[ext_resource type="AudioStream" path="res://assets/audio/swing.wav" id="SwingAudio"]
+[ext_resource type="AudioStream" path="res://assets/audio/roll.wav" id="RollAudio"]
+
+[ext_resource type="Script" path="res://scripts/components/magic.gd" id="Magic"]
+[ext_resource type="Script" path="res://scripts/combat/bow_combat.gd" id="BowCombat"]
+[ext_resource type="Resource" path="res://settings/bow_settings.tres" id="BowSettings"]
+[ext_resource type="Resource" path="res://settings/default_melee.tres" id="Combat"]
+[ext_resource type="Shader" path="res://shaders/aim_line.gdshader" id="AimShader"]
+[ext_resource type="Script" path="res://scripts/components/actor_interaction.gd" id="Interaction"]
+[ext_resource type="Script" path="res://scripts/components/ranged_loadout.gd" id="Loadout"]
+[ext_resource type="Script" path="res://scripts/combat/combat_feedback.gd" id="Feedback"]
+[ext_resource type="PackedScene" path="res://scenes/effects/HeavyEnergy.tscn" id="HeavyEnergy"]
+[ext_resource type="AudioStream" path="res://assets/audio/heavy_burst.wav" id="HeavyAudio"]
+[ext_resource type="Script" path="res://scripts/components/ground_feedback.gd" id="GroundFeedback"]
+[sub_resource type="ShaderMaterial" id="AimMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("AimShader")
+[sub_resource type="CylinderMesh" id="AimMesh"]
+height = 1.0
+top_radius = 0.006
+bottom_radius = 0.006
+radial_segments = 6
+[sub_resource type="CapsuleShape3D" id="Body"]
+radius = 0.24
+height = 0.90
+[sub_resource type="CapsuleShape3D" id="Hurt"]
+radius = 0.24
+height = 0.85
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1")
+settings = ExtResource("3")
+moveset = ExtResource("Combat")
+collision_layer = 2
+collision_mask = 5
+floor_snap_length = 0.15
+floor_max_angle = 0.785398
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0,0.45,0)
+shape = SubResource("Body")
+[node name="VisualPivot" type="Node3D" parent="."]
+[node name="CharacterVisual" parent="VisualPivot" instance=ExtResource("2")]
+[node name="Health" type="Node" parent="."]
+script = ExtResource("4")
+maximum = 5.0
+[node name="Hurtbox" type="Area3D" parent="."]
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hurtbox"]
+position = Vector3(0,0.45,0)
+shape = SubResource("Hurt")
+
+[node name="ForwardSlash" parent="VisualPivot" instance=ExtResource("5")]
+
+[node name="SwingSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("SwingAudio")
+volume_db = -9.0
+max_distance = 30.0
+[node name="RollSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("RollAudio")
+volume_db = -12.0
+max_distance = 30.0
+
+[node name="Magic" type="Node" parent="."]
+script = ExtResource("Magic")
+[node name="BowCombat" type="Node" parent="."]
+script = ExtResource("BowCombat")
+settings = ExtResource("BowSettings")
+[node name="AimLine" type="MeshInstance3D" parent="BowCombat"]
+visible = false
+mesh = SubResource("AimMesh")
+material_override = SubResource("AimMaterial")
+cast_shadow = 0
+
+[node name="Interaction" type="Node" parent="."]
+script = ExtResource("Interaction")
+[node name="RangedLoadout" type="Node" parent="."]
+script = ExtResource("Loadout")
+
+[node name="ChargeAura" parent="VisualPivot" instance=ExtResource("HeavyEnergy")]
+[node name="HeavyBurst" parent="VisualPivot" instance=ExtResource("HeavyEnergy")]
+[node name="CombatFeedback" type="Node" parent="."]
+script = ExtResource("Feedback")
+[node name="HeavySound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("HeavyAudio")
+volume_db = -9.0
+max_distance = 30.0
+
+[node name="GroundFeedback" type="Node" parent="."]
+script = ExtResource("GroundFeedback")

@@ -1,0 +1,10 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://assets/props/hand_lantern/model.glb" id="Model"]
+[node name="Lantern" type="Node3D"]
+[node name="Model" parent="." instance=ExtResource("Model")]
+[node name="WarmLight" type="OmniLight3D" parent="."]
+position = Vector3(0,-0.15,0)
+light_color = Color(1,0.65,0.22,1)
+light_energy = 0.16
+omni_range = 0.85
+shadow_enabled = false

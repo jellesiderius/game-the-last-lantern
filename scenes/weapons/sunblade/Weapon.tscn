@@ -1,0 +1,12 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://scenes/weapons/MeleeWeapon.tscn" id="Base"]
+[ext_resource type="PackedScene" path="res://assets/weapons/sunblade/model.glb" id="Model"]
+[ext_resource type="Resource" path="res://settings/weapons/sunblade.tres" id="Definition"]
+[node name="Weapon" instance=ExtResource("Base")]
+definition = ExtResource("Definition")
+[node name="WeaponModel" parent="." instance=ExtResource("Model")]
+rotation = Vector3(0, 0, 1.5707963)
+[node name="BladeBase" parent="." index="0"]
+position = Vector3(0,0,-0.082)
+[node name="BladeTip" parent="." index="1"]
+position = Vector3(0,0,-0.472)

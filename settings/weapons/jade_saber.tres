@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/combat/weapon_definition.gd" id="Script"]
+[resource]
+script = ExtResource("Script")
+id = &"jade_saber"
+blade_material_prefix = "Jade_"
+glow_color = Color(0.018,0.95,0.42,1)
+slash_color = Color(0.008,0.7,0.25,1)
+trail_color = Color(0.06,1,0.5,0.5)
+glow_energy = 1.8
+charged_glow_energy = 3.8

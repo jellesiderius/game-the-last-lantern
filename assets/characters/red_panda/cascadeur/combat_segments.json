@@ -1,0 +1,157 @@
+{
+  "fps": 120,
+  "duration_seconds": 8.25,
+  "segments": [
+    {
+      "name": "ready",
+      "gameplay_clip": "idle",
+      "start_frame": 0,
+      "end_frame_exclusive": 78,
+      "duration_seconds": 0.65
+    },
+    {
+      "name": "light_level_left",
+      "gameplay_clip": "light_level_left",
+      "start_frame": 78,
+      "end_frame_exclusive": 121,
+      "duration_seconds": 0.35833333333333334
+    },
+    {
+      "name": "reset_01",
+      "gameplay_clip": "idle",
+      "start_frame": 121,
+      "end_frame_exclusive": 145,
+      "duration_seconds": 0.2
+    },
+    {
+      "name": "light_rising_right",
+      "gameplay_clip": "light_rising_right",
+      "start_frame": 145,
+      "end_frame_exclusive": 188,
+      "duration_seconds": 0.35833333333333334
+    },
+    {
+      "name": "reset_02",
+      "gameplay_clip": "idle",
+      "start_frame": 188,
+      "end_frame_exclusive": 212,
+      "duration_seconds": 0.2
+    },
+    {
+      "name": "light_falling_left",
+      "gameplay_clip": "light_falling_left",
+      "start_frame": 212,
+      "end_frame_exclusive": 255,
+      "duration_seconds": 0.35833333333333334
+    },
+    {
+      "name": "reset_03",
+      "gameplay_clip": "idle",
+      "start_frame": 255,
+      "end_frame_exclusive": 291,
+      "duration_seconds": 0.3
+    },
+    {
+      "name": "light_level_right",
+      "gameplay_clip": "light_level_right",
+      "start_frame": 291,
+      "end_frame_exclusive": 334,
+      "duration_seconds": 0.35833333333333334
+    },
+    {
+      "name": "reset_04",
+      "gameplay_clip": "idle",
+      "start_frame": 334,
+      "end_frame_exclusive": 358,
+      "duration_seconds": 0.2
+    },
+    {
+      "name": "light_rising_left",
+      "gameplay_clip": "light_rising_left",
+      "start_frame": 358,
+      "end_frame_exclusive": 401,
+      "duration_seconds": 0.35833333333333334
+    },
+    {
+      "name": "reset_05",
+      "gameplay_clip": "idle",
+      "start_frame": 401,
+      "end_frame_exclusive": 425,
+      "duration_seconds": 0.2
+    },
+    {
+      "name": "light_falling_right",
+      "gameplay_clip": "light_falling_right",
+      "start_frame": 425,
+      "end_frame_exclusive": 468,
+      "duration_seconds": 0.35833333333333334
+    },
+    {
+      "name": "reset_06",
+      "gameplay_clip": "idle",
+      "start_frame": 468,
+      "end_frame_exclusive": 504,
+      "duration_seconds": 0.3
+    },
+    {
+      "name": "heavy_charge",
+      "gameplay_clip": "heavy_charge",
+      "start_frame": 504,
+      "end_frame_exclusive": 558,
+      "duration_seconds": 0.45
+    },
+    {
+      "name": "heavy_release",
+      "gameplay_clip": "heavy_release",
+      "start_frame": 558,
+      "end_frame_exclusive": 636,
+      "duration_seconds": 0.65
+    },
+    {
+      "name": "reset_07",
+      "gameplay_clip": "idle",
+      "start_frame": 636,
+      "end_frame_exclusive": 678,
+      "duration_seconds": 0.35
+    },
+    {
+      "name": "heavy_charge_full",
+      "gameplay_clip": "heavy_charge",
+      "start_frame": 678,
+      "end_frame_exclusive": 732,
+      "duration_seconds": 0.45
+    },
+    {
+      "name": "heavy_release_charged",
+      "gameplay_clip": "heavy_release_charged",
+      "start_frame": 732,
+      "end_frame_exclusive": 810,
+      "duration_seconds": 0.65
+    },
+    {
+      "name": "reset_08",
+      "gameplay_clip": "idle",
+      "start_frame": 810,
+      "end_frame_exclusive": 852,
+      "duration_seconds": 0.35
+    },
+    {
+      "name": "roll_attack",
+      "gameplay_clip": "roll_attack",
+      "start_frame": 852,
+      "end_frame_exclusive": 906,
+      "duration_seconds": 0.45
+    },
+    {
+      "name": "recover",
+      "gameplay_clip": "idle",
+      "start_frame": 906,
+      "end_frame_exclusive": 990,
+      "duration_seconds": 0.7
+    }
+  ],
+  "authored_in": "Cascadeur",
+  "native_source": "red_panda_sword_combat.casc",
+  "gameplay_integration": false,
+  "note": "Timeline reconstructed from authoring script after the source saved but report serialization failed. Export is unavailable in the installed Free license."
+}

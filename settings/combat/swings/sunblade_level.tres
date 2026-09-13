@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="MeleeSwingStyle" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/combat/melee_swing_style.gd" id="Style"]
+[resource]
+script = ExtResource("Style")
+id = &"level"
+left_clip = &"light_level_left"
+right_clip = &"light_level_right"
+slope_degrees = 0.0
+energy_height = 0.62

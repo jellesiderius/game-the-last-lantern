@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/levels/PrototypeRoom.tscn" id="Room"]
+[ext_resource type="Script" path="res://tests/panda_motion_review.gd" id="Review"]
+
+[node name="PrototypeRoom" instance=ExtResource("Room")]
+
+[node name="MotionReview" type="Node" parent="."]
+script = ExtResource("Review")

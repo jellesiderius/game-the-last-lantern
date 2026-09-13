@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="MovementSettings" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/characters/movement_settings.gd" id="Script"]
+[resource]
+script = ExtResource("Script")
+max_speed = 2.4
+walk_blend_speed = 1.2
+walk_cycle_speed = 0.75
+run_cycle_speed = 1.4909
+maximum_locomotion_rate = 1.7

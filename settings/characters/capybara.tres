@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/characters/character_definition.gd" id="Script"]
+[ext_resource type="PackedScene" path="res://scenes/assets/characters/capybara/Visual.tscn" id="Visual"]
+[ext_resource type="Resource" path="res://settings/characters/capybara_movement.tres" id="Movement"]
+[resource]
+script = ExtResource("Script")
+movement = ExtResource("Movement")
+id = &"capybara"
+display_name = "Capibara"
+visual_scene = ExtResource("Visual")
+body_radius = 0.29
+body_height = 1.1

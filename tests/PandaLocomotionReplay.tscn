@@ -1,0 +1,6 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://scenes/levels/PrototypeRoom.tscn" id="Room"]
+[ext_resource type="Script" path="res://tests/panda_locomotion_replay.gd" id="Replay"]
+[node name="PrototypeRoom" instance=ExtResource("Room")]
+[node name="LocomotionReplay" type="Node" parent="."]
+script = ExtResource("Replay")

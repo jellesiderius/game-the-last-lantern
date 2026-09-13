@@ -1,0 +1,10 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://assets/characters/acorn_guard/model.glb" id="Model"]
+[ext_resource type="PackedScene" path="res://scenes/assets/weapons/wooden_club/Visual.tscn" id="Club"]
+[node name="AcornVisual" type="Node3D"]
+[node name="Model" parent="." instance=ExtResource("Model")]
+[node name="ClubAttachment" type="BoneAttachment3D" parent="Model/AcornGuard_Rig/Skeleton3D"]
+bone_name = "club_socket"
+[node name="Club" parent="Model/AcornGuard_Rig/Skeleton3D/ClubAttachment" instance=ExtResource("Club")]
+rotation = Vector3(1.570796,0,0)
+[editable path="Model"]

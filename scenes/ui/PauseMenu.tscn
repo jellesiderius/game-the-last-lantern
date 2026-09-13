@@ -1,0 +1,111 @@
+[gd_scene load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="Script"]
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.035,0.05,0.047,0.97)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.71,0.73,0.6,0.8)
+content_margin_left = 28.0
+content_margin_right = 28.0
+content_margin_top = 24.0
+content_margin_bottom = 22.0
+[sub_resource type="StyleBoxFlat" id="Focus"]
+bg_color = Color(0.25,0.31,0.24,0.4)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.90,0.89,0.64,1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
+[sub_resource type="Theme" id="Theme"]
+default_font_size = 18
+Button/styles/focus = SubResource("Focus")
+CheckButton/styles/focus = SubResource("Focus")
+TabBar/styles/focus = SubResource("Focus")
+[node name="PausePanel" type="PanelContainer"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -248.0
+offset_right = 340.0
+offset_bottom = 248.0
+theme = SubResource("Theme")
+theme_override_styles/panel = SubResource("Panel")
+script = ExtResource("Script")
+[node name="Layout" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 18
+[node name="Title" type="Label" parent="Layout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Paused"
+[node name="Tabs" type="TabContainer" parent="Layout"]
+custom_minimum_size = Vector2(600,325)
+layout_mode = 2
+size_flags_vertical = 3
+[node name="Game" type="VBoxContainer" parent="Layout/Tabs"]
+layout_mode = 2
+theme_override_constants/separation = 18
+[node name="Resume" type="Button" parent="Layout/Tabs/Game"]
+custom_minimum_size = Vector2(0,54)
+layout_mode = 2
+text = "Resume"
+[node name="Restart" type="Button" parent="Layout/Tabs/Game"]
+custom_minimum_size = Vector2(0,54)
+layout_mode = 2
+text = "Restart courtyard"
+[node name="ChooseCharacter" type="Button" parent="Layout/Tabs/Game"]
+custom_minimum_size = Vector2(0,54)
+layout_mode = 2
+text = "Choose character"
+[node name="Description" type="Label" parent="Layout/Tabs/Game"]
+layout_mode = 2
+text = "Train your sword, bow and dodge.\nMelee hits restore magic."
+autowrap_mode = 2
+theme_override_colors/font_color = Color(0.75,0.78,0.7,1)
+[node name="Title" type="Button" parent="Layout/Tabs/Game"]
+custom_minimum_size = Vector2(0,54)
+layout_mode = 2
+text = "Main menu"
+[node name="Controls" type="VBoxContainer" parent="Layout/Tabs"]
+visible = false
+layout_mode = 2
+[node name="Bindings" type="RichTextLabel" parent="Layout/Tabs/Controls"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_constants/line_spacing = 7
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+text = "Controls"
+[node name="Settings" type="VBoxContainer" parent="Layout/Tabs"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 18
+[node name="CameraShake" type="CheckButton" parent="Layout/Tabs/Settings"]
+custom_minimum_size = Vector2(0,54)
+layout_mode = 2
+button_pressed = true
+text = "Camera shake"
+[node name="Vibration" type="CheckButton" parent="Layout/Tabs/Settings"]
+custom_minimum_size = Vector2(0,54)
+layout_mode = 2
+button_pressed = true
+text = "Controller vibration"
+[node name="Navigation" type="RichTextLabel" parent="Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78,0.81,0.71,1)
+theme_override_font_sizes/font_size = 16
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+text = "L1 / R1  tabs     ✕  select     ○  back"

@@ -1,0 +1,141 @@
+[gd_scene load_steps=21 format=3]
+[ext_resource type="Script" path="res://scripts/components/damageable.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/components/health.gd" id="2"]
+[ext_resource type="Material" path="res://settings/hit_flash.tres" id="Flash"]
+
+[ext_resource type="Script" path="res://scripts/ai/enemy_brain.gd" id="Brain"]
+[ext_resource type="Script" path="res://scripts/ai/enemy_visual.gd" id="Presenter"]
+[ext_resource type="Resource" path="res://settings/enemies/sentinel.tres" id="Settings"]
+[ext_resource type="Shader" path="res://shaders/enemy_telegraph.gdshader" id="TelegraphShader"]
+[sub_resource type="ShaderMaterial" id="TelegraphMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("TelegraphShader")
+[sub_resource type="PlaneMesh" id="TelegraphMesh"]
+size = Vector2(3.2,3.2)
+[sub_resource type="CapsuleShape3D" id="Shape"]
+radius = 0.26
+height = 0.95
+[sub_resource type="SphereShape3D" id="Extra"]
+radius = 0.2
+[sub_resource type="StandardMaterial3D" id="Tint"]
+resource_local_to_scene = true
+albedo_color = Color(0.456,0.110,0.061,1)
+roughness = 0.8
+[sub_resource type="StandardMaterial3D" id="Dark"]
+albedo_color = Color(0.038,0.045,0.052,1)
+roughness = 0.85
+[sub_resource type="CylinderMesh" id="Stem"]
+top_radius = 0.065
+bottom_radius = 0.085
+height = 0.65
+[sub_resource type="CylinderMesh" id="Base"]
+top_radius = 0.30
+bottom_radius = 0.34
+height = 0.075
+[sub_resource type="SphereMesh" id="TargetBody"]
+radius = 0.31
+height = 0.62
+[sub_resource type="SphereMesh" id="Eye"]
+radius = 0.04
+height = 0.08
+[sub_resource type="StandardMaterial3D" id="Eyes"]
+albedo_color = Color(1,0.75,0.46,1)
+emission_enabled = true
+emission = Color(1,0.65,0.3,1)
+emission_energy_multiplier = 0.7
+[sub_resource type="CapsuleMesh" id="ArmMesh"]
+radius = 0.095
+height = 0.43
+radial_segments = 24
+rings = 12
+[node name="PracticeEnemy" type="CharacterBody3D"]
+script = ExtResource("1")
+enemy = true
+label_text = "SPARRING"
+collision_layer = 4
+collision_mask = 7
+[node name="Collision" type="CollisionShape3D" parent="."]
+shape = SubResource("Shape")
+position = Vector3(0,0.475,0)
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2")
+maximum = 8.0
+[node name="Hurtbox" type="Area3D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+[node name="Shape" type="CollisionShape3D" parent="Hurtbox"]
+shape = SubResource("Shape")
+position = Vector3(0,0.475,0)
+[node name="ExtraHurtbox" type="Area3D" parent="."]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+[node name="Shape" type="CollisionShape3D" parent="ExtraHurtbox"]
+shape = SubResource("Extra")
+position = Vector3(0,0.75,0)
+
+[node name="TargetVisual" type="Node3D" parent="."]
+script = ExtResource("Presenter")
+[node name="Body" type="MeshInstance3D" parent="TargetVisual"]
+material_overlay = ExtResource("Flash")
+position = Vector3(0,0.64,0)
+mesh = SubResource("TargetBody")
+material_override = SubResource("Tint")
+[node name="Stem" type="MeshInstance3D" parent="TargetVisual"]
+material_overlay = ExtResource("Flash")
+position = Vector3(0,0.33,0)
+mesh = SubResource("Stem")
+material_override = SubResource("Tint")
+[node name="Base" type="MeshInstance3D" parent="TargetVisual"]
+material_overlay = ExtResource("Flash")
+position = Vector3(0,0.038,0)
+mesh = SubResource("Base")
+material_override = SubResource("Dark")
+[node name="HealthLabel" type="Label3D" parent="."]
+position = Vector3(0,1.22,0)
+text = "TRAINING"
+font_size = 38
+pixel_size = 0.003
+billboard = 1
+no_depth_test = true
+modulate = Color(0.97,0.91,0.82,1)
+outline_modulate = Color(0.145,0.165,0.19,1)
+
+[node name="Eye0" type="MeshInstance3D" parent="TargetVisual"]
+material_overlay = ExtResource("Flash")
+position = Vector3(-0.100000,0.73,-0.285)
+mesh = SubResource("Eye")
+material_override = SubResource("Eyes")
+
+[node name="Eye1" type="MeshInstance3D" parent="TargetVisual"]
+material_overlay = ExtResource("Flash")
+position = Vector3(0.100000,0.73,-0.285)
+mesh = SubResource("Eye")
+material_override = SubResource("Eyes")
+
+[node name="ArmL" type="Node3D" parent="TargetVisual"]
+position = Vector3(-0.34,0.65,0)
+[node name="Mesh" type="MeshInstance3D" parent="TargetVisual/ArmL"]
+position = Vector3(0,-0.16,0)
+mesh = SubResource("ArmMesh")
+material_override = SubResource("Tint")
+material_overlay = ExtResource("Flash")
+
+[node name="ArmR" type="Node3D" parent="TargetVisual"]
+position = Vector3(0.34,0.65,0)
+[node name="Mesh" type="MeshInstance3D" parent="TargetVisual/ArmR"]
+position = Vector3(0,-0.16,0)
+mesh = SubResource("ArmMesh")
+material_override = SubResource("Tint")
+material_overlay = ExtResource("Flash")
+
+[node name="Brain" type="Node" parent="."]
+script = ExtResource("Brain")
+settings = ExtResource("Settings")
+[node name="Telegraph" type="MeshInstance3D" parent="."]
+visible = false
+position = Vector3(0,0.02,0)
+mesh = SubResource("TelegraphMesh")
+material_override = SubResource("TelegraphMaterial")
+cast_shadow = 0

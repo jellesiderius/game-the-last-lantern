@@ -1,0 +1,555 @@
+{
+  "blender": "5.2.1 LTS",
+  "forward": "Blender +Y/Z-up to Godot -Z/Y-up",
+  "characters": {
+    "capybara": {
+      "model": "assets/characters/capybara/model.glb",
+      "meshes": 33,
+      "triangles": 99294,
+      "source": "assets/characters/capybara/source.blend",
+      "animations": [
+        {
+          "name": "attack_1",
+          "duration": 0.36000001430511475,
+          "root_static": true
+        },
+        {
+          "name": "attack_2",
+          "duration": 0.3799999952316284,
+          "root_static": true
+        },
+        {
+          "name": "attack_3",
+          "duration": 0.47999998927116394,
+          "root_static": true
+        },
+        {
+          "name": "bow_aim",
+          "duration": 0.6000000238418579,
+          "root_static": true
+        },
+        {
+          "name": "bow_draw",
+          "duration": 0.25,
+          "root_static": true
+        },
+        {
+          "name": "bow_empty",
+          "duration": 0.3199999928474426,
+          "root_static": true
+        },
+        {
+          "name": "bow_equip",
+          "duration": 0.18000000715255737,
+          "root_static": true
+        },
+        {
+          "name": "bow_hold",
+          "duration": 0.5,
+          "root_static": true
+        },
+        {
+          "name": "bow_release",
+          "duration": 0.20000000298023224,
+          "root_static": true
+        },
+        {
+          "name": "bow_unequip",
+          "duration": 0.14000000059604645,
+          "root_static": true
+        },
+        {
+          "name": "death",
+          "duration": 0.8999999761581421,
+          "root_static": true
+        },
+        {
+          "name": "dodge_roll",
+          "duration": 0.41999998688697815,
+          "root_static": true
+        },
+        {
+          "name": "heavy_charge",
+          "duration": 0.6000000238418579,
+          "root_static": true
+        },
+        {
+          "name": "heavy_hold",
+          "duration": 0.5,
+          "root_static": true
+        },
+        {
+          "name": "heavy_release",
+          "duration": 0.6499999761581421,
+          "root_static": true
+        },
+        {
+          "name": "heavy_release_charged",
+          "duration": 0.6499999761581421,
+          "root_static": true
+        },
+        {
+          "name": "hurt",
+          "duration": 0.25,
+          "root_static": true
+        },
+        {
+          "name": "idle",
+          "duration": 2.0,
+          "root_static": true
+        },
+        {
+          "name": "neutral",
+          "duration": 0.009999999776482582,
+          "root_static": true
+        },
+        {
+          "name": "roll_attack",
+          "duration": 0.44999998807907104,
+          "root_static": true
+        },
+        {
+          "name": "run",
+          "duration": 0.550000011920929,
+          "root_static": true
+        },
+        {
+          "name": "walk",
+          "duration": 0.800000011920929,
+          "root_static": true
+        }
+      ],
+      "root_static": true,
+      "maximum_weight_sum_error": 1.4062970876693726e-07
+    },
+    "crow": {
+      "model": "assets/characters/crow/model.glb",
+      "meshes": 25,
+      "triangles": 75816,
+      "source": "assets/characters/crow/source.blend",
+      "animations": [
+        {
+          "name": "attack_1",
+          "duration": 0.36000001430511475,
+          "root_static": true
+        },
+        {
+          "name": "attack_2",
+          "duration": 0.3799999952316284,
+          "root_static": true
+        },
+        {
+          "name": "attack_3",
+          "duration": 0.47999998927116394,
+          "root_static": true
+        },
+        {
+          "name": "bow_aim",
+          "duration": 0.6000000238418579,
+          "root_static": true
+        },
+        {
+          "name": "bow_draw",
+          "duration": 0.25,
+          "root_static": true
+        },
+        {
+          "name": "bow_empty",
+          "duration": 0.3199999928474426,
+          "root_static": true
+        },
+        {
+          "name": "bow_equip",
+          "duration": 0.18000000715255737,
+          "root_static": true
+        },
+        {
+          "name": "bow_hold",
+          "duration": 0.5,
+          "root_static": true
+        },
+        {
+          "name": "bow_release",
+          "duration": 0.20000000298023224,
+          "root_static": true
+        },
+        {
+          "name": "bow_unequip",
+          "duration": 0.14000000059604645,
+          "root_static": true
+        },
+        {
+          "name": "death",
+          "duration": 0.8999999761581421,
+          "root_static": true
+        },
+        {
+          "name": "dodge_roll",
+          "duration": 0.41999998688697815,
+          "root_static": true
+        },
+        {
+          "name": "heavy_charge",
+          "duration": 0.6000000238418579,
+          "root_static": true
+        },
+        {
+          "name": "heavy_hold",
+          "duration": 0.5,
+          "root_static": true
+        },
+        {
+          "name": "heavy_release",
+          "duration": 0.6499999761581421,
+          "root_static": true
+        },
+        {
+          "name": "heavy_release_charged",
+          "duration": 0.6499999761581421,
+          "root_static": true
+        },
+        {
+          "name": "hurt",
+          "duration": 0.25,
+          "root_static": true
+        },
+        {
+          "name": "idle",
+          "duration": 2.0,
+          "root_static": true
+        },
+        {
+          "name": "roll_attack",
+          "duration": 0.44999998807907104,
+          "root_static": true
+        },
+        {
+          "name": "run",
+          "duration": 0.550000011920929,
+          "root_static": true
+        },
+        {
+          "name": "walk",
+          "duration": 0.800000011920929,
+          "root_static": true
+        }
+      ],
+      "root_static": true,
+      "maximum_weight_sum_error": 2.9802322387695312e-08
+    },
+    "red_panda": {
+      "model": "assets/characters/red_panda/model.glb",
+      "meshes": 51,
+      "triangles": 94148,
+      "source": "assets/characters/red_panda/source.blend",
+      "animations": [
+        {
+          "name": "attack_1",
+          "duration": 0.36000001430511475,
+          "root_static": true
+        },
+        {
+          "name": "attack_2",
+          "duration": 0.3799999952316284,
+          "root_static": true
+        },
+        {
+          "name": "attack_3",
+          "duration": 0.47999998927116394,
+          "root_static": true
+        },
+        {
+          "name": "attack_3_reverse",
+          "duration": 0.47999998927116394,
+          "root_static": true
+        },
+        {
+          "name": "bow_aim",
+          "duration": 0.6000000238418579,
+          "root_static": true
+        },
+        {
+          "name": "bow_draw",
+          "duration": 0.25,
+          "root_static": true
+        },
+        {
+          "name": "bow_empty",
+          "duration": 0.3199999928474426,
+          "root_static": true
+        },
+        {
+          "name": "bow_equip",
+          "duration": 0.18000000715255737,
+          "root_static": true
+        },
+        {
+          "name": "bow_hold",
+          "duration": 0.5,
+          "root_static": true
+        },
+        {
+          "name": "bow_release",
+          "duration": 0.20000000298023224,
+          "root_static": true
+        },
+        {
+          "name": "bow_unequip",
+          "duration": 0.14000000059604645,
+          "root_static": true
+        },
+        {
+          "name": "death",
+          "duration": 0.8999999761581421,
+          "root_static": true
+        },
+        {
+          "name": "dodge_roll",
+          "duration": 0.41999998688697815,
+          "root_static": true
+        },
+        {
+          "name": "fall",
+          "duration": 0.6000000238418579,
+          "root_static": true
+        },
+        {
+          "name": "heavy_charge",
+          "duration": 0.6000000238418579,
+          "root_static": true
+        },
+        {
+          "name": "heavy_hold",
+          "duration": 0.5,
+          "root_static": true
+        },
+        {
+          "name": "heavy_release",
+          "duration": 0.6499999761581421,
+          "root_static": true
+        },
+        {
+          "name": "heavy_release_charged",
+          "duration": 0.6499999761581421,
+          "root_static": true
+        },
+        {
+          "name": "hurt",
+          "duration": 0.25,
+          "root_static": true
+        },
+        {
+          "name": "idle",
+          "duration": 2.0,
+          "root_static": true
+        },
+        {
+          "name": "land",
+          "duration": 0.2199999988079071,
+          "root_static": true
+        },
+        {
+          "name": "light_falling_left",
+          "duration": 0.36000001430511475,
+          "root_static": true
+        },
+        {
+          "name": "light_falling_right",
+          "duration": 0.36000001430511475,
+          "root_static": true
+        },
+        {
+          "name": "light_level_left",
+          "duration": 0.36000001430511475,
+          "root_static": true
+        },
+        {
+          "name": "light_level_right",
+          "duration": 0.36000001430511475,
+          "root_static": true
+        },
+        {
+          "name": "light_rising_left",
+          "duration": 0.36000001430511475,
+          "root_static": true
+        },
+        {
+          "name": "light_rising_right",
+          "duration": 0.36000001430511475,
+          "root_static": true
+        },
+        {
+          "name": "neutral",
+          "duration": 0.009999999776482582,
+          "root_static": true
+        },
+        {
+          "name": "roll_attack",
+          "duration": 0.44999998807907104,
+          "root_static": true
+        },
+        {
+          "name": "run",
+          "duration": 0.550000011920929,
+          "root_static": true
+        },
+        {
+          "name": "walk",
+          "duration": 0.800000011920929,
+          "root_static": true
+        }
+      ],
+      "root_static": true,
+      "maximum_weight_sum_error": 8.940696716308594e-08
+    }
+  },
+  "weapons": {
+    "amber_sword": {
+      "model": "assets/weapons/amber_sword/model.glb",
+      "meshes": 1,
+      "triangles": 1870,
+      "source": "assets/weapons/amber_sword/source.blend"
+    },
+    "arc_bow": {
+      "model": "assets/weapons/arc_bow/model.glb",
+      "meshes": 7,
+      "triangles": 3288
+    },
+    "jade_saber": {
+      "model": "assets/weapons/jade_saber/model.glb",
+      "meshes": 13,
+      "triangles": 3220,
+      "source": "assets/weapons/jade_saber/source.blend"
+    },
+    "magic_arrow": {
+      "model": "assets/weapons/magic_arrow/model.glb",
+      "meshes": 4,
+      "triangles": 78
+    },
+    "rose_sword": {
+      "model": "assets/weapons/rose_sword/model.glb",
+      "meshes": 4,
+      "triangles": 250
+    },
+    "sunblade": {
+      "model": "assets/weapons/sunblade/model.glb",
+      "meshes": 9,
+      "triangles": 4332,
+      "source": "assets/weapons/sunblade/source.blend"
+    }
+  },
+  "environment": {
+    "autumn_tree": {
+      "model": "assets/environment/autumn_tree/model.glb",
+      "meshes": 11,
+      "triangles": 312,
+      "source": "assets/environment/autumn_tree/source.blend"
+    },
+    "barrel": {
+      "model": "assets/environment/barrel/model.glb",
+      "meshes": 4,
+      "triangles": 416,
+      "source": "assets/environment/barrel/source.blend"
+    },
+    "cottage": {
+      "model": "assets/environment/cottage/model.glb",
+      "meshes": 52,
+      "triangles": 12136,
+      "source": "assets/environment/cottage/source.blend"
+    },
+    "flower_patch": {
+      "model": "assets/environment/flower_patch/model.glb",
+      "meshes": 56,
+      "triangles": 7008,
+      "source": "assets/environment/flower_patch/source.blend"
+    },
+    "garden_path": {
+      "model": "assets/environment/garden_path/model.glb",
+      "meshes": 10,
+      "triangles": 716,
+      "source": "assets/environment/garden_path/source.blend"
+    },
+    "grass_cliff": {
+      "model": "assets/environment/grass_cliff/model.glb",
+      "meshes": 7,
+      "triangles": 204,
+      "source": "assets/environment/grass_cliff/source.blend"
+    },
+    "grass_cliff_half": {
+      "model": "assets/environment/grass_cliff_half/model.glb",
+      "meshes": 7,
+      "triangles": 204,
+      "source": "assets/environment/grass_cliff_half/source.blend"
+    },
+    "grass_tile": {
+      "model": "assets/environment/grass_tile/model.glb",
+      "meshes": 2,
+      "triangles": 24,
+      "source": "assets/environment/grass_tile/source.blend"
+    },
+    "grass_tile_half": {
+      "model": "assets/environment/grass_tile_half/model.glb",
+      "meshes": 2,
+      "triangles": 24,
+      "source": "assets/environment/grass_tile_half/source.blend"
+    },
+    "long_stairs": {
+      "model": "assets/environment/long_stairs/model.glb",
+      "meshes": 33,
+      "triangles": 4404,
+      "source": "assets/environment/long_stairs/source.blend"
+    },
+    "low_wall": {
+      "model": "assets/environment/low_wall/model.glb",
+      "meshes": 14,
+      "triangles": 1512
+    },
+    "plaza_cliff": {
+      "model": "assets/environment/plaza_cliff/model.glb",
+      "meshes": 2,
+      "triangles": 24,
+      "source": "assets/environment/plaza_cliff/source.blend"
+    },
+    "plaza_tile": {
+      "model": "assets/environment/plaza_tile/model.glb",
+      "meshes": 1,
+      "triangles": 12,
+      "source": "assets/environment/plaza_tile/source.blend"
+    },
+    "rock_cluster": {
+      "model": "assets/environment/rock_cluster/model.glb",
+      "meshes": 3,
+      "triangles": 60,
+      "source": "assets/environment/rock_cluster/source.blend"
+    },
+    "smithy": {
+      "model": "assets/environment/smithy/model.glb",
+      "meshes": 50,
+      "triangles": 11604,
+      "source": "assets/environment/smithy/source.blend"
+    },
+    "stone_floor": {
+      "model": "assets/environment/stone_floor/model.glb",
+      "meshes": 10,
+      "triangles": 1304
+    },
+    "stone_stairs": {
+      "model": "assets/environment/stone_stairs/model.glb",
+      "meshes": 9,
+      "triangles": 1140,
+      "source": "assets/environment/stone_stairs/source.blend"
+    },
+    "timber_bridge": {
+      "model": "assets/environment/timber_bridge/model.glb",
+      "meshes": 38,
+      "triangles": 7080,
+      "source": "assets/environment/timber_bridge/source.blend"
+    },
+    "timber_fence": {
+      "model": "assets/environment/timber_fence/model.glb",
+      "meshes": 3,
+      "triangles": 324,
+      "source": "assets/environment/timber_fence/source.blend"
+    }
+  }
+}

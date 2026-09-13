@@ -1,0 +1,25 @@
+[gd_scene load_steps=6 format=3]
+[ext_resource type="Script" path="res://scripts/characters/character_visual.gd" id="1"]
+[ext_resource type="PackedScene" path="res://assets/characters/capybara/model.glb" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/weapons/amber_sword/Weapon.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/weapons/Bow.tscn" id="Bow"]
+[ext_resource type="Material" path="res://assets/characters/capybara/materials/body.tres" id="Body"]
+[node name="CharacterVisual" type="Node3D"]
+script = ExtResource("1")
+stow_at_rest = true
+vertex_color_materials = PackedStringArray("Capybara_Nose")
+[node name="Model" parent="." instance=ExtResource("2")]
+[node name="Capybara_Body" parent="Model/Capybara_Rig/Skeleton3D" index="3"]
+material_override = ExtResource("Body")
+[node name="SwordAttachment" type="BoneAttachment3D" parent="Model/Capybara_Rig/Skeleton3D"]
+bone_name = "sword_socket"
+[node name="Weapon" parent="Model/Capybara_Rig/Skeleton3D/SwordAttachment" instance=ExtResource("3")]
+rotation = Vector3(1.570796,0,0)
+[node name="BowAttachment" type="BoneAttachment3D" parent="Model/Capybara_Rig/Skeleton3D"]
+bone_name = "bow_socket"
+[node name="Bow" parent="Model/Capybara_Rig/Skeleton3D/BowAttachment" instance=ExtResource("Bow")]
+visible = false
+rotation = Vector3(1.570796,0,0)
+[node name="BowDrawAttachment" type="BoneAttachment3D" parent="Model/Capybara_Rig/Skeleton3D"]
+bone_name = "bow_draw_socket"
+[editable path="Model"]

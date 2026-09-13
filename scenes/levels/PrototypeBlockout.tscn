@@ -1,0 +1,525 @@
+[gd_scene format=3 uid="uid://ccwit6nv4nh3l"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/autumn_tree/Visual.tscn" id="2_ubly6"]
+[ext_resource type="PackedScene" path="res://scenes/assets/props/hand_lantern/Visual.tscn" id="6_qo5ub"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="HUD"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="Player"]
+[ext_resource type="Script" uid="uid://drprgcv3rjmh" path="res://scripts/world/prototype_room.gd" id="Room"]
+[ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="Sound"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="Spark"]
+
+[sub_resource type="StandardMaterial3D" id="Grass"]
+albedo_color = Color(0.68, 0.73, 0.31, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="EntranceMesh"]
+size = Vector3(16, 1, 4)
+
+[sub_resource type="BoxMesh" id="SquareMesh"]
+size = Vector3(16, 1, 6)
+
+[sub_resource type="BoxMesh" id="TerraceMesh"]
+size = Vector3(16, 2, 4)
+
+[sub_resource type="StandardMaterial3D" id="Water"]
+albedo_color = Color(0.1, 0.65, 0.74, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="WaterMesh"]
+size = Vector3(16, 0.04, 2)
+
+[sub_resource type="StandardMaterial3D" id="Backdrop"]
+albedo_color = Color(0.9, 0.865, 0.79, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BackdropMesh"]
+size = Vector3(200, 0.1, 200)
+
+[sub_resource type="StandardMaterial3D" id="Sand"]
+albedo_color = Color(0.9, 0.75, 0.55, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="PathMesh"]
+size = Vector3(2, 0.016, 8)
+
+[sub_resource type="BoxMesh" id="PlazaMesh"]
+size = Vector3(6, 0.016, 2)
+
+[sub_resource type="StandardMaterial3D" id="Wood"]
+albedo_color = Color(0.55, 0.34, 0.18, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BridgeMesh"]
+size = Vector3(2, 0.1, 3)
+
+[sub_resource type="BoxMesh" id="Step0Mesh"]
+size = Vector3(2, 0.25, 0.5)
+
+[sub_resource type="BoxMesh" id="Step1Mesh"]
+size = Vector3(2, 0.5, 0.5)
+
+[sub_resource type="BoxMesh" id="Step2Mesh"]
+size = Vector3(2, 0.75, 0.5)
+
+[sub_resource type="BoxMesh" id="Step3Mesh"]
+size = Vector3(2, 1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="Wall"]
+albedo_color = Color(0.87, 0.8, 0.64, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="CottageMesh"]
+size = Vector3(3, 2, 2.5)
+
+[sub_resource type="StandardMaterial3D" id="Roof"]
+albedo_color = Color(0.19, 0.33, 0.37, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="CottageRoofMesh"]
+size = Vector3(3.5, 0.4, 3)
+
+[sub_resource type="BoxMesh" id="SmithyMesh"]
+size = Vector3(3, 2, 2.5)
+
+[sub_resource type="BoxMesh" id="SmithyRoofMesh"]
+size = Vector3(3.5, 0.4, 3)
+
+[sub_resource type="BoxMesh" id="TreeMesh"]
+size = Vector3(0.4, 2.2, 0.4)
+
+[sub_resource type="StandardMaterial3D" id="Leaves"]
+albedo_color = Color(0.95, 0.62, 0.16, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="CrownMesh"]
+size = Vector3(2, 1.7, 1.6)
+
+[sub_resource type="BoxMesh" id="SideRim_1Mesh"]
+size = Vector3(0.3, 0.1, 16)
+
+[sub_resource type="BoxMesh" id="SideRim1Mesh"]
+size = Vector3(0.3, 0.1, 16)
+
+[sub_resource type="BoxMesh" id="BackRimMesh"]
+size = Vector3(16, 0.1, 0.3)
+
+[sub_resource type="BoxShape3D" id="EntranceShape"]
+size = Vector3(16, 1, 4)
+
+[sub_resource type="BoxShape3D" id="SquareShape"]
+size = Vector3(16, 1, 6)
+
+[sub_resource type="BoxShape3D" id="TerraceShape"]
+size = Vector3(16, 2, 4)
+
+[sub_resource type="ConvexPolygonShape3D" id="StairRamp"]
+points = PackedVector3Array(-1, -0.05, -2, 1, -0.05, -2, -1, -0.05, -4, 1, -0.05, -4, -1, 0, -2, 1, 0, -2, -1, 1, -4, 1, 1, -4)
+
+[sub_resource type="ConvexPolygonShape3D" id="BridgeRamp0"]
+points = PackedVector3Array(-0.86, 0, 1.5, -0.86, 0.077778, 2, -0.86, -0.15, 1.5, -0.86, -0.15, 2, 0.86, 0, 1.5, 0.86, 0.077778, 2, 0.86, -0.15, 1.5, 0.86, -0.15, 2)
+
+[sub_resource type="ConvexPolygonShape3D" id="BridgeRamp1"]
+points = PackedVector3Array(-0.86, 0.077778, 2, -0.86, 0.124444, 2.5, -0.86, -0.15, 2, -0.86, -0.15, 2.5, 0.86, 0.077778, 2, 0.86, 0.124444, 2.5, 0.86, -0.15, 2, 0.86, -0.15, 2.5)
+
+[sub_resource type="ConvexPolygonShape3D" id="BridgeRamp2"]
+points = PackedVector3Array(-0.86, 0.124444, 2.5, -0.86, 0.14, 3, -0.86, -0.15, 2.5, -0.86, -0.15, 3, 0.86, 0.124444, 2.5, 0.86, 0.14, 3, 0.86, -0.15, 2.5, 0.86, -0.15, 3)
+
+[sub_resource type="ConvexPolygonShape3D" id="BridgeRamp3"]
+points = PackedVector3Array(-0.86, 0.14, 3, -0.86, 0.124444, 3.5, -0.86, -0.15, 3, -0.86, -0.15, 3.5, 0.86, 0.14, 3, 0.86, 0.124444, 3.5, 0.86, -0.15, 3, 0.86, -0.15, 3.5)
+
+[sub_resource type="ConvexPolygonShape3D" id="BridgeRamp4"]
+points = PackedVector3Array(-0.86, 0.124444, 3.5, -0.86, 0.077778, 4, -0.86, -0.15, 3.5, -0.86, -0.15, 4, 0.86, 0.124444, 3.5, 0.86, 0.077778, 4, 0.86, -0.15, 3.5, 0.86, -0.15, 4)
+
+[sub_resource type="ConvexPolygonShape3D" id="BridgeRamp5"]
+points = PackedVector3Array(-0.86, 0.077778, 4, -0.86, 0, 4.5, -0.86, -0.15, 4, -0.86, -0.15, 4.5, 0.86, 0.077778, 4, 0.86, 0, 4.5, 0.86, -0.15, 4, 0.86, -0.15, 4.5)
+
+[sub_resource type="BoxShape3D" id="BridgeRail_1Shape"]
+size = Vector3(0.18, 1.1, 3)
+
+[sub_resource type="BoxShape3D" id="CanalBank_1_2Shape"]
+size = Vector3(7, 1, 0.12)
+
+[sub_resource type="BoxShape3D" id="CanalBank_1_4Shape"]
+size = Vector3(7, 1, 0.12)
+
+[sub_resource type="BoxShape3D" id="RoomSide_1Shape"]
+size = Vector3(0.16, 4, 16)
+
+[sub_resource type="BoxShape3D" id="House_1Shape"]
+size = Vector3(3.05, 2.1, 2.48)
+
+[sub_resource type="BoxShape3D" id="BridgeRail1Shape"]
+size = Vector3(0.18, 1.1, 3)
+
+[sub_resource type="BoxShape3D" id="CanalBank1_2Shape"]
+size = Vector3(7, 1, 0.12)
+
+[sub_resource type="BoxShape3D" id="CanalBank1_4Shape"]
+size = Vector3(7, 1, 0.12)
+
+[sub_resource type="BoxShape3D" id="RoomSide1Shape"]
+size = Vector3(0.16, 4, 16)
+
+[sub_resource type="BoxShape3D" id="House1Shape"]
+size = Vector3(3.05, 2.1, 2.48)
+
+[sub_resource type="BoxShape3D" id="BackBoundaryShape"]
+size = Vector3(16, 3, 0.16)
+
+[sub_resource type="BoxShape3D" id="FrontBoundaryShape"]
+size = Vector3(16, 3, 0.12)
+
+[sub_resource type="BoxShape3D" id="TreeTrunkShape"]
+size = Vector3(0.48, 1.4, 0.48)
+
+[sub_resource type="BoxShape3D" id="RockBodyShape"]
+size = Vector3(0.9, 0.6, 0.75)
+
+[sub_resource type="Environment" id="World"]
+background_mode = 1
+background_color = Color(0.9, 0.865, 0.79, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.84, 0.87, 0.95, 1)
+ambient_light_energy = 0.7
+reflected_light_source = 2
+tonemap_mode = 2
+ssao_enabled = true
+ssao_radius = 0.35
+ssao_intensity = 0.7
+glow_enabled = true
+glow_intensity = 0.55
+glow_strength = 0.8
+glow_hdr_threshold = 1.4
+
+[sub_resource type="StandardMaterial3D" id="Debug"]
+albedo_color = Color(0.8, 1, 0.5, 1)
+roughness = 0.85
+
+[node name="PrototypeRoom" type="Node3D" unique_id=1373607651]
+script = ExtResource("Room")
+
+[node name="Geometry" type="Node3D" parent="." unique_id=338610382]
+
+[node name="Entrance" type="MeshInstance3D" parent="Geometry" unique_id=57480101]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 6)
+material_override = SubResource("Grass")
+mesh = SubResource("EntranceMesh")
+
+[node name="Square" type="MeshInstance3D" parent="Geometry" unique_id=122272322]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -1)
+material_override = SubResource("Grass")
+mesh = SubResource("SquareMesh")
+
+[node name="Terrace" type="MeshInstance3D" parent="Geometry" unique_id=509619447]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6)
+material_override = SubResource("Grass")
+mesh = SubResource("TerraceMesh")
+
+[node name="Water" type="MeshInstance3D" parent="Geometry" unique_id=826869863]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.28, 3)
+material_override = SubResource("Water")
+mesh = SubResource("WaterMesh")
+
+[node name="Backdrop" type="MeshInstance3D" parent="Geometry" unique_id=779333391]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.26, 0)
+material_override = SubResource("Backdrop")
+mesh = SubResource("BackdropMesh")
+
+[node name="Path" type="MeshInstance3D" parent="Geometry" unique_id=585761285]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.008, 4)
+material_override = SubResource("Sand")
+mesh = SubResource("PathMesh")
+
+[node name="Plaza" type="MeshInstance3D" parent="Geometry" unique_id=1981416982]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.008, 0)
+material_override = SubResource("Sand")
+mesh = SubResource("PlazaMesh")
+
+[node name="Bridge" type="MeshInstance3D" parent="Geometry" unique_id=69178301]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 3)
+material_override = SubResource("Wood")
+mesh = SubResource("BridgeMesh")
+
+[node name="Step0" type="MeshInstance3D" parent="Geometry" unique_id=714303617]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.125, -2.25)
+material_override = SubResource("Sand")
+mesh = SubResource("Step0Mesh")
+
+[node name="Step1" type="MeshInstance3D" parent="Geometry" unique_id=781959711]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, -2.75)
+material_override = SubResource("Sand")
+mesh = SubResource("Step1Mesh")
+
+[node name="Step2" type="MeshInstance3D" parent="Geometry" unique_id=640820497]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.375, -3.25)
+material_override = SubResource("Sand")
+mesh = SubResource("Step2Mesh")
+
+[node name="Step3" type="MeshInstance3D" parent="Geometry" unique_id=1493116394]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -3.75)
+material_override = SubResource("Sand")
+mesh = SubResource("Step3Mesh")
+
+[node name="Cottage" type="MeshInstance3D" parent="Geometry" unique_id=1566512461]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.1, 2, -6)
+material_override = SubResource("Wall")
+mesh = SubResource("CottageMesh")
+
+[node name="CottageRoof" type="MeshInstance3D" parent="Geometry" unique_id=1206332035]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.1, 3.2, -6)
+material_override = SubResource("Roof")
+mesh = SubResource("CottageRoofMesh")
+
+[node name="Smithy" type="MeshInstance3D" parent="Geometry" unique_id=1713633320]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.1, 2, -6)
+material_override = SubResource("Wall")
+mesh = SubResource("SmithyMesh")
+
+[node name="SmithyRoof" type="MeshInstance3D" parent="Geometry" unique_id=829678699]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.1, 3.2, -6)
+material_override = SubResource("Roof")
+mesh = SubResource("SmithyRoofMesh")
+
+[node name="Tree" type="MeshInstance3D" parent="Geometry" unique_id=335733547]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.9, 1.1, -0.4)
+material_override = SubResource("Wood")
+mesh = SubResource("TreeMesh")
+
+[node name="Crown" type="MeshInstance3D" parent="Geometry" unique_id=180241386]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.9, 2.5, -0.4)
+material_override = SubResource("Leaves")
+mesh = SubResource("CrownMesh")
+
+[node name="SideRim-1" type="MeshInstance3D" parent="Geometry" unique_id=1012201272]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.85, 0.05, 0)
+material_override = SubResource("Grass")
+mesh = SubResource("SideRim_1Mesh")
+
+[node name="SideRim1" type="MeshInstance3D" parent="Geometry" unique_id=1047870220]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.85, 0.05, 0)
+material_override = SubResource("Grass")
+mesh = SubResource("SideRim1Mesh")
+
+[node name="BackRim" type="MeshInstance3D" parent="Geometry" unique_id=965924852]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, -7.85)
+material_override = SubResource("Grass")
+mesh = SubResource("BackRimMesh")
+
+[node name="autumn_tree" parent="Geometry" unique_id=140429979 instance=ExtResource("2_ubly6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7445477, 0.014903527, 0.23350358)
+
+[node name="Collision" type="Node3D" parent="." unique_id=1551276253]
+
+[node name="EntranceBody" type="StaticBody3D" parent="Collision" unique_id=655607135]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 6)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/EntranceBody" unique_id=1218330481]
+shape = SubResource("EntranceShape")
+
+[node name="SquareBody" type="StaticBody3D" parent="Collision" unique_id=309795755]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -1)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/SquareBody" unique_id=1493420965]
+shape = SubResource("SquareShape")
+
+[node name="TerraceBody" type="StaticBody3D" parent="Collision" unique_id=801199776]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/TerraceBody" unique_id=1684599843]
+shape = SubResource("TerraceShape")
+
+[node name="StairRamp" type="StaticBody3D" parent="Collision" unique_id=2096415643]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/StairRamp" unique_id=1383100088]
+shape = SubResource("StairRamp")
+
+[node name="BridgeRamp0" type="StaticBody3D" parent="Collision" unique_id=107981477]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/BridgeRamp0" unique_id=1670271651]
+shape = SubResource("BridgeRamp0")
+
+[node name="BridgeRamp1" type="StaticBody3D" parent="Collision" unique_id=914989197]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/BridgeRamp1" unique_id=182514216]
+shape = SubResource("BridgeRamp1")
+
+[node name="BridgeRamp2" type="StaticBody3D" parent="Collision" unique_id=902169774]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/BridgeRamp2" unique_id=1171075311]
+shape = SubResource("BridgeRamp2")
+
+[node name="BridgeRamp3" type="StaticBody3D" parent="Collision" unique_id=629320632]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/BridgeRamp3" unique_id=2021724228]
+shape = SubResource("BridgeRamp3")
+
+[node name="BridgeRamp4" type="StaticBody3D" parent="Collision" unique_id=1137859692]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/BridgeRamp4" unique_id=1236749579]
+shape = SubResource("BridgeRamp4")
+
+[node name="BridgeRamp5" type="StaticBody3D" parent="Collision" unique_id=976818302]
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/BridgeRamp5" unique_id=689627995]
+shape = SubResource("BridgeRamp5")
+
+[node name="BridgeRail-1Body" type="StaticBody3D" parent="Collision" unique_id=1042607601]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.91, 0.4, 3)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/BridgeRail-1Body" unique_id=1639543959]
+shape = SubResource("BridgeRail_1Shape")
+
+[node name="CanalBank-1_2Body" type="StaticBody3D" parent="Collision" unique_id=1684171275]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0.45, 2)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/CanalBank-1_2Body" unique_id=844741738]
+shape = SubResource("CanalBank_1_2Shape")
+
+[node name="CanalBank-1_4Body" type="StaticBody3D" parent="Collision" unique_id=1442954503]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0.45, 4)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/CanalBank-1_4Body" unique_id=553158362]
+shape = SubResource("CanalBank_1_4Shape")
+
+[node name="RoomSide-1Body" type="StaticBody3D" parent="Collision" unique_id=1741666592]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.92, 1, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/RoomSide-1Body" unique_id=98477395]
+shape = SubResource("RoomSide_1Shape")
+
+[node name="House-1Body" type="StaticBody3D" parent="Collision" unique_id=661874785]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.1, 2, -6)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/House-1Body" unique_id=2120445139]
+shape = SubResource("House_1Shape")
+
+[node name="BridgeRail1Body" type="StaticBody3D" parent="Collision" unique_id=352026276]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.91, 0.4, 3)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/BridgeRail1Body" unique_id=1663961613]
+shape = SubResource("BridgeRail1Shape")
+
+[node name="CanalBank1_2Body" type="StaticBody3D" parent="Collision" unique_id=1348495723]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0.45, 2)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/CanalBank1_2Body" unique_id=2032179656]
+shape = SubResource("CanalBank1_2Shape")
+
+[node name="CanalBank1_4Body" type="StaticBody3D" parent="Collision" unique_id=536726864]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0.45, 4)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/CanalBank1_4Body" unique_id=1745204734]
+shape = SubResource("CanalBank1_4Shape")
+
+[node name="RoomSide1Body" type="StaticBody3D" parent="Collision" unique_id=1617673440]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.92, 1, 0)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/RoomSide1Body" unique_id=1831061288]
+shape = SubResource("RoomSide1Shape")
+
+[node name="House1Body" type="StaticBody3D" parent="Collision" unique_id=1466882643]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.1, 2, -6)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/House1Body" unique_id=1144391225]
+shape = SubResource("House1Shape")
+
+[node name="BackBoundaryBody" type="StaticBody3D" parent="Collision" unique_id=737313333]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -7.92)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/BackBoundaryBody" unique_id=2109493788]
+shape = SubResource("BackBoundaryShape")
+
+[node name="FrontBoundaryBody" type="StaticBody3D" parent="Collision" unique_id=1581692989]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 7.98)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/FrontBoundaryBody" unique_id=844024687]
+shape = SubResource("FrontBoundaryShape")
+
+[node name="TreeTrunkBody" type="StaticBody3D" parent="Collision" unique_id=2122041710]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.9, 0.7, -0.4)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/TreeTrunkBody" unique_id=1492751034]
+shape = SubResource("TreeTrunkShape")
+
+[node name="RockBodyBody" type="StaticBody3D" parent="Collision" unique_id=545062261]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.3, 0.28, -0.2)
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Collision/RockBodyBody" unique_id=1532072533]
+shape = SubResource("RockBodyShape")
+
+[node name="Player" parent="." unique_id=1560030149 instance=ExtResource("Player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.3)
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=248062021]
+transform = Transform3D(0.7071069, -0.54167527, 0.4545192, 0, 0.64278734, 0.7660447, -0.70710665, -0.54167545, 0.45451936, 0, 1.1, -0.3)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=512898033]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 24)
+projection = 1
+current = true
+size = 18.2
+far = 100.0
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=613417216]
+transform = Transform3D(0.7826139, 0.55654746, -0.27887374, -0.11556259, 0.57008815, 0.8134155, 0.61168694, -0.6043629, 0.5104749, 0, 0, 0)
+light_color = Color(1, 0.91, 0.78, 1)
+light_energy = 1.15
+light_angular_distance = 3.0
+shadow_enabled = true
+shadow_bias = 0.03
+directional_shadow_max_distance = 45.0
+
+[node name="Fill" type="DirectionalLight3D" parent="." unique_id=662311027]
+transform = Transform3D(-0.8011436, -0.33792278, 0.49394035, 0, 0.8253356, 0.5646425, -0.5984721, 0.4523597, -0.6612123, 0, 0, 0)
+light_color = Color(0.75, 0.82, 1, 1)
+light_energy = 0.18
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1071660550]
+environment = SubResource("World")
+
+[node name="HUD" parent="." unique_id=822685208 instance=ExtResource("HUD")]
+
+[node name="DebugVolumes" type="MeshInstance3D" parent="." unique_id=608697359]
+material_override = SubResource("Debug")
+
+[node name="ImpactPool" type="Node3D" parent="." unique_id=544781063]
+
+[node name="Spark0" parent="ImpactPool" unique_id=1552431149 instance=ExtResource("Spark")]
+
+[node name="Spark1" parent="ImpactPool" unique_id=1256601579 instance=ExtResource("Spark")]
+
+[node name="Spark2" parent="ImpactPool" unique_id=150521813 instance=ExtResource("Spark")]
+
+[node name="Spark3" parent="ImpactPool" unique_id=1220403756 instance=ExtResource("Spark")]
+
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="." unique_id=548709056]
+stream = ExtResource("Sound")
+volume_db = -8.0
+max_distance = 30.0
+
+[node name="Lantern" parent="." unique_id=1599148142 instance=ExtResource("6_qo5ub")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7371298, 1, 0.9777589)

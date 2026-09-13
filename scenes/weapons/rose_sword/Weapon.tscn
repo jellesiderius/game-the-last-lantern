@@ -1,0 +1,8 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://scenes/weapons/MeleeWeapon.tscn" id="Base"]
+[ext_resource type="PackedScene" path="res://assets/weapons/rose_sword/model.glb" id="Model"]
+[ext_resource type="Resource" path="res://settings/weapons/rose_sword.tres" id="Definition"]
+[node name="Weapon" instance=ExtResource("Base")]
+definition = ExtResource("Definition")
+[node name="WeaponModel" parent="." instance=ExtResource("Model")]
+rotation = Vector3(0,0,1.570796)

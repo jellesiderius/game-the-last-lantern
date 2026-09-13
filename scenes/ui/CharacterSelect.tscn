@@ -1,0 +1,179 @@
+[gd_scene load_steps=19 format=3]
+[ext_resource type="Script" path="res://scripts/ui/character_select.gd" id="Script"]
+[ext_resource type="PackedScene" path="res://scenes/assets/characters/crow/Visual.tscn" id="Crow"]
+[ext_resource type="PackedScene" path="res://scenes/assets/characters/capybara/Visual.tscn" id="Capybara"]
+[ext_resource type="PackedScene" path="res://scenes/assets/characters/red_panda/Visual.tscn" id="Panda"]
+[ext_resource type="Script" path="res://scripts/ui/character_choice.gd" id="Choice"]
+[ext_resource type="Resource" path="res://settings/characters/red_panda.tres" id="PandaDefinition"]
+[ext_resource type="Resource" path="res://settings/characters/crow.tres" id="CrowDefinition"]
+[ext_resource type="Resource" path="res://settings/characters/capybara.tres" id="CapybaraDefinition"]
+[sub_resource type="Environment" id="Environment"]
+background_mode = 1
+background_color = Color(0.025,0.043,0.040,1)
+ambient_light_source = 3
+ambient_light_color = Color(0.72,0.77,0.75,1)
+ambient_light_energy = 0.5
+reflected_light_source = 2
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.75
+glow_bloom = 0.12
+[sub_resource type="PlaneMesh" id="Floor"]
+size = Vector2(200,200)
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.055,0.075,0.062,1)
+roughness = 0.85
+[sub_resource type="TorusMesh" id="Ring"]
+inner_radius = 0.44
+outer_radius = 0.46
+rings = 48
+ring_segments = 12
+[sub_resource type="StandardMaterial3D" id="Rose"]
+albedo_color = Color(1,0.09,0.25,1)
+emission_enabled = true
+emission = Color(1,0.025,0.10,1)
+emission_energy_multiplier = 1.5
+[sub_resource type="StandardMaterial3D" id="Amber"]
+albedo_color = Color(1,0.52,0.16,1)
+emission_enabled = true
+emission = Color(1,0.24,0.025,1)
+emission_energy_multiplier = 1.2
+[sub_resource type="StandardMaterial3D" id="Jade"]
+albedo_color = Color(0.04,1,0.45,1)
+emission_enabled = true
+emission = Color(0.02,1,0.36,1)
+emission_energy_multiplier = 1.2
+[sub_resource type="StyleBoxFlat" id="ButtonNormal"]
+bg_color = Color(0.055,0.078,0.065,0.95)
+content_margin_left = 22.0
+content_margin_right = 22.0
+content_margin_top = 16.0
+content_margin_bottom = 16.0
+border_width_bottom = 1
+border_color = Color(0.55,0.61,0.48,1)
+[sub_resource type="StyleBoxFlat" id="ButtonFocus"]
+bg_color = Color(0.16,0.21,0.14,0.5)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.96,0.92,0.67,1)
+[sub_resource type="Theme" id="Theme"]
+default_font_size = 24
+Button/styles/normal = SubResource("ButtonNormal")
+Button/styles/focus = SubResource("ButtonFocus")
+Button/colors/font_color = Color(0.94,0.95,0.85,1)
+[node name="CharacterSelect" type="Node3D"]
+script = ExtResource("Script")
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("Floor")
+material_override = SubResource("FloorMaterial")
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-48,150,0)
+light_color = Color(1,0.95,0.86,1)
+light_energy = 1.1
+shadow_enabled = true
+directional_shadow_max_distance = 20.0
+[node name="FillLight" type="OmniLight3D" parent="."]
+position = Vector3(0,2,-2)
+light_color = Color(0.82,0.85,1,1)
+light_energy = 0.45
+omni_range = 7.0
+[node name="Camera" type="Camera3D" parent="."]
+position = Vector3(0,1.45,-4.8)
+rotation_degrees = Vector3(-9.5,180,0)
+projection = 1
+size = 3.15
+current = true
+[node name="RedPanda" parent="." instance=ExtResource("Panda")]
+position = Vector3(1.65,0,0)
+rotation_degrees = Vector3(0,-12,0)
+[node name="PandaRing" type="MeshInstance3D" parent="."]
+position = Vector3(1.65,0.011,0)
+mesh = SubResource("Ring")
+material_override = SubResource("Jade")
+[node name="Crow" parent="." instance=ExtResource("Crow")]
+position = Vector3(0,0,0)
+rotation_degrees = Vector3(0,-12,0)
+[node name="Capybara" parent="." instance=ExtResource("Capybara")]
+position = Vector3(-1.65,0,0)
+rotation_degrees = Vector3(0,10,0)
+[node name="CrowRing" type="MeshInstance3D" parent="."]
+position = Vector3(0,0.011,0)
+mesh = SubResource("Ring")
+material_override = SubResource("Rose")
+[node name="CapybaraRing" type="MeshInstance3D" parent="."]
+visible = false
+position = Vector3(-1.65,0.011,0)
+mesh = SubResource("Ring")
+material_override = SubResource("Amber")
+[node name="UI" type="CanvasLayer" parent="."]
+[node name="Root" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = SubResource("Theme")
+[node name="Title" type="Label" parent="UI/Root"]
+anchor_right = 1.0
+offset_top = 45.0
+offset_bottom = 100.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 34
+text = "Choose your adventurer"
+[node name="Description" type="Label" parent="UI/Root"]
+anchor_right = 1.0
+offset_top = 100.0
+offset_bottom = 140.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.77,0.81,0.71,1)
+text = "Sword · Bow · Dodge"
+[node name="Choices" type="HBoxContainer" parent="UI/Root"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -490.0
+offset_top = -170.0
+offset_right = 490.0
+offset_bottom = -100.0
+theme_override_constants/separation = 35
+[node name="RedPanda" type="Button" parent="UI/Root/Choices" node_paths=PackedStringArray("preview", "selection_ring")]
+custom_minimum_size = Vector2(303,64)
+layout_mode = 2
+script = ExtResource("Choice")
+definition = ExtResource("PandaDefinition")
+preview = NodePath("../../../../RedPanda")
+selection_ring = NodePath("../../../../PandaRing")
+[node name="Crow" type="Button" parent="UI/Root/Choices" node_paths=PackedStringArray("preview", "selection_ring")]
+script = ExtResource("Choice")
+definition = ExtResource("CrowDefinition")
+preview = NodePath("../../../../Crow")
+selection_ring = NodePath("../../../../CrowRing")
+custom_minimum_size = Vector2(303,64)
+layout_mode = 2
+text = "Kraai"
+[node name="Capybara" type="Button" parent="UI/Root/Choices" node_paths=PackedStringArray("preview", "selection_ring")]
+script = ExtResource("Choice")
+definition = ExtResource("CapybaraDefinition")
+preview = NodePath("../../../../Capybara")
+selection_ring = NodePath("../../../../CapybaraRing")
+custom_minimum_size = Vector2(303,64)
+layout_mode = 2
+text = "Capibara"
+[node name="Hint" type="RichTextLabel" parent="UI/Root"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -70.0
+offset_bottom = -25.0
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+text = "Choose · Begin"

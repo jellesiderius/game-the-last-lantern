@@ -1,0 +1,188 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/hud_meter.gd" id="Meter"]
+[ext_resource type="Texture2D" path="res://assets/ui/health_full.svg" id="health_full"]
+[ext_resource type="Texture2D" path="res://assets/ui/health_empty.svg" id="health_empty"]
+[ext_resource type="Texture2D" path="res://assets/ui/magic_full.svg" id="magic_full"]
+[ext_resource type="Texture2D" path="res://assets/ui/magic_empty.svg" id="magic_empty"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="PauseMenu"]
+[ext_resource type="Texture2D" path="res://assets/ui/health_first_full.svg" id="health_first_full"]
+[ext_resource type="Texture2D" path="res://assets/ui/health_first_empty.svg" id="health_first_empty"]
+[ext_resource type="Texture2D" path="res://assets/ui/health_last_full.svg" id="health_last_full"]
+[ext_resource type="Texture2D" path="res://assets/ui/health_last_empty.svg" id="health_last_empty"]
+[sub_resource type="StyleBoxFlat" id="ChargeBack"]
+bg_color = Color(0.12,0.15,0.13,0.6)
+[sub_resource type="StyleBoxFlat" id="ChargeFill"]
+bg_color = Color(1,0.63,0.22,1)
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1")
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+[node name="Status" type="Control" parent="Root"]
+offset_left = 28.0
+offset_top = 28.0
+offset_right = 340.0
+offset_bottom = 162.0
+mouse_filter = 2
+[node name="HP" type="HBoxContainer" parent="Root/Status"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 250.0
+offset_bottom = 34.0
+mouse_filter = 2
+theme_override_constants/separation = -8
+script = ExtResource("Meter")
+[node name="Segment1" type="TextureProgressBar" parent="Root/Status/HP"]
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_under = ExtResource("health_first_empty")
+texture_progress = ExtResource("health_first_full")
+[node name="Segment2" type="TextureProgressBar" parent="Root/Status/HP"]
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_under = ExtResource("health_empty")
+texture_progress = ExtResource("health_full")
+[node name="Segment3" type="TextureProgressBar" parent="Root/Status/HP"]
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_under = ExtResource("health_empty")
+texture_progress = ExtResource("health_full")
+[node name="Segment4" type="TextureProgressBar" parent="Root/Status/HP"]
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_under = ExtResource("health_empty")
+texture_progress = ExtResource("health_full")
+[node name="Segment5" type="TextureProgressBar" parent="Root/Status/HP"]
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_under = ExtResource("health_last_empty")
+texture_progress = ExtResource("health_last_full")
+[node name="Magic" type="HBoxContainer" parent="Root/Status"]
+offset_left = 2.0
+offset_top = 44.0
+offset_right = 138.0
+offset_bottom = 72.0
+mouse_filter = 2
+theme_override_constants/separation = 8
+script = ExtResource("Meter")
+[node name="Segment1" type="TextureProgressBar" parent="Root/Status/Magic"]
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_under = ExtResource("magic_empty")
+texture_progress = ExtResource("magic_full")
+[node name="Segment2" type="TextureProgressBar" parent="Root/Status/Magic"]
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_under = ExtResource("magic_empty")
+texture_progress = ExtResource("magic_full")
+[node name="Segment3" type="TextureProgressBar" parent="Root/Status/Magic"]
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_under = ExtResource("magic_empty")
+texture_progress = ExtResource("magic_full")
+[node name="Segment4" type="TextureProgressBar" parent="Root/Status/Magic"]
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.0
+value = 1.0
+texture_under = ExtResource("magic_empty")
+texture_progress = ExtResource("magic_full")
+[node name="MagicHint" type="Label" parent="Root/Status"]
+offset_left = 2.0
+offset_top = 88.0
+offset_right = 290.0
+offset_bottom = 106.0
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.9,0.87,0.77,1)
+theme_override_colors/font_shadow_color = Color(0.04,0.05,0.04,0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+[node name="Charge" type="ProgressBar" parent="Root"]
+visible = false
+offset_left = 30.0
+offset_top = 112.0
+offset_right = 174.0
+offset_bottom = 115.0
+max_value = 1.0
+show_percentage = false
+theme_override_styles/background = SubResource("ChargeBack")
+theme_override_styles/fill = SubResource("ChargeFill")
+[node name="Hint" type="Label" parent="Root"]
+offset_left = 30.0
+offset_top = 139.0
+offset_right = 380.0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(1,0.93,0.87,1)
+theme_override_colors/font_shadow_color = Color(0.04,0.05,0.04,0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+[node name="DebugState" type="Label" parent="Root"]
+visible = false
+offset_left = 30.0
+offset_top = 195.0
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.73,0.97,0.8,1)
+theme_override_colors/font_shadow_color = Color(0,0,0,1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+[node name="PausePanel" parent="Root" instance=ExtResource("PauseMenu")]
+[node name="ContextPrompt" type="RichTextLabel" parent="Root"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -86.0
+offset_bottom = -54.0
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_font_sizes/font_size = 19
+theme_override_colors/font_color = Color(1,0.95,0.81,1)
+theme_override_colors/font_shadow_color = Color(0.04,0.05,0.04,0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+[node name="InputHint" type="RichTextLabel" parent="Root"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 26.0
+offset_top = -40.0
+offset_right = -26.0
+offset_bottom = -18.0
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.85,0.86,0.8,0.85)

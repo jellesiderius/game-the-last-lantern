@@ -1,0 +1,23 @@
+[gd_scene load_steps=6 format=3]
+[ext_resource type="Script" path="res://scripts/characters/character_visual.gd" id="1"]
+[ext_resource type="PackedScene" path="res://assets/characters/crow/model.glb" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/weapons/rose_sword/Weapon.tscn" id="3"]
+[ext_resource type="Material" path="res://settings/crow_body_material.tres" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/weapons/Bow.tscn" id="Bow"]
+[node name="CharacterVisual" type="Node3D"]
+script = ExtResource("1")
+[node name="Model" parent="." instance=ExtResource("2")]
+[node name="Crow_Body" parent="Model/Crow_Rig/Skeleton3D" index="9"]
+material_override = ExtResource("4")
+[node name="SwordAttachment" type="BoneAttachment3D" parent="Model/Crow_Rig/Skeleton3D"]
+bone_name = "back_sword_socket"
+[node name="Weapon" parent="Model/Crow_Rig/Skeleton3D/SwordAttachment" instance=ExtResource("3")]
+rotation = Vector3(1.570796,0,0)
+[node name="BowAttachment" type="BoneAttachment3D" parent="Model/Crow_Rig/Skeleton3D"]
+bone_name = "bow_socket"
+[node name="Bow" parent="Model/Crow_Rig/Skeleton3D/BowAttachment" instance=ExtResource("Bow")]
+visible = false
+rotation = Vector3(1.570796,0,0)
+[node name="BowDrawAttachment" type="BoneAttachment3D" parent="Model/Crow_Rig/Skeleton3D"]
+bone_name = "bow_draw_socket"
+[editable path="Model"]

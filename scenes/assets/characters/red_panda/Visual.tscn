@@ -1,0 +1,29 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/characters/character_visual.gd" id="Script"]
+[ext_resource type="PackedScene" path="res://assets/characters/red_panda/model.glb" id="Model"]
+[ext_resource type="PackedScene" path="res://scenes/weapons/sunblade/Weapon.tscn" id="Weapon"]
+[ext_resource type="PackedScene" path="res://scenes/weapons/Bow.tscn" id="Bow"]
+[ext_resource type="PackedScene" path="res://scenes/assets/props/hand_lantern/Visual.tscn" id="Lantern"]
+[node name="CharacterVisual" type="Node3D"]
+script = ExtResource("Script")
+stow_at_rest = false
+synchronize_gait_phase = true
+fall_clip = "fall"
+landing_clip = "land"
+upright_accessory_paths = Array[NodePath]([NodePath("Model/LanternPanda_Rig/Skeleton3D/LanternAttachment/Lantern")])
+[node name="Model" parent="." instance=ExtResource("Model")]
+[node name="SwordAttachment" type="BoneAttachment3D" parent="Model/LanternPanda_Rig/Skeleton3D"]
+bone_name = "sword_socket"
+[node name="Weapon" parent="Model/LanternPanda_Rig/Skeleton3D/SwordAttachment" instance=ExtResource("Weapon")]
+rotation = Vector3(1.570796,0,0)
+[node name="BowAttachment" type="BoneAttachment3D" parent="Model/LanternPanda_Rig/Skeleton3D"]
+bone_name = "bow_socket"
+[node name="Bow" parent="Model/LanternPanda_Rig/Skeleton3D/BowAttachment" instance=ExtResource("Bow")]
+visible = false
+rotation = Vector3(1.570796,0,0)
+[node name="BowDrawAttachment" type="BoneAttachment3D" parent="Model/LanternPanda_Rig/Skeleton3D"]
+bone_name = "bow_draw_socket"
+[node name="LanternAttachment" type="BoneAttachment3D" parent="Model/LanternPanda_Rig/Skeleton3D"]
+bone_name = "lantern_socket"
+[node name="Lantern" parent="Model/LanternPanda_Rig/Skeleton3D/LanternAttachment" instance=ExtResource("Lantern")]
+[editable path="Model"]

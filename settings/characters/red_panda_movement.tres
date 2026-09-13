@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MovementSettings" format=3 uid="uid://r5kr1ggl8w0v"]
+
+[ext_resource type="Script" uid="uid://dam4duy4xv8m3" path="res://scripts/characters/movement_settings.gd" id="Script"]
+
+[resource]
+script = ExtResource("Script")
+max_speed = 3.8
+walk_blend_speed = 0.55
+walk_cycle_speed = 0.340909
+run_cycle_speed = 2.34375

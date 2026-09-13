@@ -1,0 +1,50 @@
+[gd_scene load_steps=9 format=3]
+[ext_resource type="Script" path="res://scripts/combat/bow_visual.gd" id="Script"]
+[ext_resource type="PackedScene" path="res://assets/weapons/arc_bow/model.glb" id="Bow"]
+[ext_resource type="PackedScene" path="res://assets/weapons/magic_arrow/model.glb" id="Arrow"]
+[ext_resource type="Shader" path="res://shaders/bow_pulse.gdshader" id="PulseShader"]
+[sub_resource type="ShaderMaterial" id="PulseMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("PulseShader")
+[sub_resource type="PlaneMesh" id="PulseMesh"]
+size = Vector2(0.7,0.7)
+[sub_resource type="StandardMaterial3D" id="StringMaterial"]
+albedo_color = Color(1,0.25,0.45,1)
+emission_enabled = true
+emission = Color(1,0.01,0.15,1)
+emission_energy_multiplier = 2.0
+[sub_resource type="CylinderMesh" id="StringMesh"]
+material = SubResource("StringMaterial")
+top_radius = 0.003
+bottom_radius = 0.003
+height = 1.0
+radial_segments = 8
+[node name="Bow" type="Node3D"]
+script = ExtResource("Script")
+[node name="Model" parent="." instance=ExtResource("Bow")]
+[node name="StringTop" type="MeshInstance3D" parent="."]
+position = Vector3(0,0.21,0.13)
+scale = Vector3(1,0.42,1)
+mesh = SubResource("StringMesh")
+[node name="StringBottom" type="MeshInstance3D" parent="."]
+position = Vector3(0,-0.21,0.13)
+scale = Vector3(1,0.42,1)
+mesh = SubResource("StringMesh")
+[node name="HeldArrow" type="Node3D" parent="."]
+visible = false
+position = Vector3(0,0,0.13)
+[node name="Model" parent="HeldArrow" instance=ExtResource("Arrow")]
+scale = Vector3(2.2,2.2,1.25)
+[node name="Tip" type="Marker3D" parent="HeldArrow"]
+position = Vector3(0,0,-0.7125)
+[node name="ChargeLight" type="OmniLight3D" parent="."]
+light_color = Color(1,0.03,0.2,1)
+light_energy = 0.25
+omni_range = 1.2
+omni_attenuation = 2.0
+
+[node name="ChargePulse" type="MeshInstance3D" parent="."]
+position = Vector3(0,0,-0.22)
+material_override = SubResource("PulseMaterial")
+mesh = SubResource("PulseMesh")
+cast_shadow = 0

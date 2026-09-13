@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="WeaponDefinition" format=3 uid="uid://bf24du8d204pt"]
+
+[ext_resource type="Script" uid="uid://de77m40g4dwrf" path="res://scripts/combat/melee_swing_style.gd" id="1_sghh2"]
+[ext_resource type="Resource" path="res://settings/combat/swings/sunblade_falling.tres" id="falling"]
+[ext_resource type="Resource" path="res://settings/combat/swings/sunblade_level.tres" id="level"]
+[ext_resource type="Resource" path="res://settings/combat/swings/sunblade_rising.tres" id="rising"]
+[ext_resource type="Script" uid="uid://bq3yxdxqvfmui" path="res://scripts/combat/weapon_definition.gd" id="Script"]
+
+[resource]
+script = ExtResource("Script")
+id = &"sunblade"
+blade_material_prefix = "Amber_"
+glow_color = Color(1, 0.64, 0.13, 1)
+slash_color = Color(1, 0.65, 0.075, 1)
+trail_color = Color(1, 0.73, 0.21, 0.5)
+glow_energy = 1.7
+charged_glow_energy = 3.2
+energy_reach = 1.9
+charged_energy_reach = 2.4
+randomize_energy_swing = true
+alternate_light_swings = true
+reverse_finisher_clip = &"attack_3_reverse"
+light_swing_styles = Array[ExtResource("1_sghh2")]([ExtResource("level"), ExtResource("rising"), ExtResource("falling")])
+charged_energy_height = 0.75
+charged_swing_tilt_degrees = 16.0

@@ -1,0 +1,101 @@
+[gd_scene format=3 uid="uid://frx8eup4e6mo"]
+
+[ext_resource type="Script" uid="uid://exdeqk8ee6ul" path="res://scripts/characters/player_controller.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/assets/characters/crow/Visual.tscn" id="2"]
+[ext_resource type="Resource" path="res://settings/player_movement.tres" id="3"]
+[ext_resource type="Script" uid="uid://bd1c765lxn6rj" path="res://scripts/components/health.gd" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ForwardSlash.tscn" id="5"]
+[ext_resource type="Shader" uid="uid://bv4w3boerid8p" path="res://shaders/forward_slash.gdshader" id="6_6cyea"]
+[ext_resource type="Shader" uid="uid://bhfug5pdexvu7" path="res://shaders/aim_line.gdshader" id="AimShader"]
+[ext_resource type="Script" uid="uid://xi0c1ltf6mfk" path="res://scripts/combat/bow_combat.gd" id="BowCombat"]
+[ext_resource type="Resource" path="res://settings/bow_settings.tres" id="BowSettings"]
+[ext_resource type="Resource" uid="uid://dudytmula46ut" path="res://settings/default_melee.tres" id="Combat"]
+[ext_resource type="Script" uid="uid://c4a25w46ubgpb" path="res://scripts/components/magic.gd" id="Magic"]
+[ext_resource type="AudioStream" uid="uid://cydcvqxvi1ouw" path="res://assets/audio/roll.wav" id="RollAudio"]
+[ext_resource type="AudioStream" uid="uid://hpy24b6qjpaf" path="res://assets/audio/swing.wav" id="SwingAudio"]
+
+[sub_resource type="CapsuleShape3D" id="Body"]
+radius = 0.24
+height = 0.9
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_phxw6"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("6_6cyea")
+shader_parameter/progress = 0.0
+shader_parameter/blade_angle = 0.0
+shader_parameter/direction = 1.0
+shader_parameter/slash_color = Color(1, 0.004, 0.024, 1)
+shader_parameter/emission_strength = 5.5
+
+[sub_resource type="CapsuleShape3D" id="Hurt"]
+radius = 0.24
+height = 0.85
+
+[sub_resource type="ShaderMaterial" id="AimMaterial"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("AimShader")
+shader_parameter/charge = 0.0
+shader_parameter/clock = 0.0
+
+[sub_resource type="CylinderMesh" id="AimMesh"]
+top_radius = 0.006
+bottom_radius = 0.006
+height = 1.0
+radial_segments = 6
+
+[node name="Player" type="CharacterBody3D" unique_id=1909246455]
+collision_layer = 2
+collision_mask = 5
+floor_snap_length = 0.15
+script = ExtResource("1")
+settings = ExtResource("3")
+moveset = ExtResource("Combat")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1855090658]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+shape = SubResource("Body")
+
+[node name="VisualPivot" type="Node3D" parent="." unique_id=689690118]
+
+[node name="CharacterVisual" parent="VisualPivot" unique_id=1293414681 instance=ExtResource("2")]
+
+[node name="ForwardSlash" parent="VisualPivot" unique_id=1861458021 instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.185, 0.5, 0)
+material_override = SubResource("ShaderMaterial_phxw6")
+
+[node name="Health" type="Node" parent="." unique_id=1935321015]
+script = ExtResource("4")
+
+[node name="Hurtbox" type="Area3D" parent="." unique_id=2058022050]
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hurtbox" unique_id=1974927206]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+shape = SubResource("Hurt")
+
+[node name="SwingSound" type="AudioStreamPlayer3D" parent="." unique_id=1941873242]
+stream = ExtResource("SwingAudio")
+volume_db = -9.0
+max_distance = 30.0
+
+[node name="RollSound" type="AudioStreamPlayer3D" parent="." unique_id=1553768503]
+stream = ExtResource("RollAudio")
+volume_db = -12.0
+max_distance = 30.0
+
+[node name="Magic" type="Node" parent="." unique_id=514630849]
+script = ExtResource("Magic")
+
+[node name="BowCombat" type="Node" parent="." unique_id=416386280]
+script = ExtResource("BowCombat")
+settings = ExtResource("BowSettings")
+
+[node name="AimLine" type="MeshInstance3D" parent="BowCombat" unique_id=3304413]
+visible = false
+material_override = SubResource("AimMaterial")
+cast_shadow = 0
+mesh = SubResource("AimMesh")

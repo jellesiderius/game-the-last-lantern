@@ -1,0 +1,9 @@
+[gd_scene load_steps=4 format=3]
+[ext_resource type="PackedScene" path="res://scenes/weapons/MeleeWeapon.tscn" id="Base"]
+[ext_resource type="PackedScene" path="res://assets/weapons/amber_sword/model.glb" id="Model"]
+[ext_resource type="Resource" path="res://settings/weapons/amber_sword.tres" id="Definition"]
+[node name="Weapon" instance=ExtResource("Base")]
+definition = ExtResource("Definition")
+[node name="WeaponModel" parent="." instance=ExtResource("Model")]
+[node name="BladeTip" parent="." index="1"]
+position = Vector3(0,0,-0.87)

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MeleeSwingStyle" format=3 uid="uid://bv0itk6n8nvuw"]
+
+[ext_resource type="Script" uid="uid://de77m40g4dwrf" path="res://scripts/combat/melee_swing_style.gd" id="Style"]
+
+[resource]
+script = ExtResource("Style")
+id = &"falling"
+left_clip = &"light_falling_left"
+right_clip = &"light_falling_right"
+slope_degrees = -20.0
