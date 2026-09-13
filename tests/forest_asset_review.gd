@@ -28,6 +28,7 @@ func capture_assets() -> void:
 			var box := mesh.global_transform * mesh.get_aabb()
 			bounds = box if first else bounds.merge(box)
 			first = false
+		$Floor.position.y = bounds.position.y - .01
 		var center := bounds.get_center()
 		$Camera3D.size = maxf(bounds.size.x, maxf(bounds.size.y, bounds.size.z)) * 1.35
 		for pair in [["front", Vector3(0, .9, -6)], ["game", Vector3(4, 5, 4)]]:

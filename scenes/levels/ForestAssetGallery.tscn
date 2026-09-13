@@ -130,25 +130,25 @@ position = Vector3(0,0,5)
 position = Vector3(5,0,5)
 
 [node name="forest_tile_clearing" parent="Assets" instance=ExtResource("forest_tile_clearing")]
-position = Vector3(10,0,5)
+position = Vector3(10,0.2,5)
 
 [node name="forest_tile_corner" parent="Assets" instance=ExtResource("forest_tile_corner")]
-position = Vector3(-10,0,10)
+position = Vector3(-10,0.2,10)
 
 [node name="forest_tile_grass" parent="Assets" instance=ExtResource("forest_tile_grass")]
-position = Vector3(-5,0,10)
+position = Vector3(-5,0.2,10)
 
 [node name="forest_tile_junction" parent="Assets" instance=ExtResource("forest_tile_junction")]
-position = Vector3(0,0,10)
+position = Vector3(0,0.2,10)
 
 [node name="forest_tile_slope" parent="Assets" instance=ExtResource("forest_tile_slope")]
-position = Vector3(5,0,10)
+position = Vector3(5,0.2,10)
 
 [node name="forest_tile_straight" parent="Assets" instance=ExtResource("forest_tile_straight")]
-position = Vector3(10,0,10)
+position = Vector3(10,0.2,10)
 
 [node name="Floor" type="MeshInstance3D" parent="."]
-position = Vector3(0,-0.205,0)
+position = Vector3(0,-0.005,0)
 mesh = SubResource("FloorMesh")
 [node name="Camera3D" type="Camera3D" parent="."]
 position = Vector3(19,29,24)

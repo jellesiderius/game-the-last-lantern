@@ -28,5 +28,12 @@
   "acorn_checks": 51,
   "visual_reference_score": 5.6,
   "visual_status": "Awaiting user style feedback after stalled comparison",
-  "known_regression": "Existing enemy admission/route check near edited TestArena wall remains failing for three character profiles."
+  "known_regression": "Existing enemy admission/route check near edited TestArena wall remains failing for three character profiles.",
+  "fresh_checkout": {
+    "commit": "7a99424",
+    "import": "passed",
+    "failures": 0,
+    "render_frames": 734,
+    "steady_render_fps": 59.9700149925037
+  }
 }

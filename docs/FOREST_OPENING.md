@@ -71,3 +71,5 @@ De speelbare scene bevat 745 opgeslagen omgevingsinstances. De nieuwste onafhank
 De nieuwste native bosreplays slagen alle 11 checks op elke cap. Stabiele metingen na opwarming: 30,03 FPS bij cap30, 60,11 bij cap60 en 120,12 bij cap120. De schone opening/aanloopopname bevat 706 werkelijk getekende frames; de geïmporteerde assetgalerij 999. De intro- en acornreplays slagen met respectievelijk 24 en 51 controles. De opname staat lokaal in `captures/forest/forest_opening.mp4`.
 
 ![Actuele native bosarea; de referentiematch is nog niet afgerond](images/forest-opening-progress.png)
+
+Een schone checkout van commit `7a99424` importeert zelfstandig en doorstaat alle 11 boscontroles native, met 734 getekende frames en 59,97 FPS na opwarming. De assetreview plaatst zijn vloer op de werkelijke onderkant van elk geïmporteerd asset; grondmodules hebben in de opgeslagen galerij hun eigen hoogte-offset.

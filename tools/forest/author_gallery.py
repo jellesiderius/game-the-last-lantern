@@ -23,9 +23,9 @@ ssao_intensity = 0.7
 [node name="ForestAssetGallery" type="Node3D"]
 script = ExtResource("Review")
 [node name="Assets" type="Node3D" parent="."]''']
-for i,name in enumerate(assets):lines.append(f'[node name="{name}" parent="Assets" instance=ExtResource("{name}")]\nposition = Vector3({(i%5)*5-10},0,{(i//5)*5-10})')
+for i,name in enumerate(assets):lines.append(f'[node name="{name}" parent="Assets" instance=ExtResource("{name}")]\nposition = Vector3({(i%5)*5-10},{0.2 if 'tile_' in name else 0},{(i//5)*5-10})')
 lines+=['''[node name="Floor" type="MeshInstance3D" parent="."]
-position = Vector3(0,-0.205,0)
+position = Vector3(0,-0.005,0)
 mesh = SubResource("FloorMesh")
 [node name="Camera3D" type="Camera3D" parent="."]
 position = Vector3(19,29,24)
