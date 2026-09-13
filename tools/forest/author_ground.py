@@ -3,6 +3,7 @@ import bpy,sys,math,json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(Path(__file__).parent))
 from layout import path_mask,pond_distance,TERRACES
+(ROOT/'captures/forest').mkdir(parents=True,exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 s=bpy.context.scene;s.name='ForestGround_Production'
 # Half-plane clipping keeps the raised grass edge exact rather than staircase sampled.

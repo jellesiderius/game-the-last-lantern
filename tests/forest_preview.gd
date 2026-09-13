@@ -3,6 +3,7 @@ extends "res://tests/room_replay.gd"
 
 
 func run() -> void:
+	DirAccess.make_dir_recursive_absolute("res://captures/forest")
 	prepare_window()
 	arena = get_tree().current_scene
 	p = arena.player

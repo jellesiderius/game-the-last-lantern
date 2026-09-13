@@ -11,6 +11,7 @@ func capture(label: String) -> void:
 
 
 func run() -> void:
+	DirAccess.make_dir_recursive_absolute("res://captures/forest")
 	prepare_window()
 	arena = get_tree().current_scene
 	p = arena.player
