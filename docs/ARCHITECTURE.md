@@ -69,7 +69,7 @@ Het pauzemenu kent Game/Controls/Settings, schouderknoppen voor tabs, expliciete
 
 ## Speelbare typen en geladen slagen
 
-Een nieuw speelbaar type krijgt `assets/characters/<id>/{source.blend,model.glb}`, een visuele wrapper in `scenes/assets/characters/<id>/Visual.tscn` en een `CharacterDefinition` in `settings/characters/`. Registreer die alleen in GameSession wanneer meerdere speelbare typen weer gewenst zijn; momenteel opent New Game vanuit TitleScreen één rode panda in PrototypeRoom; direct starten blijft mogelijk. CharacterSelect is historisch. De wrapper levert Skeleton3D, AnimationPlayer, SwordAttachment, BowAttachment en BowDrawAttachment met het gedeelde socketcontract. De speler kent geen GLB-botpad of vogel-/zoogdierbranch. `stow_at_rest` en natuurlijke stapcyclus-snelheden staan op de visual.
+Een nieuw speelbaar type krijgt `assets/characters/<id>/{source.blend,model.glb}`, een visuele wrapper in `scenes/assets/characters/<id>/Visual.tscn` en een `CharacterDefinition` in `settings/characters/`. Registreer die alleen in GameSession wanneer meerdere speelbare typen weer gewenst zijn; momenteel opent New Game vanuit TitleScreen één rode panda in ForestOpening; direct starten blijft mogelijk. CharacterSelect is historisch. De wrapper levert Skeleton3D, AnimationPlayer, SwordAttachment, BowAttachment en BowDrawAttachment met het gedeelde socketcontract. De speler kent geen GLB-botpad of vogel-/zoogdierbranch. `stow_at_rest` en natuurlijke stapcyclus-snelheden staan op de visual.
 
 GameSession initialiseert zijn standaardprofiel en eventuele `--character=<id>` al in `_init()`. Een direct gestart level kan `_enter_tree()` bereiken vóór de autoload-`_ready()`; een pas daar ingevulde keuze was te laat. Selectie, herstart en menuovergangen worden apart getest.
 
@@ -96,3 +96,9 @@ CharacterVisual heeft optionele upright_accessory_paths voor gedragen props. Ze 
 De sunblade kan expliciet energie toevoegen aan het korte fysieke lemmet. MeleeWeapon bezit hiervoor straal, hoogte, 3D-basis en bewegende voorrand; CombatFeedback geeft precies die waarden door aan de opgeslagen slashscene. Willekeurige hoek-/breedtevariatie wordt één keer bij swingstart gekozen. Lichte slagrichting wisselt deterministisch over de combo-grens en kiest een passende botclip; de presentatieklok wordt per fase naar de gameplayklok geschaald. De grondgolf van heavy blijft cosmetisch. Zie `COMBAT_SWINGS.md`.
 
 MeleeSwingStyle koppelt echte linker/rechter clipvarianten aan vlak/helling en faseverhoudingen. De player bewaart geen lichte vervolgaanvallen; alleen een verse klik in het instelbare laatste herstel start direct. Charge-duur schaalt de volledige laadclip, onafhankelijk van de bronduur.
+
+## Bosopening en introductieactie
+
+`ForestOpening` gebruikt de bestaande camera/feedback uit PrototypeRoom en opgeslagen omgevingsinstances. `EntranceSequence` is een instelbare Resource; `PlayerCharacter` bezit de `entrance`-toestand, actietijd, echte sprongvelocity, zwaartekracht en landingsdetectie. De pose volgt dezelfde GameClock. Er is geen extra AnimationTree-state-machine of timer die controle of schade afhandelt. Pause/hitstop bevriezen ook water en vlinders; hurt/death behouden hun prioriteit. Na landing wordt invoer kort afgeschermd en verschijnt de compacte HUD. Restart begint op veilige grond.
+
+`forest_butterfly.gd` beweegt de vleugelgroepen van het opgeslagen GLB en de vluchtpositie met GameClock. `tools/forest/` is uitsluitend offline authoring: bronnen, export, precisie-geknipte niet-overlappende grond, colliders en alle plaatsingen worden vooraf opgeslagen. De grasranden delen hun exacte veelhoekgrens met de rotswanden.

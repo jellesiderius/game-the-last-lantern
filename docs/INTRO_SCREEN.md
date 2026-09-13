@@ -17,7 +17,7 @@ Selecteer **TitleScreen** in de Inspector:
 
 | Eigenschap | Standaard |
 |---|---|
-| New Game Scene | `res://scenes/levels/PrototypeRoom.tscn` |
+| New Game Scene | `res://scenes/levels/ForestOpening.tscn` |
 | Test Scene | `res://scenes/levels/TestArena.tscn` |
 | Flicker Strength | 1,0, op de rustige lichtcurve |
 

@@ -15,9 +15,11 @@ cd game-the-last-lantern
 git lfs pull
 ```
 
-Open `project.godot` in **Godot 4.7.2** en druk **F5**. De hoofdscene is `scenes/ui/TitleScreen.tscn`: het introscherm met geanimeerde titel, rustig vlamlicht en enkele opstijgende vonkjes. **New Game** opent `PrototypeRoom`; **Testscene** opent standaard `TestArena`. Selecteer de root van TitleScreen en wijzig **Test Scene** in de Inspector om een andere testscene in te stellen. Via **Main menu** in het pauzemenu kom je terug. Zie [INTRO_SCREEN.md](docs/INTRO_SCREEN.md).
+Open `project.godot` in **Godot 4.7.2** en druk **F5**. De hoofdscene is `scenes/ui/TitleScreen.tscn`: het introscherm met geanimeerde titel, rustig vlamlicht en enkele opstijgende vonkjes. **New Game** opent `ForestOpening`; **Testscene** opent standaard `TestArena`. Selecteer de root van TitleScreen en wijzig **Test Scene** in de Inspector om een andere testscene in te stellen. Via **Main menu** in het pauzemenu kom je terug. Zie [INTRO_SCREEN.md](docs/INTRO_SCREEN.md).
 
-De huidige speelruimte is **32 × 32 meter**, met een 2 meter breed waterkanaal, brug en een terras op 1 meter hoogte. De camera behoudt 50° neerwaartse hoek en 45° draaiing, heeft een orthografische grootte van **13 meter** en volgt de speler soepel binnen grenzen. Beide levels blijven rechtstreeks met F6 te starten.
+De eerste area begint in het bos: de panda zit op een grote stronk, springt eraf en krijgt de besturing terug terwijl vlinders voorbijvliegen. Het pad leidt langs begroeiing, een vijver en rotsterrassen naar de Eikelwachter. Bewerkbare assets en bouwinstructies: [FOREST_OPENING.md](docs/FOREST_OPENING.md).
+
+De afzonderlijke prototypekamer is **32 × 32 meter**, met een 2 meter breed waterkanaal, brug en een terras op 1 meter hoogte. De camera behoudt 50° neerwaartse hoek en 45° draaiing, heeft een orthografische grootte van **13 meter** en volgt de speler soepel binnen grenzen. Alle levels blijven rechtstreeks met F6 te starten.
 
 ```sh
 /Applications/Godot.app/Contents/MacOS/Godot --path .
@@ -51,12 +53,14 @@ Het zwaard blijft in rust in de **rechterhand**, met de brede zijden naar links/
 
 ## Bestanden
 
-- `assets/characters/red_panda/source.blend` en `model.glb`: huidige panda, eigen skelet en 31 Actions.
+- `assets/characters/red_panda/source.blend` en `model.glb`: huidige panda, eigen skelet en 32 Actions.
 - `assets/weapons/sunblade/`: los bewerkbaar kristalzwaard en GLB.
 - `assets/props/hand_lantern/`: losse messing lantaarn met glazen panelen, X-spijlen en lichtgevend kristal.
 - `assets/environment/<id>/`: herbruikbare grond, pad, klif, trap, brug, gebouwen, bomen en props.
 - `assets/environment/prototype_room.blend`: samengestelde Blender-ruimte met bewerkbare module-instances.
-- `scenes/levels/PrototypeRoom.tscn`: huidige speelruimte. Alle zichtbare assets en plaatsing zijn opgeslagen nodes.
+- `scenes/levels/ForestOpening.tscn`: eerste speelbare bosarea.
+- `scenes/levels/ForestAssetGallery.tscn`: afzonderlijke bosassetgalerij.
+- `scenes/levels/PrototypeRoom.tscn`: aparte prototypekamer. Alle zichtbare assets en plaatsing zijn opgeslagen nodes.
 - `scenes/levels/TestArena.tscn`: afzonderlijke uitgebreide combatregressie-arena; rechtstreeks starten met F6.
 - `scenes/assets/`: visuele wrappers. `scenes/actors/player/` en `scenes/actors/npcs/{friendly,enemy}/`: gameplayactors.
 - `scripts/{characters,components,combat,ui,core,world,ai}`: gedeelde gameplay. `settings/`: instelbare Resources.

@@ -1,6 +1,11 @@
 class_name PlayerCharacter
 extends CharacterBody3D
 signal state_changed(next: String)
+signal entrance_finished
+var entrance: EntranceSequence
+var entrance_launched := false
+var entrance_landed := false
+var entrance_landing_time := 0.0
 @export var settings: MovementSettings
 @export var moveset: CombatMoveset
 var definition: CharacterDefinition
@@ -104,7 +109,57 @@ func suspend_controls() -> void:
 		_locomotion()
 
 
+func begin_entrance(sequence: EntranceSequence) -> void:
+	suspend_controls()
+	entrance = sequence
+	entrance_launched = false
+	entrance_landed = false
+	entrance_landing_time = 0.0
+	velocity = Vector3.ZERO
+	facing = sequence.direction.normalized()
+	pivot.rotation.y = atan2(-facing.x, -facing.z)
+	var animation := sequence.animation
+	if not visual.animation_player.has_animation(animation):
+		animation = "idle"
+	_enter("entrance", animation)
+	visual.sample(clip, 0.0, 0.0, 0.0)
+
+
+func _update_entrance(delta: float) -> void:
+	if delta <= 0.0:
+		return
+	suspend_controls()
+	action_time += delta
+	if action_time >= entrance.takeoff_time and not entrance_launched:
+		entrance_launched = true
+		velocity = facing * entrance.horizontal_speed + Vector3.UP * entrance.jump_speed
+	if entrance_launched and not entrance_landed:
+		velocity.y -= settings.gravity * delta
+		var impact_speed := maxf(0.0, -velocity.y)
+		move_and_slide()
+		if is_on_floor() and action_time > entrance.takeoff_time + .12:
+			entrance_landed = true
+			entrance_landing_time = action_time
+			velocity = Vector3.ZERO
+			landed.emit(impact_speed)
+	else:
+		velocity = Vector3.DOWN * .2
+		move_and_slide()
+	if entrance_landed and not visual.landing_clip.is_empty():
+		visual.sample(visual.landing_clip, action_time - entrance_landing_time, 0.0, delta)
+	else:
+		visual.sample(clip, action_time, 0.0, delta)
+	if entrance_landed and action_time - entrance_landing_time >= entrance.landing_recovery:
+		entrance = null
+		airborne_time = 0.0
+		_locomotion()
+		InputRouter.block_gameplay_input()
+		entrance_finished.emit()
+
+
 func request_action(action: String, device := "keyboard") -> void:
+	if state == "entrance":
+		return
 	next_aim_device = device
 	pending_inputs.append(action)
 
@@ -146,6 +201,9 @@ func _physics_process(_delta: float) -> void:
 			bow.aim_held = false
 			heavy_held = false
 			_locomotion()
+	if state == "entrance":
+		_update_entrance(GameClock.dt)
+		return
 	if not use_test_input and InputRouter.gameplay_input_blocked():
 		suspend_controls()
 		return
@@ -566,6 +624,7 @@ func _clear_buffers() -> void:
 
 
 func respawn(at := Vector3.ZERO) -> void:
+	entrance = null
 	_clear_buffers()
 	airborne_time = 0.0
 	landing_time = -1.0

@@ -1,6 +1,6 @@
 extends Control
 ## The reference plate stays fixed; only its light and the saved particle layers animate.
-@export_file("*.tscn") var new_game_scene := "res://scenes/levels/PrototypeRoom.tscn"
+@export_file("*.tscn") var new_game_scene := "res://scenes/levels/ForestOpening.tscn"
 @export_file("*.tscn") var test_scene := "res://scenes/levels/TestArena.tscn"
 @export_range(0.0, 1.0, .05) var flicker_strength := 1.0
 var animation_time := 0.0
@@ -32,8 +32,11 @@ func _ready() -> void:
 	]
 	for arg in OS.get_cmdline_user_args():
 		if arg in room_reviews:
-			get_tree().change_scene_to_file.call_deferred(new_game_scene)
+			get_tree().change_scene_to_file.call_deferred("res://scenes/levels/PrototypeRoom.tscn")
 			return
+	if "--forest-replay" in OS.get_cmdline_user_args():
+		get_tree().change_scene_to_file.call_deferred(new_game_scene)
+		return
 	resized.connect(_fit_artwork)
 	_fit_artwork()
 	var buttons: Array[Control] = []

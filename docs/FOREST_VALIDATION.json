@@ -1,0 +1,32 @@
+{
+  "renderer": "Forward+ Metal",
+  "forest_checks_per_cap": 11,
+  "native": [
+    {
+      "cap": 120,
+      "failures": 0,
+      "steady_render_fps": 120.12012012012,
+      "render_frames": 1452,
+      "seconds": 12.835
+    },
+    {
+      "cap": 30,
+      "failures": 0,
+      "steady_render_fps": 30.0344657804037,
+      "render_frames": 374,
+      "seconds": 12.947
+    },
+    {
+      "cap": 60,
+      "failures": 0,
+      "steady_render_fps": 60.1092896174863,
+      "render_frames": 736,
+      "seconds": 12.909
+    }
+  ],
+  "intro_checks": 24,
+  "acorn_checks": 51,
+  "visual_reference_score": 5.6,
+  "visual_status": "Awaiting user style feedback after stalled comparison",
+  "known_regression": "Existing enemy admission/route check near edited TestArena wall remains failing for three character profiles."
+}

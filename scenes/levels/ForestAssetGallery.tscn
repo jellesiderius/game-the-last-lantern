@@ -1,0 +1,170 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/forest_asset_review.gd" id="Review"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_butterfly/Visual.tscn" id="forest_butterfly"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_cliff/Visual.tscn" id="forest_cliff"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_fence/Visual.tscn" id="forest_fence"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_fern/Visual.tscn" id="forest_fern"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_blue/Visual.tscn" id="forest_flowers_blue"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_cream/Visual.tscn" id="forest_flowers_cream"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_gate/Visual.tscn" id="forest_gate"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_hollow_log/Visual.tscn" id="forest_hollow_log"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_lily/Visual.tscn" id="forest_lily"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_mushrooms/Visual.tscn" id="forest_mushrooms"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_oak/Visual.tscn" id="forest_oak"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pebbles/Visual.tscn" id="forest_pebbles"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine/Visual.tscn" id="forest_pine"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine_b/Visual.tscn" id="forest_pine_b"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine_c/Visual.tscn" id="forest_pine_c"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_reeds/Visual.tscn" id="forest_reeds"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_rocks/Visual.tscn" id="forest_rocks"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_shrub/Visual.tscn" id="forest_shrub"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_stump/Visual.tscn" id="forest_stump"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_clearing/Visual.tscn" id="forest_tile_clearing"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_corner/Visual.tscn" id="forest_tile_corner"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_grass/Visual.tscn" id="forest_tile_grass"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_junction/Visual.tscn" id="forest_tile_junction"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_slope/Visual.tscn" id="forest_tile_slope"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_straight/Visual.tscn" id="forest_tile_straight"]
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.78,0.74,0.65,1)
+roughness = 0.9
+[sub_resource type="PlaneMesh" id="FloorMesh"]
+size = Vector2(60,60)
+material = SubResource("FloorMaterial")
+[sub_resource type="Environment" id="Environment"]
+background_mode = 1
+background_color = Color(0.78,0.74,0.65,1)
+ambient_light_source = 2
+ambient_light_color = Color(0.75,0.79,0.77,1)
+ambient_light_energy = 0.75
+tonemap_mode = 4
+ssao_enabled = true
+ssao_radius = 0.3
+ssao_intensity = 0.7
+[node name="ForestAssetGallery" type="Node3D"]
+script = ExtResource("Review")
+[node name="Assets" type="Node3D" parent="."]
+
+[node name="forest_butterfly" parent="Assets" instance=ExtResource("forest_butterfly")]
+position = Vector3(-10,0,-10)
+
+[node name="forest_cliff" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-5,0,-10)
+
+[node name="forest_fence" parent="Assets" instance=ExtResource("forest_fence")]
+position = Vector3(0,0,-10)
+
+[node name="forest_fern" parent="Assets" instance=ExtResource("forest_fern")]
+position = Vector3(5,0,-10)
+
+[node name="forest_flowers_blue" parent="Assets" instance=ExtResource("forest_flowers_blue")]
+position = Vector3(10,0,-10)
+
+[node name="forest_flowers_cream" parent="Assets" instance=ExtResource("forest_flowers_cream")]
+position = Vector3(-10,0,-5)
+
+[node name="forest_gate" parent="Assets" instance=ExtResource("forest_gate")]
+position = Vector3(-5,0,-5)
+
+[node name="forest_hollow_log" parent="Assets" instance=ExtResource("forest_hollow_log")]
+position = Vector3(0,0,-5)
+
+[node name="forest_lily" parent="Assets" instance=ExtResource("forest_lily")]
+position = Vector3(5,0,-5)
+
+[node name="forest_mushrooms" parent="Assets" instance=ExtResource("forest_mushrooms")]
+position = Vector3(10,0,-5)
+
+[node name="forest_oak" parent="Assets" instance=ExtResource("forest_oak")]
+position = Vector3(-10,0,0)
+
+[node name="forest_pebbles" parent="Assets" instance=ExtResource("forest_pebbles")]
+position = Vector3(-5,0,0)
+
+[node name="forest_pine" parent="Assets" instance=ExtResource("forest_pine")]
+position = Vector3(0,0,0)
+
+[node name="forest_pine_b" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(5,0,0)
+
+[node name="forest_pine_c" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(10,0,0)
+
+[node name="forest_reeds" parent="Assets" instance=ExtResource("forest_reeds")]
+position = Vector3(-10,0,5)
+
+[node name="forest_rocks" parent="Assets" instance=ExtResource("forest_rocks")]
+position = Vector3(-5,0,5)
+
+[node name="forest_shrub" parent="Assets" instance=ExtResource("forest_shrub")]
+position = Vector3(0,0,5)
+
+[node name="forest_stump" parent="Assets" instance=ExtResource("forest_stump")]
+position = Vector3(5,0,5)
+
+[node name="forest_tile_clearing" parent="Assets" instance=ExtResource("forest_tile_clearing")]
+position = Vector3(10,0,5)
+
+[node name="forest_tile_corner" parent="Assets" instance=ExtResource("forest_tile_corner")]
+position = Vector3(-10,0,10)
+
+[node name="forest_tile_grass" parent="Assets" instance=ExtResource("forest_tile_grass")]
+position = Vector3(-5,0,10)
+
+[node name="forest_tile_junction" parent="Assets" instance=ExtResource("forest_tile_junction")]
+position = Vector3(0,0,10)
+
+[node name="forest_tile_slope" parent="Assets" instance=ExtResource("forest_tile_slope")]
+position = Vector3(5,0,10)
+
+[node name="forest_tile_straight" parent="Assets" instance=ExtResource("forest_tile_straight")]
+position = Vector3(10,0,10)
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+position = Vector3(0,-0.205,0)
+mesh = SubResource("FloorMesh")
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(19,29,24)
+rotation_degrees = Vector3(-50,38,0)
+projection = 1
+current = true
+size = 31.0
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-48,-35,0)
+light_color = Color(1,0.93,0.81,1)
+light_energy = 0.8
+shadow_enabled = true
+light_angular_distance = 0.8
+[node name="Fill" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-30,140,0)
+light_color = Color(0.77,0.83,1,1)
+light_energy = 0.22
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")

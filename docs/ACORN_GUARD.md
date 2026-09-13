@@ -1,6 +1,6 @@
 # Eikelwacht — 12 september 2026
 
-Twee eikelwachters staan als opgeslagen instances in `PrototypeRoom.tscn`, op (-3.6, 0, -4.4) en (3.4, 0, -4.4). Loop vanaf de start het plein op om ze te activeren. De drie bestaande trainingsdoelen blijven beschikbaar.
+De eerste bosarea bevat één Eikelwachter bij de noordelijke doorgang. Twee extra eikelwachters staan als opgeslagen instances in `PrototypeRoom.tscn`, op (-3.6, 0, -4.4) en (3.4, 0, -4.4). Loop vanaf de start het plein op om ze te activeren. De drie bestaande trainingsdoelen blijven beschikbaar.
 
 ## Ontwerp en bestanden
 
@@ -23,12 +23,12 @@ De prefab gebruikt de bestaande Damageable-, Health-, EnemyBrain- en AttackToken
 | walk | 0,40 s | Korte passen; tempo volgt werkelijke loopsnelheid |
 | run | 0,342 s | Snelle passen; natuurlijke snelheid circa 2,24 m/s |
 | turn | 0,317 s | Voeten verplaatsen tijdens draaien op de plaats |
-| windup | 0,65 s | Knots heffen; geschaald naar 0,42 s gameplay |
-| strike | 0,183 s | Zwaai voor de dop langs; geschaald naar 0,16 s gameplay |
-| recover | 0,65 s | Herstel van de korte slag; geschaald naar 0,34 s gameplay |
-| lunge_windup | 0,558 s | Afzonderlijke voorbereiding op de uitval; 0,56 s gameplay |
+| windup | 0,683 s | Duidelijk heffen naast de dop; 0,68 s gameplay |
+| strike | 0,20 s | Eén stevige klap; 0,20 s gameplay |
+| recover | 0,80 s | Voorover uit balans, korte vangstap en kwetsbaar herstel |
+| lunge_windup | 0,758 s | Afzonderlijke voorbereiding op de uitval; 0,76 s gameplay |
 | lunge_strike | 0,217 s | Voorwaartse uitval; 0,22 s gameplay |
-| lunge_recover | 0,50 s | Herstel na de uitval |
+| lunge_recover | 0,90 s | Langere zichtbare herstelruimte na de uitval |
 | hurt | 0,30 s | Terugslag bij onderbreekbare toestand |
 | death | 0,65 s | Voorover neervallen; verdwijnen na 1,1 s |
 
@@ -80,3 +80,9 @@ De oppervlaktereplay slaagt met 23 checks in Forward+ Metal en 1041 renderframes
 De vijf bestaande regressiesuites voor panda, kraai én capybara slagen bij cap60: 266 checks per type, 798 totaal, headless. De opnieuw gedraaide roomreplay slaagt bij cap60 met 34 checks en 1149 renderframes; de bestaande cap30/120-baselines hebben 585/2263 renderframes. Camera-instellingen en kameroppervlakken zijn in deze AI-revisie niet aangepast. De offline overlapcontrole slaagt op 256 oppervlakken. De Godot-processen melden bij afsluiten nog een shader/RID-opruimmelding; er zijn geen GDScript-fouten tijdens deze geslaagde replays.
 
 De doprand en huls zijn hoekiger en regelmatiger dan de geschilderde referentie; voeten en vuisten zijn eenvoudiger. Van bovenaf bedekt de grote dop een deel van de ogen. Close-ups tonen de bestaande beperkte resolutie van de kamerschaduwen. Geen claim van een exacte 1:1-reconstructie of voet-IK op trappen.
+
+## Herziening voor de bosintroductie
+
+Zes voorbereidings-, slag- en herstelclips zijn opnieuw geanimeerd op het bestaande skelet. De knots wordt ongeveer 1,02 m boven de rusthoogte getild; de slag eindigt laag. Het lichaam kantelt, één voet maakt een kleine vangstap en dop/blad lopen iets na. Geometrie en skinweights zijn gecontroleerd gelijk gebleven; het broncheckpoint staat onder `checkpoints/before_readable_attack_20260913.blend`. `EnemyAttackDefinition` houdt alle gameplayvensters instelbaar en EnemyBrain houdt één schadecontact per slag.
+
+De gerichte replay bevat nu 51 controles, waaronder stilstaand herstel zonder tweede schadecontact. De bronreview gebruikt de huidige geïmporteerde clipduren en de Resource-timing, geen verouderde hardgecodeerde fasegrenzen.

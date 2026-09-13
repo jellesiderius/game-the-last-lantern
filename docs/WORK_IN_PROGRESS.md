@@ -1,12 +1,16 @@
 # Huidige stand — 13 september 2026
 
+## Eerste bosarea — speelbaar, stijlfeedback gevraagd
+
+New Game opent `ForestOpening.tscn`: zitten op de stronk, een echte sprong, vlinders, besturing en een begaanbaar pad naar de Eikelwachter. Alle omgevingsmeshes en plaatsingen zijn opgeslagen; bronnen en losse wrappers zijn bewerkbaar. Zie [FOREST_OPENING.md](FOREST_OPENING.md). De referenties bepalen de stijl. De oorspronkelijke grove pixelruis is onderzocht via native rendervergelijkingen; omgevingslicht, schaduwsampling, normals, materiaalgrenzen en import-LOD zijn apart gecontroleerd. De onafhankelijke beeldvergelijking bleef na een grote herziening op 5,6/10. De dream-loop is daarom gepauzeerd voor gebruikersfeedback over de nog te grove boomkronen, rotsvlakken en planten; geen 1:1-claim. De 11 boscontroles slagen bij caps30/60/120, met stabiele metingen van 30,03 / 60,11 / 120,12 FPS na opwarming. De 24 introcontroles en 51 acorncontroles slagen native in Forward+ Metal.
+
 ## Introscherm: The Last Lantern
 
-F5 opent nu `TitleScreen.tscn`, gebaseerd op de aangeleverde afbeelding. De titel verschijnt rustig zonder transparantievlekken. De opties volgen later met dezelfde easing en een kleinere beweging; ze blijven boven de lantaarn. Een bewegende vlam, subtiele lichtvariatie en enkele vonkjes vervangen de snelle pulsering en te grote deeltjeshoeveelheid. Testscene is instelbaar in de Inspector en opent voorlopig TestArena. New Game opent PrototypeRoom; Main menu in het pauzemenu keert terug. Continue blijft uitgeschakeld zolang er geen opslagsysteem is. Instellingen voor volledig scherm en controllertrilling werken. Zie [INTRO_SCREEN.md](INTRO_SCREEN.md) voor bestanden en controles.
+F5 opent nu `TitleScreen.tscn`, gebaseerd op de aangeleverde afbeelding. De titel verschijnt rustig zonder transparantievlekken. De opties volgen later met dezelfde easing en een kleinere beweging; ze blijven boven de lantaarn. Een bewegende vlam, subtiele lichtvariatie en enkele vonkjes vervangen de snelle pulsering en te grote deeltjeshoeveelheid. Testscene is instelbaar in de Inspector en opent voorlopig TestArena. New Game opent ForestOpening; Main menu in het pauzemenu keert terug. Continue blijft uitgeschakeld zolang er geen opslagsysteem is. Instellingen voor volledig scherm en controllertrilling werken. Zie [INTRO_SCREEN.md](INTRO_SCREEN.md) voor bestanden en controles.
 
 ## Panda-beweging en grijze silhouetten
 
-Idle/walk/run zijn opnieuw geanimeerd op de bestaande panda; geometrie en skinweights zijn gelijk gebleven. De lage zwaardhouding beweegt met de arm mee, voetfasen sluiten aan tussen lopen/rennen en romp/staart bewegen mee. De laatste snelheidskeuze is 3,8 m/s. Negentien bestaande clips hebben aangepaste begin-/herstelposes voor de nieuwe draaghouding; actieve zwaardbanen en gameplayvensters blijven behouden. De actuele bron bevat 31 Actions, inclusief fall/land. Broncheckpoint, controles en opname: [PANDA_MOTION.md](PANDA_MOTION.md).
+Idle/walk/run zijn opnieuw geanimeerd op de bestaande panda; geometrie en skinweights zijn gelijk gebleven. De lage zwaardhouding beweegt met de arm mee, voetfasen sluiten aan tussen lopen/rennen en romp/staart bewegen mee. De laatste snelheidskeuze is 3,8 m/s. Negentien bestaande clips hebben aangepaste begin-/herstelposes voor de nieuwe draaghouding; actieve zwaardbanen en gameplayvensters blijven behouden. De actuele bron bevat 32 Actions, inclusief fall/land. Broncheckpoint, controles en opname: [PANDA_MOTION.md](PANDA_MOTION.md).
 
 Speler, vijanden en passieve doelen tonen achter ondoorzichtige meshes hun volledige silhouet in `#414342`. De centrale materiaalresource en opgeslagen stencilpass gebruiken dezelfde kleur. Actuele Forward+ Metal-beelden staan in `captures/occlusion/`; `render.json` bevestigt de geladen kleur.
 
@@ -26,7 +30,7 @@ De nieuwe hoekreplay reproduceerde zes blokkades die de eerdere brug-/traptests 
 
 ## Geldende gebruikerskeuzes
 
-- Eén rode panda. De oorspronkelijke ronde chibi-anatomie uit `lantern_panda.png` blijft leidend. `ranger_panda.png` levert uitsluitend jack, shirt, riem/tasje, handschoenen en beenwikkels. Geen brede ranger-anatomie, geen cape. Bron: `assets/characters/red_panda/source.blend`; 31 clips in model.glb.
+- Eén rode panda. De oorspronkelijke ronde chibi-anatomie uit `lantern_panda.png` blijft leidend. `ranger_panda.png` levert uitsluitend jack, shirt, riem/tasje, handschoenen en beenwikkels. Geen brede ranger-anatomie, geen cape. Bron: `assets/characters/red_panda/source.blend`; 32 clips in model.glb.
 - Zwaard in rust in de rechterhand, brede zijden naar links/rechts. De tijdelijke rugvariant is expliciet teruggedraaid. Eén zwaardinstance; linkerhand draagt de losse lantaarn. Boog/rollen/dood verbergen de lantaarn.
 - Opgeslagen 32 × 32 m prototypekamer. Camera 13 m orthografisch, vaste 50°/45° hoek, zachtere horizontale halfwaardetijd 0,12 s en verticale 0,08 s. Geen vertraging toegevoegd aan spelerinvoer.
 - Lange testtrap links/west: 16 treden, 2 m breed, 8 m lang, 4 m stijging; bordes op 4 m. Onderkant (-11,0,0), bovenkant (-11,4,-8). Gladde rampcollision. Bestaande korte trap naar het dorpshuis blijft.
@@ -42,7 +46,7 @@ De nieuwe hoekreplay reproduceerde zes blokkades die de eerdere brug-/traptests 
 
 ## Huidige combatwijziging
 
-Sunblade: bereik blijft1,9 m, geladen2,4 m. Zes nieuwe botclips leveren rechte, stijgende en dalende slagen in beide richtingen, ondiep20°. De richting wisselt vast af en de stijl is willekeurig zonder directe herhaling. Geen klik-wachtrij: vroege klikken verdwijnen; een verse klik in de laatste0,10 s herstel start direct. Heavy-charge is versneld naar0,45 s en de laadclip schaalt mee. Godot importeert panda-animaties op120 samples/s na een gevonden foute tussendraai bij30. Die combatrevisie bevatte29 Actions; de actuele bron telt31 inclusief fall/land. Details en bewijs: COMBAT_SWINGS.md en VALIDATION_LANTERN.md.
+Sunblade: bereik blijft1,9 m, geladen2,4 m. Zes nieuwe botclips leveren rechte, stijgende en dalende slagen in beide richtingen, ondiep20°. De richting wisselt vast af en de stijl is willekeurig zonder directe herhaling. Geen klik-wachtrij: vroege klikken verdwijnen; een verse klik in de laatste0,10 s herstel start direct. Heavy-charge is versneld naar0,45 s en de laadclip schaalt mee. Godot importeert panda-animaties op120 samples/s na een gevonden foute tussendraai bij30. Die combatrevisie bevatte29 Actions; de actuele bron telt32 inclusief fall/land/entrance. Details en bewijs: COMBAT_SWINGS.md en VALIDATION_LANTERN.md.
 
 ## Bronnen / voorzichtig hergebruik
 

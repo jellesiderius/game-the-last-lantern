@@ -175,12 +175,15 @@ func run() -> void:
 	await tap(JOY_BUTTON_A)
 	await frames(20)
 	check(
-		"new game opens PrototypeRoom",
-		get_tree().current_scene.scene_file_path == "res://scenes/levels/PrototypeRoom.tscn"
+		"new game opens ForestOpening",
+		get_tree().current_scene.scene_file_path == "res://scenes/levels/ForestOpening.tscn"
 	)
 	check(
-		"new game confirm preserves locomotion",
-		get_tree().current_scene.player.state == "locomotion"
+		"new game confirm preserves forest entrance",
+		(
+			get_tree().current_scene.player.state == "entrance"
+			and get_tree().current_scene.player.pending_inputs.is_empty()
+		)
 	)
 	FileAccess.open("res://captures/intro/checks.json", FileAccess.WRITE).store_string(
 		JSON.stringify(

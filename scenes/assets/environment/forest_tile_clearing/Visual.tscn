@@ -1,0 +1,4 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://assets/environment/forest_tile_clearing/model.glb" id="Model"]
+[node name="forest_tile_clearing" type="Node3D"]
+[node name="Model" parent="." instance=ExtResource("Model")]

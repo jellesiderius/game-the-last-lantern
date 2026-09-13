@@ -90,7 +90,7 @@ func _process(_delta: float) -> void:
 		pause_panel.open(dead, p.settings.camera_shake, menu_reason)
 	elif not menu_visible and pause_panel.visible:
 		pause_panel.close()
-	$Root/InputHint.visible = not menu_visible
+	$Root/InputHint.visible = not menu_visible and p.state != "entrance"
 	$Root/InputHint.text = (
 		"%s  Sword    %s  Dodge    %s  Bow    %s  Menu"
 		% [
