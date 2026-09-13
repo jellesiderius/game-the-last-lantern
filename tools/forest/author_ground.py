@@ -2,7 +2,19 @@
 import bpy,sys,math,json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(Path(__file__).parent))
-from layout import path_mask,pond_distance,TERRACES
+from layout import path_mask,pond_distance,TERRACES,GROUND_BOUNDS
+passage = '--passage' in sys.argv
+ground_id = 'forest_passage_ground' if passage else 'forest_ground'
+if passage:
+ from layout import segment_distance
+ GROUND_BOUNDS=(-19,19,-19,25)
+ TERRACES=[]
+ def pond_distance(x,z):return 1000000.
+ def path_mask(x,z):
+  d=min(segment_distance(x,z,(0,-5),(0,25))-1.2,math.hypot(x,z+5)-3.)
+  d+=.035*math.sin(x*5+z*3)+.025*math.sin(z*7-x*4)
+  return max(0,min(1,.5-d/.25))
+
 (ROOT/'captures/forest').mkdir(parents=True,exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 s=bpy.context.scene;s.name='ForestGround_Production'
@@ -21,6 +33,7 @@ for t in TERRACES:
  poly=t['polygon'];area=sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(poly,poly[1:]+poly[:1]))
  if area<0:poly=list(reversed(poly))
  regions.append((t,poly))
+region_bounds=[(min(p[0] for p in poly),max(p[0] for p in poly),min(p[1] for p in poly),max(p[1] for p in poly)) for _,poly in regions]
 verts=[];faces=[];masks=[];area_total=0.;area_expected=0.
 def emit(poly,h):
  global area_total
@@ -31,17 +44,17 @@ def emit(poly,h):
  for x,z in poly:verts.append((x,-z,h));masks.append(path_mask(x,z) if h<.1 else 0.)
  faces.append(tuple(reversed(range(start,len(verts)))))
 step=.25
-for j in range(192):
- for i in range(176):
-  x=-22+i*step;z=-28+j*step
+xmin,xmax,zmin,zmax=GROUND_BOUNDS
+for j in range(round((zmax-zmin)/step)):
+ for i in range(round((xmax-xmin)/step)):
+  x=xmin+i*step;z=zmin+j*step
   if pond_distance(x+step*.5,z+step*.5)<2.43:continue
   area_expected+=step*step
   pieces=[[(x,z),(x+step,z),(x+step,z+step),(x,z+step)]]
-  for terrace,region in regions:
+  for (terrace,region),bounds in zip(regions,region_bounds):
+   if x+step<bounds[0] or x>bounds[1] or z+step<bounds[2] or z>bounds[3]:continue
    next_pieces=[]
    for polygon in pieces:
-    if all(not(min(a[0] for a in region)-step<=p[0]<=max(a[0] for a in region)+step and min(a[1] for a in region)-step<=p[1]<=max(a[1] for a in region)+step) for p in polygon):
-     next_pieces.append(polygon);continue
     inner=polygon
     for a,b in zip(region,region[1:]+region[:1]):
      if len(inner)<3:break
@@ -69,11 +82,12 @@ for offset in [(0.,0.,0.),(.5,0.,0.)]:
 mask=nodes.new('ShaderNodeVertexColor');mask.layer_name='Color';mix=nodes.new('ShaderNodeMixRGB');links.new(mask.outputs['Color'],mix.inputs[0]);links.new(sample[0].outputs['Color'],mix.inputs[1]);links.new(sample[1].outputs['Color'],mix.inputs[2]);links.new(mix.outputs[0],bs.inputs['Base Color']);mesh.materials.append(mat)
 for im in bpy.data.images:
  if im.filepath:im.pack()
-out=ROOT/'assets/environment/forest_ground';out.mkdir(parents=True,exist_ok=True)
+out=ROOT/'assets/environment'/ground_id;out.mkdir(parents=True,exist_ok=True)
 bpy.ops.wm.save_as_mainfile(filepath=str(out/'source.blend'))
 bpy.ops.export_scene.gltf(filepath=str(out/'model.glb'),export_format='GLB',export_animations=False,export_vertex_color='NAME',export_vertex_color_name='Color',export_all_vertex_colors=True)
 report={'faces':len(faces),'exclusive_surface':True,'area_m2':area_total,'expected_area_m2':area_expected,'exact_terrace_boundaries':True,'pond_cutout':True}
-(ROOT/'captures/forest/ground_audit.json').write_text(json.dumps(report,indent=2));print('GROUND_OVERLAP_CHECK_PASS',report)
+(ROOT/'captures/forest'/('passage_ground_audit.json' if passage else 'ground_audit.json')).write_text(json.dumps(report,indent=2));print('GROUND_OVERLAP_CHECK_PASS',report)
+if passage:sys.exit(0)
 # Continuous walls share the exact grass boundary; cap material drapes down irregularly.
 bpy.ops.wm.read_factory_settings(use_empty=True);s=bpy.context.scene;s.name='ForestTerraces_Production'
 materials=[]
@@ -94,7 +108,9 @@ for terrace,poly in regions:
  for j in range(4):
   for i in range(n):
    # The waterfall replaces this section of the pond bank.
-   x,z,_=boundary[i];xx,zz,_=boundary[(i+1)%n]
+   x,z,normal=boundary[i];xx,zz,_=boundary[(i+1)%n]
+   from layout import height_at
+   if abs(height_at((x+xx)/2+normal[0]*.01,(z+zz)/2+normal[1]*.01)-h)<.001:continue
    if terrace['name']=='PondBank' and -9.05<(x+xx)/2<-7.95 and (z+zz)/2>-7:continue
    f.append((j*n+i,j*n+(i+1)%n,(j+1)*n+(i+1)%n,(j+1)*n+i));owners.append(3 if j==3 else (1 if i%7==0 else 2 if i%9==0 else 0))
  me=bpy.data.meshes.new(terrace['name']);me.from_pydata(v,[],f);me.update();ob=bpy.data.objects.new(terrace['name'],me);s.collection.objects.link(ob)

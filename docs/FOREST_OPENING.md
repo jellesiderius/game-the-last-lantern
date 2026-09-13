@@ -33,7 +33,7 @@ python3 tools/forest/author_gallery.py
 
 Bekijk vóór export front, beide zijden, achterkant en spelcamera onder `captures/forest/assets/`. De exporter bundelt statische onderdelen per materiaal op een tijdelijke werkversie; hij overschrijft de bewerkbare bron niet. De vlinder behoudt zijn vleugelhiërarchie. Import-LOD is voor deze kleine referentie-assets uitgeschakeld.
 
-Bij terreinwijzigingen wordt `author_ground.py` eerst in Blender uitgevoerd. Die knipt grasplateaus en omringende grond geometrisch op hun echte veelhoekgrens; pad/gras gebruiken één gedeeld oppervlak met een interpolerend masker. De oppervlaktecontrole telt 2091 m² zonder dubbel bezette zichtbare voetafdrukken, met een uitsparing voor de vijver. Er zijn geen op elkaar gelegde gras-/padvlakken met kleine hoogteverschillen. De rotswandbron wordt daarna visueel gereviewd en via de afzonderlijke exporter geëxporteerd.
+Bij terreinwijzigingen wordt `author_ground.py` eerst in Blender uitgevoerd. Die knipt grasplateaus en omringende grond geometrisch op hun echte veelhoekgrens; pad/gras gebruiken één gedeeld oppervlak met een interpolerend masker. De oppervlaktecontrole telt 4671 m² zonder dubbel bezette zichtbare voetafdrukken, met een uitsparing voor de vijver. Er zijn geen op elkaar gelegde gras-/padvlakken met kleine hoogteverschillen. De rotswandbron wordt daarna visueel gereviewd en via de afzonderlijke exporter geëxporteerd.
 
 ## Introductie en vijand
 
@@ -64,12 +64,21 @@ De forestreplay controleert de startpose, pauze, input, sprong/landing, HUD, bew
 
 De gedeelde melee-, boog-, controller- en crowdregressies slagen voor panda, kraai en capybara bij cap60. De al bestaande enemy-toelatings-/routefout bij de gewijzigde TestArena-muur blijft open en staat los van de begaanbaarheid van het bospad. Godot kan bij afsluiten een shader/RID-lek melden. Een tweede draaiend Godot-proces kan bovendien de bestaande MCP-poort bezetten; screenshots hierboven komen uit de eigen native replay, niet via die poort.
 
-## Stand van deze revisie
+## Uitgebreid en rustiger bos
 
-De speelbare scene bevat 745 opgeslagen omgevingsinstances. De nieuwste onafhankelijke stijlvergelijking scoort 5,6/10, gelijk aan de vorige ronde. De grote herziening verbeterde de totale referentiematch dus niet verder. Volgens het stall-criterium van de gevraagde dream-loop-workflow wordt eerst feedback gevraagd over de boomkronen, rotsvlakken en kleine planten. De verdere vormgeving is niet als afgerond gemarkeerd.
+De bestaande assetkit is opnieuw geplaatst rond één route van circa **90 meter**. De grondcollision beslaat 38 × 86 m; het zichtbare terrein, inclusief de hoge bosranden, heeft 4671 m² exclusief de vijveruitsparing. Er staan **357** opgeslagen omgevingsinstances in het manifest, tegenover 745 in de eerdere kleine area. De losse planten zijn in kleine groepen langs de randen gezet; het zandpad is circa 2,4 m breed en heeft rustige open plekken.
 
-De nieuwste native bosreplays slagen alle 11 checks op elke cap. Stabiele metingen na opwarming: 30,03 FPS bij cap30, 60,11 bij cap60 en 120,12 bij cap120. De schone opening/aanloopopname bevat 706 werkelijk getekende frames; de geïmporteerde assetgalerij 999. De intro- en acornreplays slagen met respectievelijk 24 en 51 controles. De opname staat lokaal in `captures/forest/forest_opening.mp4`.
+Verbonden rotsbanken met collision sluiten beide zijkanten en de achterkant af. Vanaf de stronk gaat de route langs de vijver en Eikelwachter, vervolgens langs Mos en een leesbare wegwijzer, door de rustige bosbochten naar de lantaarnpoort. De oorspronkelijke extra vlindergroep, tweede Eikelwachter en tweede bosbewoner uit de editor zijn behouden in `tools/forest/authored_details.tscn.inc`. Hun plaatsing is geen runtimegeneratie.
 
-![Actuele native bosarea; de referentiematch is nog niet afgerond](images/forest-opening-progress.png)
+De bovenste `ForestExit` is nu een herbruikbare **ScenePortal** naar `ForestPassage`: een tweede bosgedeelte met een huis. De voordeur opent `ForestHouse`, waar Linde een bewerkbaar gesprek heeft. De deur en bospoort werken ook terug. Target Scene, Target Spawn, Trigger Size en de stap-/fadetiming zijn per portal instelbaar. Zie [SCENE_TRANSITIONS.md](SCENE_TRANSITIONS.md).
 
-Een schone checkout van commit `7a99424` importeert zelfstandig en doorstaat alle 11 boscontroles native, met 734 getekende frames en 59,97 FPS na opwarming. De assetreview plaatst zijn vloer op de werkelijke onderkant van elk geïmporteerd asset; grondmodules hebben in de opgeslagen galerij hun eigen hoogte-offset.
+
+De camera blijft 13 m orthografisch, met dezelfde vaste hoek en halfwaardetijden. Alleen de begrenzing volgt het grotere level. Atlas-sampling gebruikt afgeleiden van de ononderbroken UV's, zodat mipmaps geen dun raster met kleuren van andere atlasvakken op de grond veroorzaken.
+
+Voor het herbruikbare gesprekssysteem, de instelbare Praten/Lezen-labels en het naar de speler draaien: zie [DIALOGUE.md](DIALOGUE.md).
+
+De eerdere assetvergelijking met de aangeleverde referenties bleef op 5,6/10. Deze revisie volgt de nieuwe opdracht om de bestaande assets te hergebruiken voor een groter en rustiger level; de individuele modellen zijn niet opnieuw ontworpen en er wordt geen 1:1-overeenkomst geclaimd.
+
+Actuele replaymetingen staan in `FOREST_VALIDATION.json`. De forestreplay loopt van de stronk naar de eerste vijand, schakelt daarna gevechten alleen voor de navigatietest uit en wandelt de resterende route zonder teleportatie. Afzonderlijke vertrekproeven controleren de fysieke bosranden. De cameracontrole vergelijkt bij de uitgang met de begrensde volgpositie.
+
+![Actuele bosopening met de bestaande assetkit](images/forest-current.png)

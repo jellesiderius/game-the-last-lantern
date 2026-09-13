@@ -17,7 +17,7 @@ git lfs pull
 
 Open `project.godot` in **Godot 4.7.2** en druk **F5**. De hoofdscene is `scenes/ui/TitleScreen.tscn`: het introscherm met geanimeerde titel, rustig vlamlicht en enkele opstijgende vonkjes. **New Game** opent `ForestOpening`; **Testscene** opent standaard `TestArena`. Selecteer de root van TitleScreen en wijzig **Test Scene** in de Inspector om een andere testscene in te stellen. Via **Main menu** in het pauzemenu kom je terug. Zie [INTRO_SCREEN.md](docs/INTRO_SCREEN.md).
 
-De eerste area begint in het bos: de panda zit op een grote stronk, springt eraf en krijgt de besturing terug terwijl vlinders voorbijvliegen. Het pad leidt langs begroeiing, een vijver en rotsterrassen naar de Eikelwachter. Bewerkbare assets en bouwinstructies: [FOREST_OPENING.md](docs/FOREST_OPENING.md).
+De eerste area begint in het bos: de panda zit op een grote stronk, springt eraf en krijgt de besturing terug terwijl vlinders voorbijvliegen. Het pad leidt langs begroeiing, een vijver en rotsterrassen naar de Eikelwachter. Aan het einde opent de poort een tweede bos met een huis. De voordeur brengt je naar het interieur, waar je met Linde kunt praten; beide routes werken ook terug. Bewerkbare assets en bouwinstructies: [FOREST_OPENING.md](docs/FOREST_OPENING.md).
 
 De afzonderlijke prototypekamer is **32 × 32 meter**, met een 2 meter breed waterkanaal, brug en een terras op 1 meter hoogte. De camera behoudt 50° neerwaartse hoek en 45° draaiing, heeft een orthografische grootte van **13 meter** en volgt de speler soepel binnen grenzen. Alle levels blijven rechtstreeks met F6 te starten.
 
@@ -110,3 +110,7 @@ python3 tools/run_checks.py --character red_panda --caps 30 60 120
 `captures/` bevat lokale, gegenereerde controles en opnamen. Deze bestanden worden niet meegecommit; de replaycommando's maken ze opnieuw. Godot bouwt zijn `.godot/`-importcache bij het openen van het project.
 
 Zie `docs/VALIDATION_LANTERN.md` voor actuele resultaten, screenshots en beperkingen. De miniatuurstijl is een eigen interpretatie van de referenties; de gameplayarchitectuur en waarden zijn geen gereconstrueerde Death’s Door-broncode.
+
+Gesprekken en configureerbare Praten/Lezen-labels beheren: [docs/DIALOGUE.md](docs/DIALOGUE.md).
+
+Herbruikbare poorten, deuren en aankomstpunten instellen: [docs/SCENE_TRANSITIONS.md](docs/SCENE_TRANSITIONS.md).

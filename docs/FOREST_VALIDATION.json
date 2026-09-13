@@ -1,39 +1,242 @@
 {
+  "date": "2026-09-13",
   "renderer": "Forward+ Metal",
-  "forest_checks_per_cap": 11,
-  "native": [
+  "physics_fps": 120,
+  "forest_native": [
     {
-      "cap": 120,
+      "report": "captures/forest/checks_30.json",
+      "checks": 18,
       "failures": 0,
-      "steady_render_fps": 120.12012012012,
-      "render_frames": 1452,
-      "seconds": 12.835
-    },
-    {
       "cap": 30,
-      "failures": 0,
-      "steady_render_fps": 30.0344657804037,
-      "render_frames": 374,
-      "seconds": 12.947
+      "render_frames": 1105,
+      "steady_render_fps": 30.0,
+      "seconds": 37.924
     },
     {
-      "cap": 60,
+      "report": "captures/forest/checks_60.json",
+      "checks": 18,
       "failures": 0,
-      "steady_render_fps": 60.1092896174863,
-      "render_frames": 736,
-      "seconds": 12.909
+      "cap": 60,
+      "render_frames": 2185,
+      "steady_render_fps": 60.0,
+      "seconds": 37.844
+    },
+    {
+      "report": "captures/forest/checks_120.json",
+      "checks": 18,
+      "failures": 0,
+      "cap": 120,
+      "render_frames": 4343,
+      "steady_render_fps": 119.960179193629,
+      "seconds": 37.735
     }
   ],
-  "intro_checks": 24,
-  "acorn_checks": 51,
-  "visual_reference_score": 5.6,
-  "visual_status": "Awaiting user style feedback after stalled comparison",
-  "known_regression": "Existing enemy admission/route check near edited TestArena wall remains failing for three character profiles.",
-  "fresh_checkout": {
-    "commit": "7a99424",
-    "import": "passed",
+  "dialogue_native": {
+    "report": "captures/forest/dialogue_checks.json",
+    "checks": 29,
     "failures": 0,
-    "render_frames": 734,
-    "steady_render_fps": 59.9700149925037
+    "cap": 60,
+    "render_frames": 308
+  },
+  "transitions_native": [
+    {
+      "report": "captures/forest/transition_checks_30.json",
+      "checks": 51,
+      "failures": 0,
+      "cap": 30,
+      "render_frames": 527
+    },
+    {
+      "report": "captures/forest/transition_checks_60.json",
+      "checks": 51,
+      "failures": 0,
+      "cap": 60,
+      "render_frames": 1040
+    },
+    {
+      "report": "captures/forest/transition_checks_120.json",
+      "checks": 51,
+      "failures": 0,
+      "cap": 120,
+      "render_frames": 2042
+    }
+  ],
+  "controller_native": {
+    "report": "captures/controller_checks_red_panda_60.json",
+    "checks": 42,
+    "failures": 0,
+    "render_cap": 60,
+    "observed_render_fps": 59.5121951219512
+  },
+  "controller_input": "Native Godot InputEvents; no physical controller used by replay.",
+  "shared_cap60": [
+    {
+      "character": "red_panda",
+      "cap": 60,
+      "suites": [
+        {
+          "suite": "runtime",
+          "report": "captures/runtime_checks_red_panda_60.json",
+          "checks": 76,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "bow",
+          "report": "captures/bow_checks_red_panda_60.json",
+          "checks": 69,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "enemy",
+          "report": "captures/enemy_checks_red_panda_60.json",
+          "checks": 46,
+          "failures": 1,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "controller",
+          "report": "captures/controller_checks_red_panda_60.json",
+          "checks": 42,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 59.5121951219512
+        },
+        {
+          "suite": "crowd",
+          "report": "captures/crowd_checks_red_panda_60.json",
+          "checks": 33,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        }
+      ]
+    },
+    {
+      "character": "crow",
+      "cap": 60,
+      "suites": [
+        {
+          "suite": "runtime",
+          "report": "captures/runtime_checks_60.json",
+          "checks": 76,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "bow",
+          "report": "captures/bow_checks_60.json",
+          "checks": 69,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "enemy",
+          "report": "captures/enemy_checks_60.json",
+          "checks": 46,
+          "failures": 1,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "controller",
+          "report": "captures/controller_checks_60.json",
+          "checks": 42,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "crowd",
+          "report": "captures/crowd_checks_crow_60.json",
+          "checks": 33,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        }
+      ]
+    },
+    {
+      "character": "capybara",
+      "cap": 60,
+      "suites": [
+        {
+          "suite": "runtime",
+          "report": "captures/runtime_checks_capybara_60.json",
+          "checks": 76,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "bow",
+          "report": "captures/bow_checks_capybara_60.json",
+          "checks": 69,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "enemy",
+          "report": "captures/enemy_checks_capybara_60.json",
+          "checks": 46,
+          "failures": 1,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "controller",
+          "report": "captures/controller_checks_capybara_60.json",
+          "checks": 42,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        },
+        {
+          "suite": "crowd",
+          "report": "captures/crowd_checks_capybara_60.json",
+          "checks": 33,
+          "failures": 0,
+          "render_cap": 60,
+          "observed_render_fps": 0.0
+        }
+      ]
+    }
+  ],
+  "shared_execution": "All three profiles ran all five suites headless. Panda controller was subsequently repeated in a native window.",
+  "known_regression": "Existing waiting enemies eventually get a turn check near the edited TestArena wall fails for all three character profiles. Melee, bow, controller and crowd pass.",
+  "ground_audits": {
+    "ground": {
+      "faces": 75596,
+      "exclusive_surface": true,
+      "area_m2": 4671.0,
+      "expected_area_m2": 4671.0,
+      "exact_terrace_boundaries": true,
+      "pond_cutout": true
+    },
+    "passage_ground": {
+      "faces": 26752,
+      "exclusive_surface": true,
+      "area_m2": 1672.0,
+      "expected_area_m2": 1672.0,
+      "exact_terrace_boundaries": true,
+      "pond_cutout": true
+    }
+  },
+  "visual_review": "Current native gameplay images and five source views of both new ground and house inspected. House floor overlap removed. Existing forest models reused.",
+  "visual_reference_score": 5.6,
+  "visual_status": "Historical asset fidelity score; this revision implements the requested larger, quieter layout and connected maps using the existing kit. No 1:1 claim.",
+  "sources_sha256": {
+    "scenes/levels/ForestOpening.tscn": "bba43a75ce90b0991cdb5d8d34ca14458185866130c651d29bc5f8917b4fe6f2",
+    "scenes/levels/ForestPassage.tscn": "7f14c72e6082efd2b98a14592f4275df1895deaa8fd9730eabb3da0218b9f1cd",
+    "scenes/levels/ForestHouse.tscn": "60b55fd0a239f38b63e259466293bd1beaecc9e0a9b65a2447dea6eed90ac52f",
+    "assets/environment/forest_ground/model.glb": "61e948157f772b880f69d86bb84f54fc54f9be0556608c5099a34c2ffdba2e7e",
+    "assets/environment/forest_passage_ground/model.glb": "79d74c0b8df36dea5aabfa9d934bf6dfbb0423576d81d5113e1c04e284d7e778"
   }
 }

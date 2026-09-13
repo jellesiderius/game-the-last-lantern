@@ -1,9 +1,9 @@
 """Author wrappers and saved level instances. No environment mesh creation at game startup."""
 import json,math,re
 from pathlib import Path
-from layout import placements,STUMP,POND,TERRACES
+from layout import placements,STUMP,POND,TERRACES,EXIT,PATH,PLAY_BOUNDS
 ROOT=Path(__file__).resolve().parents[2]
-assets=sorted(p.name for p in (ROOT/'assets/environment').glob('forest_*/source.blend') for p in [p.parent] if p.name!='forest_ground')
+assets=sorted(p.name for p in (ROOT/'assets/environment').glob('forest_*/source.blend') for p in [p.parent] if not p.name.endswith('_ground'))
 for name in assets:
  folder=ROOT/'scenes/assets/environment'/name;folder.mkdir(parents=True,exist_ok=True)
  text=f'[gd_scene format=3]\n[ext_resource type="PackedScene" path="res://assets/environment/{name}/model.glb" id="Model"]\n'
@@ -40,10 +40,14 @@ def cylinder(name,at,radius,height):
  shape=sub(name+'Shape','CylinderShape3D',f'radius = {radius}\nheight = {height}');node(name,'StaticBody3D','Collision',props='position = '+xyz(at));node('Shape','CollisionShape3D','Collision/'+name,props='shape = '+shape)
 for name in assets+['forest_ground']:ext(name,'PackedScene',f'scenes/assets/environment/{name}/Visual.tscn')
 for k,t,p in [('World','Script','scripts/world/forest_opening.gd'),('Entrance','Resource','settings/forest_entrance.tres'),('Player','PackedScene','scenes/actors/player/Player.tscn'),('HUD','PackedScene','scenes/ui/HUD.tscn'),('Acorn','PackedScene','scenes/actors/npcs/enemy/AcornGuard.tscn'),('Spark','PackedScene','scenes/effects/ImpactSpark.tscn'),('Sound','AudioStream','assets/audio/impact.wav'),('Water','Shader','shaders/forest_water.gdshader'),('Lantern','PackedScene','scenes/assets/props/hand_lantern/Visual.tscn')]:ext(k,t,p)
-node('ForestOpening','Node3D',parent=None,props='script = ExtResource("World")\nentrance_sequence = ExtResource("Entrance")\nspawn_position = Vector3(-3,0,7.4)\ncamera_min = Vector2(-9,-16)\ncamera_max = Vector2(12,8)')
+ext('Portal','PackedScene','scenes/components/ScenePortal.tscn')
+ext('Spawn','Script','scripts/world/scene_spawn_point.gd')
+ext('Keeper','PackedScene','scenes/actors/npcs/friendly/forest_keeper/Keeper.tscn')
+ext('Waymarker','PackedScene','scenes/assets/environment/ForestWaymarker.tscn')
+node('ForestOpening','Node3D',parent=None,props='script = ExtResource("World")\nentrance_sequence = ExtResource("Entrance")\nspawn_position = Vector3(-3,0,7.4)\ncamera_min = Vector2(-10,-73)\ncamera_max = Vector2(12,7)')
 node('Ground',instance='forest_ground');node('Assets','Node3D');node('Collision','Node3D')
-box('Floor',(1,-.6,-4),(30,1.2,32))
-for name,at,size in [('West',(-14.2,2,-4),(.4,5,32)),('East',(16.2,2,-4),(.4,5,32)),('North',(1,2,-20.2),(30,5,.4)),('South',(1,2,12.2),(30,5,.4))]:box(name,at,size)
+xmin,xmax,zmin,zmax=PLAY_BOUNDS
+box('Floor',((xmin+xmax)/2,-.6,(zmin+zmax)/2),(xmax-xmin,1.2,zmax-zmin))
 items=placements()
 for i,p in enumerate(items):
  name=p['asset']+'_'+str(i);s=p['scale']
@@ -52,7 +56,7 @@ for i,p in enumerate(items):
  elif p['asset'] in ['forest_pine','forest_pine_b','forest_pine_c','forest_oak']:cylinder('Trunk'+str(i),(p['x'],p['y']+s*.85,p['z']),s*.28,s*1.7)
  # Cliff modules are covered by the connected terrace collision below.
  elif p['asset']=='forest_rocks':cylinder('Rock'+str(i),(p['x'],p['y']+s*.32,p['z']),s*.4,s*.64)
- elif p['asset']=='forest_hollow_log':box('Log'+str(i),(p['x'],s*.34,p['z']),(s*2.2,s*.75,s*.72),p['yaw'])
+ elif p['asset']=='forest_hollow_log':box('Log'+str(i),(p['x'],p['y']+s*.34,p['z']),(s*2.2,s*.75,s*.72),p['yaw'])
  elif p['asset']=='forest_fence':box('Fence'+str(i),(p['x'],p['y']+s*.4,p['z']),(s*1.38,s*.80,s*.15),p['yaw'])
  elif p['asset']=='forest_gate':
   for sign in [-1,1]:cylinder('Gate'+('Left' if sign<0 else 'Right'),(p['x']+sign*1.4,1.3,p['z']),.17,2.6)
@@ -78,8 +82,14 @@ for i in range(3):
  node('Ripple'+str(i),'MeshInstance3D','Water',props=f'position = Vector3(-8.5,-.178,-5.4)\nscale = Vector3({.6+i*.38},.05,{.4+i*.24})\nmesh = {foammesh}\nmaterial_override = {foammat}\ncast_shadow = 0')
 node('Butterflies','Node3D')
 for i,(x,y,z) in enumerate([(-1.9,1.0,5.3),(-.8,1.25,4.7),(-1.0,.85,2.8)]):node('Butterfly'+str(i),parent='Butterflies',instance='forest_butterfly',props=f'position = {xyz((x,y,z))}\nphase = {i*1.63}\nflight_radius = 1.25')
-node('GateLantern',parent='Assets',instance='Lantern',props='position = Vector3(5,1.92,-16)\nscale = Vector3(1.3,1.3,1.3)')
+node('GateLantern',parent='Assets',instance='Lantern',props='position = '+xyz((EXIT[0],1.92,EXIT[1]))+'\nscale = Vector3(1.3,1.3,1.3)')
 node('LanternLight','OmniLight3D','Assets/GateLantern',props='light_color = Color(1,.58,.18,1)\nlight_energy = .5\nomni_range = 2.5')
+node('ForestKeeper',instance='Keeper',props='position = Vector3(1,-0.0,-20.5)\nrotation_degrees = Vector3(0,-90,0)')
+node('Waymarker',instance='Waymarker',props='position = Vector3(5.5,0,-22.5)')
+node('Route','Node3D')
+for i,(x,z) in enumerate(PATH[1:]):node('Point%02d'%i,'Marker3D','Route',props='position = '+xyz((x,0,z)))
+node('ForestExit',instance='Portal',props='position = '+xyz((EXIT[0],0,EXIT[1]-1.8))+'\ntarget_scene = "res://scenes/levels/ForestPassage.tscn"\ntarget_spawn = &"SouthGate"\ntrigger_size = Vector3(6,3,2.6)')
+node('SpawnNorthGate','Marker3D',props='position = '+xyz((EXIT[0],0,EXIT[1]-.6))+'\nrotation_degrees = Vector3(0,180,0)\nscript = ExtResource("Spawn")\nspawn_id = &"NorthGate"')
 node('Player',instance='Player',props='position = Vector3(-3,1.565,4.72)')
 node('AcornGuard',instance='Acorn',props='position = Vector3(4,0,-12)')
 node('CameraRig','Node3D',props='transform = Transform3D(0.7071069,-0.54167527,0.4545192,0,0.64278734,0.7660447,-0.70710665,-0.54167545,0.45451936,-3,1.8,4.12)')
@@ -93,6 +103,8 @@ for i in range(4):node('Spark'+str(i),parent='ImpactPool',instance='Spark')
 node('ImpactSound','AudioStreamPlayer3D',props='stream = ExtResource("Sound")\nvolume_db = -8.0\nmax_distance = 30.0')
 text='[gd_scene format=3]\n'+''.join(f'[ext_resource type="{t}" path="res://{p}" id="{k}"]\n' for k,(t,p) in exts.items())+'\n'+'\n'.join(res)+'\n'.join(nodes)
 text=re.sub(r'(?<![0-9])\.(?=[0-9])','0.',text)
+# Preserve the user's editor-added butterfly group and second guard.
+text += '\n'+(ROOT/'tools/forest/authored_details.tscn.inc').read_text()
 (ROOT/'scenes/levels/ForestOpening.tscn').write_text(text)
 (ROOT/'assets/environment/forest_layout.json').write_text(json.dumps(items,indent=2))
 print('FOREST_LEVEL_AUTHORED',len(items),'saved asset instances')

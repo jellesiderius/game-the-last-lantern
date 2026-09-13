@@ -1,8 +1,12 @@
 # Huidige stand — 13 september 2026
 
-## Eerste bosarea — speelbaar, stijlfeedback gevraagd
+## Groter, rustiger bos en configureerbare gesprekken
 
-New Game opent `ForestOpening.tscn`: zitten op de stronk, een echte sprong, vlinders, besturing en een begaanbaar pad naar de Eikelwachter. Alle omgevingsmeshes en plaatsingen zijn opgeslagen; bronnen en losse wrappers zijn bewerkbaar. Zie [FOREST_OPENING.md](FOREST_OPENING.md). De referenties bepalen de stijl. De oorspronkelijke grove pixelruis is onderzocht via native rendervergelijkingen; omgevingslicht, schaduwsampling, normals, materiaalgrenzen en import-LOD zijn apart gecontroleerd. De onafhankelijke beeldvergelijking bleef na een grote herziening op 5,6/10. De dream-loop is daarom gepauzeerd voor gebruikersfeedback over de nog te grove boomkronen, rotsvlakken en planten; geen 1:1-claim. De 11 boscontroles slagen bij caps30/60/120, met stabiele metingen van 30,03 / 60,11 / 120,12 FPS na opwarming. De 24 introcontroles en 51 acorncontroles slagen native in Forward+ Metal.
+ForestOpening heeft nu een enkele route van circa 90 meter, een breder vrij zandpad, rustige open plekken en doorlopende fysieke rotsbanken met bomen op de randen. Het manifest bevat 357 props tegenover de eerdere 745. De bestaande assetmodellen zijn hergebruikt. De editor-toevoegingen van de gebruiker (extra vlinders, Eikelwachter en tweede bosbewoner) zijn behouden. De poort ligt nu aan het einde van het uitgebreide gebied en opent ForestPassage met een huis. De voordeur opent ForestHouse met de aanspreekbare Linde; beide verbindingen werken ook terug. De herbruikbare ScenePortal heeft een instelbaar detectiegebied, bestemming, aankomstmarker en instellingen voor doorlopen/inlopen en fade. Zie [SCENE_TRANSITIONS.md](SCENE_TRANSITIONS.md).
+
+Er is een herbruikbaar dialoogsysteem voor NPC's, borden en inscripties. Complete gesprekken en hun tekstblokken zijn `.tres`-Resources; `Prompt` bepaalt per instance of prefab het label zoals Praten/Lezen. NPC's kunnen met een instelbaar visueel draaipunt naar de speler kijken. De kleine interactieknop volgt het actieve apparaat. Openen/afsluiten gebruikt de bestaande klok en inputblokkades. Zie [DIALOGUE.md](DIALOGUE.md) en [FOREST_OPENING.md](FOREST_OPENING.md). Native Forward+ Metal: 18 boscontroles en 51 overgangscontroles slagen bij caps30/60/120; 29 dialoogcontroles en 42 controllercontroles slagen bij cap60. Vertrek en aankomst lopen elk circa 1,5 m door, alle vier verbindingen werken zonder directe terugreis en levens/magie blijven behouden. De actuele metingen staan in `FOREST_VALIDATION.json`.
+
+De eerdere onafhankelijke assetmatch bleef op 5,6/10; de nieuwe opdracht gebruikt die bestaande assets voor levelbouw. De vormmatch is hiermee niet als 1:1 afgerond verklaard.
 
 ## Introscherm: The Last Lantern
 

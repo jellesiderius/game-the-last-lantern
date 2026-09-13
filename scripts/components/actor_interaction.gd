@@ -20,6 +20,7 @@ func refresh() -> void:
 			candidate.global_position + Vector3.UP * .4,
 			CombatLayers.WORLD
 		)
+		ray.exclude = candidate.sight_exclusions()
 		if not actor.get_world_3d().direct_space_state.intersect_ray(ray).is_empty():
 			continue
 		target = candidate

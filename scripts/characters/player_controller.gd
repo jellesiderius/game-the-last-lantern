@@ -78,6 +78,57 @@ func _enter_tree() -> void:
 		get_node("Health").maximum = definition.maximum_health
 
 
+var scene_travel_done := true
+var travel_direction := Vector3.FORWARD
+var travel_speed := 0.0
+var travel_distance := 0.0
+var travel_elapsed := 0.0
+var travel_timeout := 2.0
+
+
+func begin_scene_travel(direction: Vector3, speed: float, distance: float) -> void:
+	suspend_controls()
+	entrance = null
+	travel_direction = direction.normalized()
+	travel_speed = speed
+	travel_distance = distance
+	travel_elapsed = 0.0
+	travel_timeout = distance / maxf(speed, .1) + .8
+	scene_travel_done = false
+	_enter("scene_travel", "")
+
+
+func finish_scene_travel() -> void:
+	suspend_controls()
+	scene_travel_done = true
+	airborne_time = 0.0
+	_locomotion()
+
+
+func _update_scene_travel(delta: float) -> void:
+	if delta <= 0.0:
+		return
+	suspend_controls()
+	action_time += delta
+	travel_elapsed += delta
+	var moving := not scene_travel_done
+	var flat := Vector3(velocity.x, 0, velocity.z).move_toward(
+		travel_direction * travel_speed if moving else Vector3.ZERO, settings.acceleration * delta
+	)
+	velocity.x = flat.x
+	velocity.z = flat.z
+	velocity.y = -.2 if is_on_floor() else velocity.y - settings.gravity * delta
+	_face(travel_direction, delta)
+	var before := global_position
+	move_and_slide()
+	travel_distance -= Vector2(global_position.x - before.x, global_position.z - before.z).length()
+	# A blocked threshold never traps the transition in an endless walk animation.
+	if travel_distance <= .01 or travel_elapsed >= travel_timeout:
+		scene_travel_done = true
+	ground_feedback.sample_motion(delta, moving)
+	visual.sample("", 0, Vector2(velocity.x, velocity.z).length(), delta)
+
+
 func _ready() -> void:
 	add_to_group("player")
 	input_device = InputRouter.kind
@@ -158,7 +209,7 @@ func _update_entrance(delta: float) -> void:
 
 
 func request_action(action: String, device := "keyboard") -> void:
-	if state == "entrance":
+	if state in ["entrance", "scene_travel"]:
 		return
 	next_aim_device = device
 	pending_inputs.append(action)
@@ -201,6 +252,9 @@ func _physics_process(_delta: float) -> void:
 			bow.aim_held = false
 			heavy_held = false
 			_locomotion()
+	if state == "scene_travel":
+		_update_scene_travel(GameClock.dt)
+		return
 	if state == "entrance":
 		_update_entrance(GameClock.dt)
 		return
@@ -585,6 +639,7 @@ func attack_duration() -> float:
 func is_invulnerable() -> bool:
 	return (
 		invulnerability > 0
+		or state == "scene_travel"
 		or (
 			state == "roll"
 			and action_time >= settings.roll_iframe_start

@@ -22,6 +22,8 @@ GameClock="*res://scripts/core/game_clock.gd"
 InputRouter="*res://scripts/core/input_router.gd"
 AttackTokenManager="*res://scripts/ai/attack_token_manager.gd"
 GameSession="*res://scripts/core/game_session.gd"
+Dialogue="*res://scenes/ui/Dialogue.tscn"
+SceneTransit="*res://scenes/ui/SceneTransit.tscn"
 
 [display]
 

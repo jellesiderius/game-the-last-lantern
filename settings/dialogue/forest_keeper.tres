@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="DialogueConversation" format=3 uid="uid://b5j410batndlv"]
+
+[ext_resource type="Script" uid="uid://7xygf8wm3wt7" path="res://scripts/components/dialogue_conversation.gd" id="Conversation"]
+[ext_resource type="Script" uid="uid://cempfu7wadcj4" path="res://scripts/components/dialogue_line.gd" id="Line"]
+
+[sub_resource type="Resource" id="Hello"]
+script = ExtResource("Line")
+text = "Zo, uitgeslapen? Het bos heeft geen haast. Jij hoeft die ook niet te hebben."
+
+[sub_resource type="Resource" id="Direction"]
+script = ExtResource("Line")
+text = "Volg het lichte pad tussen de rotswanden. Voorbij de stille open plek zie je een [color=#e5ba71]lantaarn boven een houten poort[/color]. Daar is de uitgang."
+
+[sub_resource type="Resource" id="Goodbye"]
+script = ExtResource("Line")
+text = "En die eikelwachters? Laat ze eerst hun knuppel zwaaien. Als ze wankelen, is het jouw beurt."
+
+[resource]
+script = ExtResource("Conversation")
+speaker = "Mos · bosbewoner"
+lines = Array[ExtResource("Line")]([SubResource("Hello"), SubResource("Direction"), SubResource("Goodbye")])

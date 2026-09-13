@@ -1,10 +1,14 @@
 """Export reviewed sources; batch static parts by material on a disposable working copy."""
-import bpy
+import bpy,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
+only=next((a.split('=',1)[1] for a in sys.argv if a.startswith('--only=')),None)
 for source in sorted((ROOT/'assets/environment').glob('forest_*/source.blend')):
- if source.parent.name=='forest_ground':continue
+ if (source.parent.name.endswith('_ground') and only!=source.parent.name) or (only and source.parent.name!=only):continue
  bpy.ops.wm.open_mainfile(filepath=str(source))
+ if source.parent.name.endswith('_ground'):
+  bpy.ops.export_scene.gltf(filepath=str(source.parent/'model.glb'),export_format='GLB',export_animations=False,export_vertex_color='NAME',export_vertex_color_name='Color',export_all_vertex_colors=True)
+  continue
  if source.parent.name!='forest_butterfly':
   groups={}
   for o in list(bpy.context.scene.objects):

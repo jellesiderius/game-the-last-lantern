@@ -17,3 +17,14 @@ func can_interact(_actor: Node3D) -> bool:
 
 func interact(actor: Node3D) -> void:
 	interacted.emit(actor)
+
+
+## The target's own collider is not an obstruction; intervening world geometry still is.
+func sight_exclusions() -> Array[RID]:
+	var exclusions: Array[RID] = []
+	var ancestor: Node = self
+	while ancestor != null:
+		if ancestor is CollisionObject3D:
+			exclusions.append(ancestor.get_rid())
+		ancestor = ancestor.get_parent()
+	return exclusions

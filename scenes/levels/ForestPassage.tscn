@@ -1,0 +1,415 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/world/forest_passage.gd" id="World"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="Player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="HUD"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="Spark"]
+[ext_resource type="AudioStream" path="res://assets/audio/impact.wav" id="Sound"]
+[ext_resource type="PackedScene" path="res://scenes/components/ScenePortal.tscn" id="Portal"]
+[ext_resource type="Script" path="res://scripts/world/scene_spawn_point.gd" id="Spawn"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_passage_ground/Visual.tscn" id="forest_passage_ground"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_cliff/Visual.tscn" id="forest_cliff"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine/Visual.tscn" id="forest_pine"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine_c/Visual.tscn" id="forest_pine_c"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine_b/Visual.tscn" id="forest_pine_b"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_gate/Visual.tscn" id="forest_gate"]
+[ext_resource type="PackedScene" path="res://scenes/assets/props/hand_lantern/Visual.tscn" id="Lantern"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/cottage/Visual.tscn" id="cottage"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/barrel/Visual.tscn" id="barrel"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_shrub/Visual.tscn" id="forest_shrub"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_oak/Visual.tscn" id="forest_oak"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_hollow_log/Visual.tscn" id="forest_hollow_log"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_fern/Visual.tscn" id="forest_fern"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_blue/Visual.tscn" id="forest_flowers_blue"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_cream/Visual.tscn" id="forest_flowers_cream"]
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 1
+background_color = Color(0.025,0.055,0.05,1)
+ambient_light_source = 2
+ambient_light_color = Color(0.56,0.69,0.63,1)
+ambient_light_energy = 0.55
+tonemap_mode = 4
+tonemap_exposure = 1.3
+ssao_enabled = true
+ssao_radius = 0.4
+ssao_intensity = 0.7
+glow_enabled = true
+glow_intensity = 0.35
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(26,1.2,28)
+[sub_resource type="BoxShape3D" id="Side_1Shape"]
+size = Vector3(0.7,3,28)
+[sub_resource type="BoxShape3D" id="Side1Shape"]
+size = Vector3(0.7,3,28)
+[sub_resource type="BoxShape3D" id="BackShape"]
+size = Vector3(18,3,0.7)
+[sub_resource type="BoxShape3D" id="South_1Shape"]
+size = Vector3(6.3,3,0.7)
+[sub_resource type="BoxShape3D" id="South1Shape"]
+size = Vector3(6.3,3,0.7)
+[sub_resource type="BoxShape3D" id="CottageShape"]
+size = Vector3(4.1,2.4,2.8)
+[node name="ForestPassage" type="Node3D"]
+script = ExtResource("World")
+spawn_position = Vector3(0,0,8.3)
+camera_min = Vector2(-5,-8)
+camera_max = Vector2(5,11)
+[node name="Assets" type="Node3D" parent="."]
+
+[node name="Collision" type="Node3D" parent="."]
+
+[node name="Player" parent="." instance=ExtResource("Player")]
+position = Vector3(0,0,8.3)
+[node name="CameraRig" type="Node3D" parent="."]
+transform = Transform3D(0.7071069,-0.54167527,0.4545192,0,0.64278734,0.7660447,-0.70710665,-0.54167545,0.45451936,0,1.8,0)
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+position = Vector3(0,0,30)
+projection = 1
+current = true
+size = 13.0
+far = 120.0
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55,-32,0)
+light_color = Color(1,0.88,0.68,1)
+light_energy = 1.05
+shadow_enabled = true
+shadow_blur = 3.0
+shadow_bias = 0.03
+directional_shadow_max_distance = 70.0
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+[node name="HUD" parent="." instance=ExtResource("HUD")]
+
+[node name="DebugVolumes" type="MeshInstance3D" parent="."]
+
+[node name="ImpactPool" type="Node3D" parent="."]
+
+[node name="Spark0" parent="ImpactPool" instance=ExtResource("Spark")]
+
+[node name="Spark1" parent="ImpactPool" instance=ExtResource("Spark")]
+
+[node name="Spark2" parent="ImpactPool" instance=ExtResource("Spark")]
+
+[node name="Spark3" parent="ImpactPool" instance=ExtResource("Spark")]
+
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("Sound")
+volume_db = -8.0
+max_distance = 30.0
+[node name="forest_passage_ground1" parent="Assets" instance=ExtResource("forest_passage_ground")]
+position = Vector3(0,0,0)
+scale = Vector3(1,1,1)
+rotation_degrees = Vector3(0,0,0)
+[node name="FloorBody" type="StaticBody3D" parent="Collision"]
+position = Vector3(0,-0.6,0)
+[node name="Shape" type="CollisionShape3D" parent="Collision/FloorBody"]
+shape = SubResource("FloorShape")
+[node name="Side-1Body" type="StaticBody3D" parent="Collision"]
+position = Vector3(-8.8,1,0)
+[node name="Shape" type="CollisionShape3D" parent="Collision/Side-1Body"]
+shape = SubResource("Side_1Shape")
+[node name="forest_cliff2" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-9.3,0,-12)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,90,0)
+[node name="forest_pine3" parent="Assets" instance=ExtResource("forest_pine")]
+position = Vector3(-9.731757159569643,1.0,-11.7)
+scale = Vector3(1.051041051226917,1.051041051226917,1.051041051226917)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff4" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-9.3,0,-9)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,90,0)
+[node name="forest_pine_c5" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(-10.380704779132236,1.0,-8.7)
+scale = Vector3(0.9542230453120647,0.9542230453120647,0.9542230453120647)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff6" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-9.3,0,-6)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,90,0)
+[node name="forest_pine_b7" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(-9.082032005996396,1.0,-5.7)
+scale = Vector3(0.9145251745856554,0.9145251745856554,0.9145251745856554)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff8" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-9.3,0,-3)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,90,0)
+[node name="forest_pine_b9" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(-9.10597594777671,1.0,-2.7)
+scale = Vector3(1.0368466256153912,1.0368466256153912,1.0368466256153912)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff10" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-9.3,0,0)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,90,0)
+[node name="forest_pine_b11" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(-9.287619244717309,1.0,0.3)
+scale = Vector3(1.0817846404290195,1.0817846404290195,1.0817846404290195)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff12" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-9.3,0,3)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,90,0)
+[node name="forest_pine_b13" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(-8.946532232624499,1.0,3.3)
+scale = Vector3(1.0802926172549399,1.0802926172549399,1.0802926172549399)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff14" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-9.3,0,6)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,90,0)
+[node name="forest_pine_b15" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(-10.115701589888369,1.0,6.3)
+scale = Vector3(0.9721340221230407,0.9721340221230407,0.9721340221230407)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff16" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-9.3,0,9)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,90,0)
+[node name="forest_pine_c17" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(-9.76332784468336,1.0,9.3)
+scale = Vector3(0.9299407112018027,0.9299407112018027,0.9299407112018027)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff18" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-9.3,0,12)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,90,0)
+[node name="forest_pine_c19" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(-9.83086412644385,1.0,12.3)
+scale = Vector3(0.9550660016610447,0.9550660016610447,0.9550660016610447)
+rotation_degrees = Vector3(0,0,0)
+[node name="Side1Body" type="StaticBody3D" parent="Collision"]
+position = Vector3(8.8,1,0)
+[node name="Shape" type="CollisionShape3D" parent="Collision/Side1Body"]
+shape = SubResource("Side1Shape")
+[node name="forest_cliff20" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(9.3,0,-12)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,-90,0)
+[node name="forest_pine21" parent="Assets" instance=ExtResource("forest_pine")]
+position = Vector3(9.803396583645593,1.0,-11.7)
+scale = Vector3(0.9246052691263326,0.9246052691263326,0.9246052691263326)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff22" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(9.3,0,-9)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,-90,0)
+[node name="forest_pine_b23" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(8.555574954795956,1.0,-8.7)
+scale = Vector3(0.9548109310931291,0.9548109310931291,0.9548109310931291)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff24" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(9.3,0,-6)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,-90,0)
+[node name="forest_pine_b25" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(9.30735159789451,1.0,-5.7)
+scale = Vector3(1.098086526892045,1.098086526892045,1.098086526892045)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff26" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(9.3,0,-3)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,-90,0)
+[node name="forest_pine_b27" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(10.292822831981349,1.0,-2.7)
+scale = Vector3(0.9188788754829695,0.9188788754829695,0.9188788754829695)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff28" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(9.3,0,0)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,-90,0)
+[node name="forest_pine_c29" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(9.87376700172059,1.0,0.3)
+scale = Vector3(0.9223062911313481,0.9223062911313481,0.9223062911313481)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff30" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(9.3,0,3)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,-90,0)
+[node name="forest_pine_c31" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(9.774834225084325,1.0,3.3)
+scale = Vector3(0.9728515270072193,0.9728515270072193,0.9728515270072193)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff32" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(9.3,0,6)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,-90,0)
+[node name="forest_pine33" parent="Assets" instance=ExtResource("forest_pine")]
+position = Vector3(9.994007496160178,1.0,6.3)
+scale = Vector3(0.9973255567457996,0.9973255567457996,0.9973255567457996)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff34" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(9.3,0,9)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,-90,0)
+[node name="forest_pine_c35" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(8.887677420241099,1.0,9.3)
+scale = Vector3(0.9905201816918212,0.9905201816918212,0.9905201816918212)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff36" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(9.3,0,12)
+scale = Vector3(1.2,1.2,1.2)
+rotation_degrees = Vector3(0,-90,0)
+[node name="forest_pine37" parent="Assets" instance=ExtResource("forest_pine")]
+position = Vector3(9.469477695200471,1.0,12.3)
+scale = Vector3(0.9562650583691599,0.9562650583691599,0.9562650583691599)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_b38" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(-6,0,-12.5)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_b39" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(-3,0,-12.5)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_b40" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(0,0,-12.5)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_b41" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(3,0,-12.5)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_b42" parent="Assets" instance=ExtResource("forest_pine_b")]
+position = Vector3(6,0,-12.5)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="BackBody" type="StaticBody3D" parent="Collision"]
+position = Vector3(0,1,-13)
+[node name="Shape" type="CollisionShape3D" parent="Collision/BackBody"]
+shape = SubResource("BackShape")
+[node name="South-1Body" type="StaticBody3D" parent="Collision"]
+position = Vector3(-5.8,1,13)
+[node name="Shape" type="CollisionShape3D" parent="Collision/South-1Body"]
+shape = SubResource("South_1Shape")
+[node name="South1Body" type="StaticBody3D" parent="Collision"]
+position = Vector3(5.8,1,13)
+[node name="Shape" type="CollisionShape3D" parent="Collision/South1Body"]
+shape = SubResource("South1Shape")
+[node name="forest_pine_c43" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(-12,0,17.64)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff44" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-12,0,14.5)
+scale = Vector3(1.1,1.1,1.1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_c45" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(-9,0,17.28)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff46" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-9,0,14.5)
+scale = Vector3(1.1,1.1,1.1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_c47" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(-6,0,16.919999999999998)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff48" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(-6,0,14.5)
+scale = Vector3(1.1,1.1,1.1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_c49" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(-3,0,16.56)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_c50" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(3,0,16.56)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_c51" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(6,0,16.919999999999998)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff52" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(6,0,14.5)
+scale = Vector3(1.1,1.1,1.1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_c53" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(9,0,17.28)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff54" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(9,0,14.5)
+scale = Vector3(1.1,1.1,1.1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_pine_c55" parent="Assets" instance=ExtResource("forest_pine_c")]
+position = Vector3(12,0,17.64)
+scale = Vector3(1.15,1.15,1.15)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_cliff56" parent="Assets" instance=ExtResource("forest_cliff")]
+position = Vector3(12,0,14.5)
+scale = Vector3(1.1,1.1,1.1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_gate57" parent="Assets" instance=ExtResource("forest_gate")]
+position = Vector3(0,0,10.4)
+scale = Vector3(1,1,1)
+rotation_degrees = Vector3(0,0,0)
+[node name="GateLantern" parent="Assets" instance=ExtResource("Lantern")]
+position = Vector3(0,1.92,10.4)
+scale = Vector3(1.3,1.3,1.3)
+[node name="Cottage" parent="Assets" instance=ExtResource("cottage")]
+position = Vector3(0,0,-7)
+scale = Vector3(1.35,1.35,1.35)
+rotation_degrees = Vector3(0,180,0)
+[node name="CottageBody" type="StaticBody3D" parent="Collision"]
+position = Vector3(0,1.2,-7.15)
+[node name="Shape" type="CollisionShape3D" parent="Collision/CottageBody"]
+shape = SubResource("CottageShape")
+[node name="HouseDoor" parent="." instance=ExtResource("Portal")]
+position = Vector3(0,0,-4.5)
+rotation_degrees = Vector3(0,0,0)
+target_scene = "res://scenes/levels/ForestHouse.tscn"
+target_spawn = &"Door"
+trigger_size = Vector3(2.8,3,1.2)
+[node name="SpawnHouseDoor" type="Marker3D" parent="."]
+position = Vector3(0,0,-3.65)
+rotation_degrees = Vector3(0,180,0)
+script = ExtResource("Spawn")
+spawn_id = &"HouseDoor"
+[node name="SouthGate" parent="." instance=ExtResource("Portal")]
+position = Vector3(0,0,11.0)
+rotation_degrees = Vector3(0,180,0)
+target_scene = "res://scenes/levels/ForestOpening.tscn"
+target_spawn = &"NorthGate"
+trigger_size = Vector3(6,3,2)
+[node name="SpawnSouthGate" type="Marker3D" parent="."]
+position = Vector3(0,0,9.6)
+rotation_degrees = Vector3(0,0,0)
+script = ExtResource("Spawn")
+spawn_id = &"SouthGate"
+[node name="barrel59" parent="Assets" instance=ExtResource("barrel")]
+position = Vector3(-3.4,0,-4.9)
+scale = Vector3(1,1,1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_shrub60" parent="Assets" instance=ExtResource("forest_shrub")]
+position = Vector3(3.8,0,-7)
+scale = Vector3(1,1,1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_oak61" parent="Assets" instance=ExtResource("forest_oak")]
+position = Vector3(-4,0,-8)
+scale = Vector3(1,1,1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_hollow_log62" parent="Assets" instance=ExtResource("forest_hollow_log")]
+position = Vector3(5,0,0)
+scale = Vector3(1,1,1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_fern63" parent="Assets" instance=ExtResource("forest_fern")]
+position = Vector3(-3,0,3)
+scale = Vector3(1,1,1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_flowers_blue64" parent="Assets" instance=ExtResource("forest_flowers_blue")]
+position = Vector3(3,0,5)
+scale = Vector3(1,1,1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_oak65" parent="Assets" instance=ExtResource("forest_oak")]
+position = Vector3(-5,0,6)
+scale = Vector3(1,1,1)
+rotation_degrees = Vector3(0,0,0)
+[node name="forest_flowers_cream66" parent="Assets" instance=ExtResource("forest_flowers_cream")]
+position = Vector3(4,0,-3)
+scale = Vector3(1,1,1)
+rotation_degrees = Vector3(0,0,0)

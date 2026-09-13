@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="DialogueConversation" format=3 uid="uid://cy72w2k3bxayy"]
+
+[ext_resource type="Script" uid="uid://7xygf8wm3wt7" path="res://scripts/components/dialogue_conversation.gd" id="Conversation"]
+[ext_resource type="Script" uid="uid://cempfu7wadcj4" path="res://scripts/components/dialogue_line.gd" id="Line"]
+
+[sub_resource type="Resource" id="Direction"]
+script = ExtResource("Line")
+speaker = "Jelle"
+text = "[color=#e5ba71]Naar de bosuitgang ↑[/color]
+Blijf op het zandpad. De lantaarn wijst je de laatste meters."
+
+[sub_resource type="Resource" id="Inscription"]
+script = ExtResource("Line")
+speaker = "Kippie"
+text = "Onder de pijl staan kleine letters gekrast:
+‘Een lichtje is genoeg om de weg terug te vinden.’"
+
+[sub_resource type="Resource" id="Resource_dxo6c"]
+script = ExtResource("Line")
+metadata/_custom_type_script = "uid://cempfu7wadcj4"
+
+[resource]
+script = ExtResource("Conversation")
+speaker = "Houten wegwijzer"
+lines = Array[ExtResource("Line")]([SubResource("Direction"), SubResource("Inscription"), SubResource("Resource_dxo6c")])
+letters_per_second = 48.0

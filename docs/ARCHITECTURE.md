@@ -102,3 +102,19 @@ MeleeSwingStyle koppelt echte linker/rechter clipvarianten aan vlak/helling en f
 `ForestOpening` gebruikt de bestaande camera/feedback uit PrototypeRoom en opgeslagen omgevingsinstances. `EntranceSequence` is een instelbare Resource; `PlayerCharacter` bezit de `entrance`-toestand, actietijd, echte sprongvelocity, zwaartekracht en landingsdetectie. De pose volgt dezelfde GameClock. Er is geen extra AnimationTree-state-machine of timer die controle of schade afhandelt. Pause/hitstop bevriezen ook water en vlinders; hurt/death behouden hun prioriteit. Na landing wordt invoer kort afgeschermd en verschijnt de compacte HUD. Restart begint op veilige grond.
 
 `forest_butterfly.gd` beweegt de vleugelgroepen van het opgeslagen GLB en de vluchtpositie met GameClock. `tools/forest/` is uitsluitend offline authoring: bronnen, export, precisie-geknipte niet-overlappende grond, colliders en alle plaatsingen worden vooraf opgeslagen. De grasranden delen hun exacte veelhoekgrens met de rotswanden.
+
+
+## Gedeelde dialogen en interactielabels
+
+`DialogueConversation` en `DialogueLine` zijn bewerkbare Resources onder `scripts/components`. `DialogueInteractable` specialiseert de bestaande `Interactable`: dezelfde afstandsselectie en wereld-zichttest werken voor NPC's, borden en inscripties. Alleen colliders van het aangesproken object zelf worden uitgesloten. `Prompt`, `Conversation`, `Interaction Radius`, `Facing Node` en `Turn Speed` zijn Inspector-velden; tekst is niet hardcoded in de HUD.
+
+De `Dialogue`-autoload instantieert de opgeslagen `scenes/ui/Dialogue.tscn`. Hij presenteert een lineaire reeks tekstblokken, gebruikt de bestaande `GameClock.paused` en de overgangsblokkade van InputRouter en laat de HUD het pauzemenu onderdrukken zolang een gesprek actief is. UI-tekstanimatie loopt op UI-tijd; er is geen extra gameplayclock. Het optionele naar-de-lezer-draaien blijft tijdens het gesprek alleen een visuele reactie. `conversation_finished` is een gebeurtenis voor verdere gameplay, geen rechtstreekse quest-/HUD-koppeling.
+
+`InteractionPrompt.tscn` projecteert een klein configureerbaar label naast de speler en toont de actieve interactieknop. `ForestKeeper` en `ForestWaymarker` zijn opgeslagen gebruiksvoorbeelden. Zie [DIALOGUE.md](DIALOGUE.md) voor beheren en koppelen.
+
+
+## Gedeelde sceneovergangen
+
+`ScenePortal` (Area3D) en `SceneSpawnPoint` (Marker3D) bevatten alleen de doorgangsconfiguratie. De blijvende `SceneTransit`-autoload regelt asynchroon laden en de fade. `SceneTravelSettings` is een Resource. `PlayerCharacter` bezit de tijdelijke `scene_travel`-toestand, loopafstand, collisionbeweging en animaties op GameClock; er is geen tweede gameplay-state-machine in een AnimationTree. Tijdens de zwarte laadfase staat dezelfde klok stil.
+
+De manager valideert de geïnstantieerde bestemming vóór verwijdering van de bronmap, neemt levens/magie mee en positioneert de speler op de benoemde marker. InputRouter schermt vertrek/aankomst af; de HUD behandelt de transit apart van een pauzemenu. Aankomst in een overlappende portal blijft geblokkeerd tot verlaten/herintreden. ForestOpening, ForestPassage en ForestHouse zijn actuele toepassingen; zie [SCENE_TRANSITIONS.md](SCENE_TRANSITIONS.md).

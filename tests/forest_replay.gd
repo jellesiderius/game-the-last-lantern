@@ -14,6 +14,7 @@ func run() -> void:
 	DirAccess.make_dir_recursive_absolute("res://captures/forest")
 	prepare_window()
 	arena = get_tree().current_scene
+	arena.get_node("ForestExit").enabled = false
 	p = arena.player
 	targets = get_tree().get_nodes_in_group("damageable")
 	p.use_test_input = true
@@ -129,6 +130,85 @@ func run() -> void:
 		guard.brain.state not in ["idle", "patrol"],
 		guard.brain.state
 	)
+	# Enemy response was checked above. Disable combat for the separate full-route walk.
+	var target_layers: Dictionary = {}
+	for target in targets:
+		target_layers[target] = target.collision_layer
+		target.disabled = true
+		target.collision_layer = 0
+	var full_route_ok := true
+	var original_basis := camera.global_basis
+	var traversal_start := GameClock.elapsed
+	var walking_start: Vector3 = p.position
+	var travelled := 0.0
+	var navigation := NavigationWorld.surface_for(p, .5)
+	for marker in arena.get_node("Route").get_children().slice(8):
+		# Use the actual collision-derived route so editor-added NPCs can be walked around.
+		var waypoints := navigation.route(p.position, marker.position, .5)
+		if waypoints.is_empty():
+			full_route_ok = false
+			break
+		for waypoint in waypoints:
+			var reached := false
+			for i in 650:
+				var direction: Vector3 = waypoint - p.position
+				direction.y = 0
+				if direction.length() < .18:
+					reached = true
+					break
+				p.test_input = world_input(direction.normalized())
+				var previous: Vector3 = p.position
+				await step(1)
+				travelled += p.position.distance_to(previous)
+			if not reached:
+				full_route_ok = false
+				break
+		if not full_route_ok:
+			break
+		if marker.name in [&"Point10", &"Point13", &"Point16", &"Point18"]:
+			await capture(String(marker.name))
+	p.test_input = Vector2.ZERO
+	await step(60)
+	check(
+		"entire expanded forest route is walkable",
+		full_route_ok and p.position.z < -73,
+		{
+			"position": p.position,
+			"distance": travelled,
+			"seconds": GameClock.elapsed - traversal_start,
+			"start": walking_start
+		}
+	)
+	check("only final gate signals the forest exit", arena.reached_exit)
+	check(
+		"expanded forest preserves camera angle and size",
+		camera.global_basis.is_equal_approx(original_basis) and is_equal_approx(camera.size, 13.0)
+	)
+	var bounded_target := Vector2(
+		clampf(p.position.x, arena.camera_min.x, arena.camera_max.x),
+		clampf(p.position.z, arena.camera_min.y, arena.camera_max.y)
+	)
+	var bounded_lag := bounded_target.distance_to(Vector2(arena.camera_home.x, arena.camera_home.z))
+	check("camera settles at final exit", bounded_lag < .08, bounded_lag)
+	await capture("exit")
+	for probe in [
+		[Vector3(-4, 0, -36), Vector3.LEFT],
+		[Vector3(4, 0, -60), Vector3.RIGHT],
+		[Vector3(-2, 0, 7.4), Vector3.BACK]
+	]:
+		p.respawn(probe[0])
+		arena.reset_camera()
+		p.test_input = world_input(probe[1])
+		await step(240)
+		p.test_input = Vector2.ZERO
+		check(
+			"visible forest bank blocks departure at %s" % probe[0],
+			p.position.distance_to(probe[0]) < 7.0 and p.position.y < .1,
+			p.position
+		)
+	for target in targets:
+		target.collision_layer = target_layers[target]
+		target.disabled = false
 	arena.restart()
 	await step(10)
 	check(
