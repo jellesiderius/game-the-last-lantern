@@ -225,8 +225,8 @@
       "exclusive_surface": true,
       "area_m2": 1672.0,
       "expected_area_m2": 1672.0,
-      "exact_terrace_boundaries": true,
-      "pond_cutout": true
+      "exact_terrace_boundaries": false,
+      "pond_cutout": false
     }
   },
   "visual_review": "Current native gameplay images and five source views of both new ground and house inspected. House floor overlap removed. Existing forest models reused.",
@@ -238,5 +238,14 @@
     "scenes/levels/ForestHouse.tscn": "60b55fd0a239f38b63e259466293bd1beaecc9e0a9b65a2447dea6eed90ac52f",
     "assets/environment/forest_ground/model.glb": "61e948157f772b880f69d86bb84f54fc54f9be0556608c5099a34c2ffdba2e7e",
     "assets/environment/forest_passage_ground/model.glb": "79d74c0b8df36dea5aabfa9d934bf6dfbb0423576d81d5113e1c04e284d7e778"
+  },
+  "fresh_checkout": {
+    "commit": "cb53951",
+    "import": "passed",
+    "transition_checks": 51,
+    "failures": 0,
+    "render_frames": 1034,
+    "renderer": "Forward+ Metal",
+    "cap": 60
   }
 }

@@ -85,7 +85,7 @@ for im in bpy.data.images:
 out=ROOT/'assets/environment'/ground_id;out.mkdir(parents=True,exist_ok=True)
 bpy.ops.wm.save_as_mainfile(filepath=str(out/'source.blend'))
 bpy.ops.export_scene.gltf(filepath=str(out/'model.glb'),export_format='GLB',export_animations=False,export_vertex_color='NAME',export_vertex_color_name='Color',export_all_vertex_colors=True)
-report={'faces':len(faces),'exclusive_surface':True,'area_m2':area_total,'expected_area_m2':area_expected,'exact_terrace_boundaries':True,'pond_cutout':True}
+report={'faces':len(faces),'exclusive_surface':True,'area_m2':area_total,'expected_area_m2':area_expected,'exact_terrace_boundaries':bool(regions),'pond_cutout':not passage}
 (ROOT/'captures/forest'/('passage_ground_audit.json' if passage else 'ground_audit.json')).write_text(json.dumps(report,indent=2));print('GROUND_OVERLAP_CHECK_PASS',report)
 if passage:sys.exit(0)
 # Continuous walls share the exact grass boundary; cap material drapes down irregularly.
