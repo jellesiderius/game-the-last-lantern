@@ -240,12 +240,13 @@
     "assets/environment/forest_passage_ground/model.glb": "79d74c0b8df36dea5aabfa9d934bf6dfbb0423576d81d5113e1c04e284d7e778"
   },
   "fresh_checkout": {
-    "commit": "cb53951",
-    "import": "passed",
+    "commit": "d6513e4",
+    "import": "passed without missing resources or parse errors",
     "transition_checks": 51,
     "failures": 0,
-    "render_frames": 1034,
+    "render_frames": 1038,
     "renderer": "Forward+ Metal",
-    "cap": 60
+    "cap": 60,
+    "repair": "Restored three missing HUD SVG sources that had been masked by the local import cache."
   }
 }
