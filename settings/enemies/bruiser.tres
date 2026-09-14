@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://dybt8h1rf8yj7" path="res://scripts/ai/enemy_settings.gd" id="1"]
 [ext_resource type="Script" uid="uid://brm2bg3fnj0u0" path="res://scripts/ai/enemy_attack_definition.gd" id="Beat"]
-[ext_resource type="Script" uid="uid://bpjanp2li2rw6" path="res://scripts/combat/attack_definition.gd" id="Attack"]
 
 [sub_resource type="Resource" id="Melee"]
 script = ExtResource("Beat")
@@ -26,5 +25,5 @@ strike_half_angle = 75.0
 attack = SubResource("Melee")
 patrol_offsets = null
 archetype_priority = 1.35
-retaliation_hits = 2
 tint = Color(0.31, 0.18, 0.4, 1)
+retaliation_hits = 2

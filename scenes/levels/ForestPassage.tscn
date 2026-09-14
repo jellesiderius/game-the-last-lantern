@@ -1,11 +1,10 @@
 [gd_scene format=3 uid="uid://bmw7sgn7kxf60"]
-[ext_resource type="PackedScene" path="res://scenes/world/dungeons/Drempelpoort.tscn" id="ThresholdGate"]
-[ext_resource type="Resource" path="res://settings/dungeons/forgotten_sanctum.tres" id="Dungeon"]
 
 [ext_resource type="Resource" path="res://settings/areas/forest_passage.tres" id="Area"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/barrel/Visual.tscn" id="barrel"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/cottage/Visual.tscn" id="cottage"]
 [ext_resource type="Resource" path="res://settings/transitions/door.tres" id="DoorTravel"]
+[ext_resource type="Resource" path="res://settings/dungeons/forgotten_sanctum.tres" id="Dungeon"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_cliff/Visual.tscn" id="forest_cliff"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_fern/Visual.tscn" id="forest_fern"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_blue/Visual.tscn" id="forest_flowers_blue"]
@@ -26,6 +25,7 @@
 [ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="Sound"]
 [ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="Spark"]
 [ext_resource type="Script" uid="uid://baahi06eehkq4" path="res://scripts/world/scene_spawn_point.gd" id="Spawn"]
+[ext_resource type="PackedScene" path="res://scenes/world/dungeons/Drempelpoort.tscn" id="ThresholdGate"]
 [ext_resource type="Script" uid="uid://cxu6dbx243h4b" path="res://scripts/world/forest_passage.gd" id="World"]
 
 [sub_resource type="BoxShape3D" id="FloorShape"]
@@ -389,9 +389,13 @@ checkpoint_editor_scene_uid = 3276078542688385763
 checkpoint_editor_scene_path = "res://scenes/levels/ForestPassage.tscn"
 area = ExtResource("Area")
 
-
-[node name="Drempelpoort" parent="." instance=ExtResource("ThresholdGate")]
-position = Vector3(5.5, 0, -5.6)
+[node name="Drempelpoort" parent="." unique_id=1032046434 instance=ExtResource("ThresholdGate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0, -5.6)
 dungeon = ExtResource("Dungeon")
 gate_id = &"gate.a15ea8b544f54856b778346f7aa97ea1"
 identity_scene = "res://scenes/levels/ForestPassage.tscn"
+return_point = NodePath("ReturnPoint")
+preview_completed = false
+target_scene = "res://scenes/levels/ForgottenSanctum.tscn"
+target_spawn = &"DungeonEntrance"
+loading_title = "Vergeten heiligdom"

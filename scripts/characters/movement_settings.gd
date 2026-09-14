@@ -15,11 +15,18 @@ extends Resource
 ## Ignore tiny contact gaps on ramps before entering the airborne action.
 @export_range(0.0, 0.15, 0.01) var fall_detection_delay := 0.06
 @export var fall_minimum_speed := 1.0
-@export var roll_duration := 0.42
-@export var roll_speed := 8.0
-@export var roll_iframe_start := 0.05
-@export var roll_iframe_end := 0.27
+@export var roll_duration := 0.55
+## Average roll speed; distance is roll_speed * roll_duration (3.36 m).
+@export var roll_speed := 6.109
+## Ease-out exponent: 1 is constant speed, higher bursts harder and settles softer.
+@export_range(1.0, 3.0, 0.1) var roll_ease := 1.7
+@export var roll_iframe_start := 0.065
+@export var roll_iframe_end := 0.35
 @export var roll_recovery := 0.10
+## A light click in this final part of the roll queues the roll attack.
+@export_range(0.05, 0.5, 0.01) var roll_attack_window := 0.30
+## A queued roll attack may cut this much off the end of the roll (its upright slide).
+@export_range(0.0, 0.3, 0.01) var roll_attack_cancel := 0.15
 @export var input_buffer := 0.12
 @export var damage_iframes := 0.60
 @export var charge_duration := 0.45

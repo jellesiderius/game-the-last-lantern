@@ -108,7 +108,7 @@ func run() -> void:
 		)
 	)
 	check(
-		"ribbon follows actual sword and swept edge instead of a planar fan",
+		"full energy arc is visible while blade samples track the actual sword",
 		(
 			trail.visible
 			and not p.feedback.slash.visible

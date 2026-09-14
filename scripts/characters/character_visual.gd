@@ -26,8 +26,18 @@ var action_node: AnimationNodeAnimation
 var action_mix: AnimationNodeBlend2
 var action_blend := 0.0
 var current_clip := ""
+var previous_clip := ""
+## Longer settle when leaving the roll, so standing up never reads as a reset.
+@export_range(0.05, 0.5, 0.01) var roll_exit_blend := 0.22
 var weapon: MeleeWeapon
 var socket: BoneAttachment3D
+## Attack footwork, set by the controller each tick before sample().
+@export var attack_step_length := 0.16
+@export var attack_step_height := 0.05
+var attack_step := 0.0
+var attack_step_lift := 0.0
+var attack_step_side := "R"
+var attack_step_forward := Vector3.FORWARD
 var bow: BowVisual
 var bow_socket: BoneAttachment3D
 var draw_socket: BoneAttachment3D
@@ -139,6 +149,7 @@ func sample(clip: String, action_time: float, speed: float, delta: float) -> voi
 			previous_positions.append(skeleton.get_bone_pose_position(i))
 			previous_rotations.append(skeleton.get_bone_pose_rotation(i))
 		transition_age = 0.0
+		previous_clip = current_clip
 		current_clip = clip
 		if not clip.is_empty():
 			action_node.animation = clip
@@ -204,6 +215,8 @@ func sample(clip: String, action_time: float, speed: float, delta: float) -> voi
 	tree.advance(delta)
 	transition_age += delta
 	var transition_duration := .015 if clip == "bow_release" else (.12 if clip.is_empty() else .065)
+	if previous_clip == "dodge_roll" and clip != "roll_attack":
+		transition_duration = roll_exit_blend
 	if transition_age < transition_duration and delta > 0 and not previous_positions.is_empty():
 		var weight := smoothstep(0.0, transition_duration, transition_age)
 		for i in skeleton.get_bone_count():
@@ -213,6 +226,8 @@ func sample(clip: String, action_time: float, speed: float, delta: float) -> voi
 			skeleton.set_bone_pose_rotation(
 				i, previous_rotations[i].slerp(skeleton.get_bone_pose_rotation(i), weight)
 			)
+	if attack_step > 0.001 or attack_step_lift > 0.001:
+		_apply_attack_step()
 	skeleton.force_update_all_bone_transforms()
 	# Explicit sync for immediate physics queries; BoneAttachment stays authoritative.
 	var hand = skeleton.get_bone_global_pose(skeleton.find_bone("sword_socket"))
@@ -239,6 +254,63 @@ func sample(clip: String, action_time: float, speed: float, delta: float) -> voi
 		)
 		item.global_basis = Basis.IDENTITY
 		item.visible = not bow.visible and clip not in ["dodge_roll", "death"]
+
+
+## Lead foot steps into the cut with a two-bone solve on top of the sampled clip.
+## The other leg and the upper body keep their authored pose.
+func _apply_attack_step() -> void:
+	var leg := skeleton.find_bone("leg_" + attack_step_side)
+	var knee := skeleton.find_bone("knee_" + attack_step_side)
+	var foot := skeleton.find_bone("foot_" + attack_step_side)
+	if leg < 0 or knee < 0 or foot < 0:
+		return
+	var to_skeleton := skeleton.global_basis.inverse()
+	var world_scale := maxf(skeleton.global_basis.get_scale().x, .001)
+	var hip_pose := skeleton.get_bone_global_pose(leg)
+	var knee_pose := skeleton.get_bone_global_pose(knee)
+	var foot_pose := skeleton.get_bone_global_pose(foot)
+	var forward := (to_skeleton * attack_step_forward).normalized()
+	var up := (to_skeleton * Vector3.UP).normalized()
+	var foot_target := (
+		foot_pose.origin
+		+ (
+			forward * attack_step_length * attack_step
+			+ up * attack_step_height * attack_step_lift
+		)
+		/ world_scale
+	)
+	var thigh := hip_pose.origin.distance_to(knee_pose.origin)
+	var shin := knee_pose.origin.distance_to(foot_pose.origin)
+	var reach := foot_target - hip_pose.origin
+	var distance := clampf(reach.length(), absf(thigh - shin) + .001, thigh + shin - .001)
+	var axis := reach.normalized()
+	var bend := knee_pose.origin - hip_pose.origin
+	var pole := bend - axis * bend.dot(axis)
+	pole = pole.normalized() if pole.length() > .0001 else forward
+	var along := (thigh * thigh - shin * shin + distance * distance) / (2.0 * distance)
+	var knee_target := (
+		hip_pose.origin + axis * along + pole * sqrt(maxf(thigh * thigh - along * along, 0.0))
+	)
+	foot_target = hip_pose.origin + axis * distance
+	var thigh_turn := Basis(
+		Quaternion(bend.normalized(), (knee_target - hip_pose.origin).normalized())
+	)
+	var new_hip := thigh_turn * hip_pose.basis.orthonormalized()
+	var shin_from := (thigh_turn * (foot_pose.origin - knee_pose.origin)).normalized()
+	var shin_turn := Basis(Quaternion(shin_from, (foot_target - knee_target).normalized()))
+	var new_knee := shin_turn * thigh_turn * knee_pose.basis.orthonormalized()
+	var parent := skeleton.get_bone_parent(leg)
+	var parent_basis := (
+		skeleton.get_bone_global_pose(parent).basis.orthonormalized()
+		if parent >= 0
+		else Basis.IDENTITY
+	)
+	skeleton.set_bone_pose_rotation(leg, (parent_basis.inverse() * new_hip).get_rotation_quaternion())
+	skeleton.set_bone_pose_rotation(knee, (new_hip.inverse() * new_knee).get_rotation_quaternion())
+	# Keep the foot's world orientation so it lands flat.
+	skeleton.set_bone_pose_rotation(
+		foot, (new_knee.inverse() * foot_pose.basis.orthonormalized()).get_rotation_quaternion()
+	)
 
 
 func reset_visual() -> void:

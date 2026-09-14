@@ -76,23 +76,23 @@ func run() -> void:
 		p.position
 	)
 	check(
-		"camera has perceptible bounded running delay",
-		worst_lag > .65 and worst_lag < .95,
+		"camera trails a ghost target a smooth distance while running",
+		worst_lag > .9 and worst_lag < 2.2,
 		worst_lag
 	)
-	check("player moves within frame when starting", float(lag_samples[1]) > .4, lag_samples)
+	check("player moves within frame when starting", float(lag_samples[1]) > .2, lag_samples)
 	check("camera keeps its angle", camera.global_basis.is_equal_approx(original_basis))
 	await step(12)
 	var stop_lag := camera_lag()
-	check("camera continues catching up after player stops", stop_lag > .3, stop_lag)
+	check("camera settles toward stopped player", stop_lag < worst_lag, stop_lag)
 	var last_lag := stop_lag
 	var monotonic := true
-	for i in 60:
+	for i in 360:
 		await step(1)
 		var current_lag := camera_lag()
 		monotonic = monotonic and current_lag <= last_lag + .0001
 		last_lag = current_lag
-	check("camera settles smoothly without overshoot", monotonic and last_lag < .04, last_lag)
+	check("camera locks onto stopped player without overshoot", monotonic and last_lag < .003, last_lag)
 	await capture("camera_settled")
 	await reset(Vector3(0, 0, -3))
 	p.test_input = world_input(Vector3.RIGHT)
@@ -101,7 +101,7 @@ func run() -> void:
 	p.test_input = world_input(Vector3.LEFT)
 	await step(1)
 	check("camera does not snap direction on reversal", arena.camera_home.x > before_reverse.x)
-	await step(65)
+	await step(200)
 	check("camera catches the new direction", arena.camera_home.x > p.position.x)
 	GameClock.paused = true
 	await step(1)

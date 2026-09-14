@@ -9,7 +9,13 @@ const GROUP := &"lock_targets"
 ## Seconds without line of sight before the lock releases.
 @export_range(0, 3, .05, "suffix:s") var sight_grace := .8
 ## Metres of extra distance one radian away from the facing direction is worth when acquiring.
-@export var facing_weight := 2.5
+## Small, so the nearest enemy wins unless another is almost as close and clearly in front.
+@export var facing_weight := 0.8
+## Switching only considers targets within this angle of the current lock line (no targets
+## behind the player), and never wraps around to the opposite side.
+@export_range(30, 180, 5, "suffix:°") var switch_max_angle := 150.0
+## Metres of extra distance one radian of turn is worth when switching.
+@export var switch_turn_weight := 2.0
 var target: Node3D
 var hidden_time := 0.0
 var last_target_position := Vector3.ZERO
@@ -48,29 +54,42 @@ func update(delta: float) -> void:
 		release()
 
 
-## Next candidate clockwise on screen (direction 1) or counter-clockwise (-1) from the
-## current target, as seen from the actor. Cycles around when nothing lies further that way.
+## Nearest logical candidate to the right (direction 1) or left (-1) of the current lock on
+## screen. Targets behind the player are ignored; keeps the lock when nothing lies that way.
 func switch(direction: int) -> void:
+	var best := switch_candidate(direction)
+	if best:
+		_set_target(best)
+
+
+func switch_candidate(direction: int) -> Node3D:
 	if not is_active():
-		return
+		return null
+	var line := flat_offset()
 	var camera := get_viewport().get_camera_3d()
-	if camera == null:
-		return
-	var from := _screen_bearing(target, camera)
+	if line.length_squared() < .0001 or camera == null:
+		return null
+	# Left/right is what the player sees: the camera's horizontal axis on the ground plane.
+	var screen_right := _flat(camera.global_basis.x).normalized()
 	var best: Node3D
-	var best_turn := INF
-	var best_distance := INF
+	var best_score := INF
 	for candidate in candidates():
 		if candidate == target:
 			continue
-		var turn := fposmod((_screen_bearing(candidate, camera) - from) * direction, TAU)
-		var distance := _flat(candidate.global_position - actor.global_position).length()
-		if turn < best_turn - .05 or (absf(turn - best_turn) <= .05 and distance < best_distance):
+		var offset := _flat(candidate.global_position - actor.global_position)
+		if offset.length_squared() < .0001:
+			continue
+		var lateral := (offset - line).dot(screen_right)
+		if lateral * direction < .15:
+			continue
+		var turn := absf(line.signed_angle_to(offset, Vector3.UP))
+		if turn > deg_to_rad(switch_max_angle):
+			continue
+		var score := offset.length() + turn * switch_turn_weight
+		if score < best_score:
 			best = candidate
-			best_turn = turn
-			best_distance = distance
-	if best:
-		_set_target(best)
+			best_score = score
+	return best
 
 
 func candidates() -> Array[Node3D]:
@@ -146,13 +165,6 @@ func _set_target(next: Node3D) -> void:
 		return
 	target = next
 	target_changed.emit(target)
-
-
-func _screen_bearing(node: Node3D, camera: Camera3D) -> float:
-	var offset := _flat(node.global_position - actor.global_position)
-	var right := _flat(camera.global_basis.x).normalized()
-	var up := _flat(-camera.global_basis.z).normalized()
-	return atan2(offset.dot(right), offset.dot(up))
 
 
 static func _flat(vector: Vector3) -> Vector3:

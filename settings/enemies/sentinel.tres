@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://dybt8h1rf8yj7" path="res://scripts/ai/enemy_settings.gd" id="1"]
 [ext_resource type="Script" uid="uid://brm2bg3fnj0u0" path="res://scripts/ai/enemy_attack_definition.gd" id="Beat"]
-[ext_resource type="Script" uid="uid://bpjanp2li2rw6" path="res://scripts/combat/attack_definition.gd" id="Attack"]
 
 [sub_resource type="Resource" id="Melee"]
 script = ExtResource("Beat")

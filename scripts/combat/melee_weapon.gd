@@ -37,9 +37,18 @@ var swing_random := RandomNumberGenerator.new()
 var last_light_direction := 1.0
 var swing_style: MeleeSwingStyle
 var last_style_index := -1
+## Death's Door style cut: during the swing the blade turns around its grip along the
+## same clean arc as the energy crescent, driven by one eased progress value.
+@export_range(0.0, 1.0, 0.05) var blade_follow := 1.0
+@export_range(1.0, 5.0, 0.1) var swing_ease := 2.6
+@export_range(0.0, 0.3, 0.01) var anticipation := 0.06
+var rest_transform := Transform3D.IDENTITY
+var swing_progress := 0.0
+var swing_driven := false
 
 
 func _ready() -> void:
+	rest_transform = transform
 	for path in blade_sample_paths:
 		blade_samples.append(get_node(path) as Marker3D)
 	previous_samples.resize(blade_samples.size())
@@ -155,6 +164,10 @@ func _choose_swing(clip: String) -> void:
 
 
 func clear_swing() -> void:
+	if is_node_ready():
+		transform = rest_transform
+	swing_driven = false
+	swing_progress = 0.0
 	reported_connection = false
 	hit_targets.clear()
 	primed = false
@@ -256,6 +269,10 @@ func _sample_energy(actor: Node3D, space: PhysicsDirectSpaceState3D, facing: Vec
 	if energy_primed and swing_style and (angle - previous_energy_angle) * swing_direction < 0.0:
 		angle = previous_energy_angle
 		height = previous_energy_tip.y - actor.global_position.y
+	if swing_driven:
+		# The damage edge is the visible crescent head, not a re-measured bone.
+		angle = arc_angle(clampf(swing_progress, 0.0, 1.0))
+		height = arc_point(actor, aim_basis, angle, energy_radius()).y - actor.global_position.y
 	energy_tip = (
 		actor.global_position
 		+ aim_basis * Vector3(sin(angle) * energy_radius(), height, -cos(angle) * energy_radius())
@@ -272,6 +289,79 @@ func _sample_energy(actor: Node3D, space: PhysicsDirectSpaceState3D, facing: Vec
 		_sweep_segment(actor, space, last_tip.lerp(tip, t), previous_energy_tip.lerp(energy_tip, t))
 	previous_energy_tip = energy_tip
 	previous_energy_angle = angle
+
+
+func ease_value() -> float:
+	return swing_style.active_ease if swing_style else swing_ease
+
+
+## One eased value drives the blade, the crescent head and the energy damage edge.
+## Slightly negative during windup (pull-back), 0..1 across the active window.
+func progress_at(time: float, attack: AttackDefinition) -> float:
+	if time < attack.windup:
+		return -anticipation * smoothstep(0.0, 1.0, time / maxf(attack.windup, .001))
+	var t := clampf((time - attack.windup) / attack.active_duration, 0.0, 1.0)
+	return lerpf(-anticipation, 1.0, 1.0 - pow(1.0 - t, ease_value()))
+
+
+func arc_angle(progress: float) -> float:
+	return lerpf(-swing_half_angle, swing_half_angle, progress) * swing_direction
+
+
+func arc_point(actor: Node3D, aim_basis: Basis, angle: float, radius: float) -> Vector3:
+	var point := actor.global_position + aim_basis * energy_local_point(angle, radius)
+	point.y = maxf(actor.global_position.y + .10, point.y + energy_height())
+	return point
+
+
+## Call after the skeleton pose is sampled and before sample_hit. Null attack resets.
+func drive_swing(
+	actor: Node3D, facing: Vector3, time: float, attack: AttackDefinition
+) -> void:
+	transform = rest_transform
+	swing_driven = false
+	if attack == null or energy_radius() <= 0.0:
+		return
+	var aim_basis := Basis(Vector3.UP, atan2(-facing.x, -facing.z))
+	var end := attack.windup + attack.active_duration
+	swing_progress = progress_at(time, attack)
+	var radius := energy_radius()
+	# The crescent grows with the blade while cutting and dissolves once it is complete.
+	if time <= end + .0001:
+		var steps := maxi(12, ceili(2.0 * swing_half_angle * radius / .08))
+		var rows: Array = []
+		for i in range(steps + 1):
+			var angle := arc_angle(float(i) / steps)
+			rows.append(
+				[
+					arc_point(actor, aim_basis, angle, radius * .2),
+					arc_point(actor, aim_basis, angle, radius * .6),
+					arc_point(actor, aim_basis, angle, radius)
+				]
+			)
+		energy_trail.show_arc(rows, swing_progress, impact_power > 1.5)
+	else:
+		energy_trail.release_arc()
+	# Blend onto the arc during windup, cut, then hand back to the authored recovery
+	# over the whole recovery so the blade returns to idle the normal way.
+	var weight := smoothstep(0.0, 1.0, time / maxf(attack.windup, .001))
+	if time > end:
+		weight *= 1.0 - smoothstep(0.0, 1.0, (time - end) / maxf(attack.recovery, .001))
+	weight *= blade_follow
+	if weight <= 0.001:
+		return
+	swing_driven = true
+	var target := arc_point(actor, aim_basis, arc_angle(clampf(swing_progress, -1.0, 1.0)), radius)
+	var direction := target - global_position
+	if direction.length() < .01:
+		return
+	var plane_normal := (aim_basis * swing_basis.orthonormalized() * Vector3.UP).normalized()
+	if absf(direction.normalized().dot(plane_normal)) > .95:
+		plane_normal = Vector3.UP
+	var scale_now := global_basis.get_scale()
+	var desired := Basis.looking_at(direction.normalized(), plane_normal).get_rotation_quaternion()
+	var current := global_basis.orthonormalized().get_rotation_quaternion()
+	global_basis = Basis(current.slerp(desired, weight)).scaled(scale_now)
 
 
 func _sweep_segment(

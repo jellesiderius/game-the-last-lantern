@@ -408,11 +408,15 @@ func _physics_process(_delta: float) -> void:
 				_face(input_direction.normalized(), delta)
 		"roll":
 			if previous_time < settings.roll_duration:
-				# Clip last fractional tick to preserve roll distance at any physics rate.
+				# Burst out of the stance and ease into the stop. Sampling the distance
+				# curve keeps the authored roll distance at any physics rate.
+				var before := _roll_travel(previous_time)
+				var after := _roll_travel(minf(action_time, settings.roll_duration))
 				desired_velocity = (
 					locked_direction
 					* settings.roll_speed
-					* minf(delta, settings.roll_duration - previous_time)
+					* settings.roll_duration
+					* (after - before)
 					/ delta
 				)
 		"charge":
@@ -472,6 +476,9 @@ func _physics_process(_delta: float) -> void:
 	if is_attack():
 		var attack := moveset.find(clip)
 		swing_phase = (action_time - attack.windup) / attack.active_duration
+	visual.weapon.drive_swing(
+		self, locked_direction, action_time, moveset.find(clip) if is_attack() else null
+	)
 	visual.weapon.sample_hit(self, active_window, swing_phase, locked_direction)
 	feedback.sample(active_window and not previous_active)
 	bow.after_animation()
@@ -526,7 +533,7 @@ func _capture_requests() -> void:
 				captured_light = true
 				if state == "roll":
 					if (
-						action_time >= settings.roll_duration - settings.input_buffer
+						action_time >= settings.roll_duration - settings.roll_attack_window
 						and action_time < settings.roll_duration
 					):
 						roll_attack_queued = true
@@ -583,6 +590,12 @@ func _resolve_priority() -> void:
 			_enter("charge", "heavy_charge")
 			if not heavy_held:
 				_release_heavy()
+
+
+## Normalised roll distance covered after `time`.
+func _roll_travel(time: float) -> float:
+	var t := clampf(time / settings.roll_duration, 0.0, 1.0)
+	return 1.0 - pow(1.0 - t, settings.roll_ease)
 
 
 func _face(direction: Vector3, delta: float) -> void:
@@ -701,6 +714,24 @@ func _update_animation(delta: float) -> void:
 			anim_time = landing_time
 		else:
 			landing_time = -1.0
+	# The lead foot (matching the cut direction) steps in during windup and lands with the
+	# blade, then draws back over recovery.
+	var foot_step := 0.0
+	var foot_lift := 0.0
+	if is_attack():
+		var data := moveset.find(clip)
+		var land := data.windup + data.active_duration * .5
+		if action_time < land:
+			var t := action_time / maxf(land, .001)
+			foot_step = smoothstep(0.0, 1.0, t)
+			foot_lift = sin(PI * t)
+		else:
+			var back := (action_time - land) / maxf(data.duration() - land, .001)
+			foot_step = 1.0 - smoothstep(.45, 1.0, back)
+	visual.attack_step = foot_step
+	visual.attack_step_lift = foot_lift
+	visual.attack_step_forward = locked_direction
+	visual.attack_step_side = "R" if visual.weapon.swing_direction < 0 else "L"
 	visual.sample(anim_clip, anim_time, flat_speed, delta)
 
 
@@ -735,7 +766,13 @@ func _begin_fall() -> void:
 
 
 func _finish_action() -> void:
-	if state == "roll" and action_time >= settings.roll_duration:
+	if state == "roll" and (
+		action_time >= settings.roll_duration
+		or (
+			roll_attack_queued
+			and action_time >= settings.roll_duration - settings.roll_attack_cancel
+		)
+	):
 		roll_cooldown = settings.roll_recovery
 		if roll_attack_queued:
 			roll_attack_queued = false

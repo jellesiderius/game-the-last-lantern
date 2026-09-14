@@ -182,7 +182,11 @@ func run() -> void:
 		absf(p.position.distance_to(roll_start) - 3.36) < .03,
 		p.position.distance_to(roll_start)
 	)
-	check("roll duration", absf(float(roll_ticks) / 120 - .42) < .012, float(roll_ticks) / 120)
+	check(
+		"roll duration",
+		absf(float(roll_ticks) / 120 - p.settings.roll_duration) < .012,
+		float(roll_ticks) / 120
+	)
 	for action in ["walk", "dodge", "light"]:
 		await reset(Vector3(5.3, 0, 3))
 		p.facing = Vector3.RIGHT
