@@ -22,7 +22,7 @@ Read `README.md` and `docs/ARCHITECTURE.md` before gameplay changes. Apply the p
 - Gameplay state and action time belong to `PlayerCharacter`; `GameClock` coordinates physics, animations, projectiles and hitstop. Avoid a second gameplay state machine inside AnimationTree or timer-driven damage callbacks.
 - Put adjustable attack data in Resources. Keep health and magic components independent of input/UI. Emit gameplay events instead of making weapons update HUD directly.
 - PC controls: WASD; LMB/V/J melee; MMB/B/K heavy; Q or RMB hold to draw, release to fire; Space dodge. PlayStation: LS move/aim, RS bounded camera look, square melee, R2 heavy, cross dodge, triangle interact, L2 aim + circle draw/release, D-pad ranged slot, Options/touchpad menu. Menu: cross confirm, circle back, L1/R1 tabs.
-- Format GDScript consistently with `gdformat scripts tests`. Run the affected replay, then the melee, bow, enemy and controller regression suites after shared controller/clock changes.
+- Format GDScript consistently with `gdformat scripts tests`. Use checks scoped to the changed behaviour. Visual adjustments need a focused native visual check; do not automatically run broad combat/controller suites.
 - Verify visuals in a running Forward+ Metal game. A successful import/headless test does not prove good animation. On macOS, an occluded window can skip drawing; inspect actual render-frame counts before relying on a screenshot or movie.
 - Describe remaining visual differences honestly. Reference footage supports observations, not claims about Acid Nerve's internal implementation.
 
@@ -40,7 +40,7 @@ Read `README.md` and `docs/ARCHITECTURE.md` before gameplay changes. Apply the p
 - Visual wrappers provide the same named clips and socket attachments with their own rig. The red panda keeps the original chibi anatomy and wears the new ranger clothing. It holds the sunblade in the right hand at rest; the broad faces point sideways (saved roll on WeaponModel). The back-stow request was explicitly reverted. Crow stows its rose sword centrally on the back; capybara holds its amber sword in the right hand at rest. `stow_at_rest` and cycle-speed settings belong to CharacterVisual.
 - `MeleeWeapon.tscn` is a real inherited base for rose/amber weapon scenes. WeaponDefinition supplies palette/material settings; avoid a second controller for a different character.
 - `AttackDefinition.charged_clip` changes presentation without changing the shared action clock. CombatFeedback reads that clock; its ground wake is cosmetic and cannot expand damage reach.
-- Run `tools/run_checks.py --character crow` and `--character capybara` after profile/weapon changes. Selection replay uses native controller focus through both startup and return-to-selection.
+- Per the latest user correction, crow and capybara tests are not required. Only expand beyond focused red-panda checks when a concrete regression justifies it or the user requests it.
 
 ## Current miniature assets
 

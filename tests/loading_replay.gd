@@ -38,6 +38,11 @@ func run() -> void:
 	SceneTransit.new_game_loading_time = 3.0
 	title.get_node("Artwork/Options/NewGame").grab_focus()
 	await tap(JOY_BUTTON_A)
+	check(
+		"New Game asks for a save slot first",
+		title.get_node("SaveSlots").visible and not SceneTransit.active
+	)
+	await tap(JOY_BUTTON_A)
 	check("New Game starts shared loading", SceneTransit.active)
 	check("duplicate launch is rejected", not SceneTransit.change_scene(title.new_game_scene))
 	for i in 80:

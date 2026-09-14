@@ -10,6 +10,8 @@
 [ext_resource type="Script" uid="uid://hbl7rg4k2y2e" path="res://scripts/ui/title_screen.gd" id="Script"]
 [ext_resource type="Texture2D" uid="uid://5tr743ktht2i" path="res://assets/ui/title/selection.svg" id="Selection"]
 
+[ext_resource type="PackedScene" path="res://scenes/ui/SaveSlotMenu.tscn" id="SaveSlots"]
+
 [sub_resource type="StyleBoxEmpty" id="Empty"]
 
 [sub_resource type="Theme" id="Theme"]
@@ -198,7 +200,7 @@ theme_override_constants/separation = 0
 [node name="Continue" type="Button" parent="Artwork/Options" unique_id=55204170]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-disabled = true
+disabled = false
 text = "Continue"
 
 [node name="NewGame" type="Button" parent="Artwork/Options" unique_id=316255566]
@@ -270,3 +272,5 @@ offset_bottom = 941.0
 theme_override_font_sizes/font_size = 24
 text = "This scene could not be opened."
 horizontal_alignment = 1
+
+[node name="SaveSlots" parent="." instance=ExtResource("SaveSlots")]

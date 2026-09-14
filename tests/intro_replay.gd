@@ -2,9 +2,21 @@ extends Node
 ## Native title presentation, focus, configurable scene launches, and GUI input fences.
 var results: Array = []
 var failures := 0
+var replay_device := 0
 
 
 func _ready() -> void:
+	# Keep the saved mappings, isolate physical controller jitter from injected input.
+	while replay_device in Input.get_connected_joypads():
+		replay_device += 1
+	for action in InputMap.get_actions():
+		for event in InputMap.action_get_events(action):
+			if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+				var binding := event.duplicate() as InputEvent
+				binding.device = replay_device
+				InputMap.action_erase_event(action, event)
+				InputMap.action_add_event(action, binding)
+		Input.action_release(action)
 	run.call_deferred()
 
 
@@ -38,7 +50,7 @@ func capture(label: String) -> Image:
 
 func joy(button: JoyButton, pressed: bool) -> void:
 	var event := InputEventJoypadButton.new()
-	event.device = 0
+	event.device = replay_device
 	event.button_index = button
 	event.pressed = pressed
 	Input.parse_input_event(event)
@@ -68,9 +80,7 @@ func run() -> void:
 		get_tree().quit()
 		return
 	check("title is startup scene", title.scene_file_path == "res://scenes/ui/TitleScreen.tscn")
-	check(
-		"continue unavailable without a save", title.get_node("Artwork/Options/Continue").disabled
-	)
+	check("continue hidden without a save", not title.get_node("Artwork/Options/Continue").visible)
 	check(
 		"new game receives initial focus",
 		get_viewport().gui_get_focus_owner() == title.get_node("Artwork/Options/NewGame")
@@ -181,6 +191,8 @@ func run() -> void:
 	await finish_transition()
 	title = get_tree().current_scene
 	title.get_node("Artwork/Options/NewGame").grab_focus()
+	await tap(JOY_BUTTON_A)
+	check("new game opens slot picker", title.get_node("SaveSlots").visible)
 	await tap(JOY_BUTTON_A)
 	await finish_transition()
 	check(

@@ -7,6 +7,7 @@ signal transition_failed(reason: String)
 @export_range(.2, 2, .05, "suffix:s") var minimum_loading_time := .75
 @export_range(.2, 2, .05, "suffix:s") var new_game_loading_time := 1.1
 @export_range(2, 6, 1) var cached_scene_limit := 3
+@export var rest_transition: SceneTravelSettings = preload("res://settings/transitions/default.tres")
 var active := false
 var pause_on_arrival := false
 var phase := "idle"
@@ -96,7 +97,7 @@ func _trim_cache() -> void:
 
 
 func _begin(path: String) -> bool:
-	if active or Dialogue.active:
+	if active or Dialogue.active or Checkpoints.active:
 		return false
 	if path.is_empty() or not ResourceLoader.exists(path, "PackedScene"):
 		transition_failed.emit("De bestemming kon niet worden geopend.")
@@ -112,7 +113,14 @@ func _begin(path: String) -> bool:
 
 
 ## Menus and other direct loads use this entry point. New Game always shows the card.
-func change_scene(path: String, heading := "De wereld ontwaakt", always_show := false) -> bool:
+func change_scene(
+	path: String,
+	heading := "De wereld ontwaakt",
+	always_show := false,
+	prepare: Callable = Callable(),
+	validate: Callable = Callable(),
+	allow_loading := true
+) -> bool:
 	if not _begin(path):
 		return false
 	var was_paused := GameClock.paused
@@ -120,7 +128,9 @@ func change_scene(path: String, heading := "De wereld ontwaakt", always_show := 
 	if player:
 		player.suspend_controls()
 	GameClock.paused = true
-	_load_from_menu.call_deferred(path, heading, always_show, was_paused)
+	_load_from_menu.call_deferred(
+		path, heading, always_show, was_paused, prepare, validate, allow_loading
+	)
 	return true
 
 
@@ -209,7 +219,15 @@ func _finish_preparing(path: String) -> void:
 			await get_tree().create_timer(remaining).timeout
 
 
-func _load_from_menu(path: String, heading: String, always_show: bool, was_paused: bool) -> void:
+func _load_from_menu(
+	path: String,
+	heading: String,
+	always_show: bool,
+	was_paused: bool,
+	prepare: Callable,
+	validate: Callable,
+	allow_loading: bool
+) -> void:
 	var old_scene := get_tree().current_scene
 	fade.show()
 	fade.modulate.a = 0.0
@@ -225,13 +243,24 @@ func _load_from_menu(path: String, heading: String, always_show: bool, was_pause
 			null, "De bestemming kon niet worden geladen.", menu_fade_duration, was_paused
 		)
 		return
-	var next_scene := await _prepare_scene(path, heading)
+	var next_scene := await _prepare_scene(path, heading, allow_loading)
 	if next_scene == null:
 		await _recover(
 			null, "De bestemming kon niet worden geladen.", menu_fade_duration, was_paused
 		)
 		return
+	if validate.is_valid() and not validate.call(next_scene):
+		next_scene.free()
+		await _recover(
+			null,
+			"Het aankomstpunt is niet beschikbaar of niet uniek. De save is behouden.",
+			menu_fade_duration,
+			was_paused
+		)
+		return
 	await _replace_scene(old_scene, next_scene)
+	if prepare.is_valid():
+		prepare.call(next_scene)
 	await _finish_preparing(path)
 	phase = "arriving"
 	await _fade_to(0, menu_fade_duration)
@@ -250,6 +279,7 @@ func _travel(
 	allow_loading: bool
 ) -> void:
 	var old_scene := get_tree().current_scene
+	GameProgress.capture_stats(player)
 	var hp := player.health.current
 	var magic := player.magic.current
 	var load_error := _request_resource(path)
@@ -324,6 +354,33 @@ func _complete(next_scene: Node) -> void:
 	transition_finished.emit(next_scene)
 	if pause_on_arrival and next_scene.has_node("HUD"):
 		next_scene.get_node("HUD")._controller_disconnected()
+
+
+## A short rest/save refresh uses the same curtain, with no scene load or rollback of live progress.
+func refresh_world(refresh: Callable) -> void:
+	if active or not refresh.is_valid():
+		return
+	active = true
+	phase = "refreshing"
+	var was_paused := GameClock.paused
+	GameClock.paused = true
+	InputRouter.block_gameplay_input()
+	loading_screen.hide()
+	fade.modulate.a = 0.0
+	fade.show()
+	await _fade_to(1.0, rest_transition.fade_duration)
+	refresh.call()
+	if rest_transition.black_hold > 0:
+		await get_tree().create_timer(rest_transition.black_hold).timeout
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	await _render_frame()
+	await _fade_to(0.0, rest_transition.fade_duration)
+	fade.hide()
+	GameClock.paused = was_paused
+	active = false
+	phase = "idle"
+	InputRouter.block_gameplay_input()
 
 
 func _recover(

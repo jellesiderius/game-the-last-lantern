@@ -13,7 +13,7 @@ func _ready() -> void:
 	super._ready()
 	player.entrance_finished.connect(_entrance_finished)
 	player.state_changed.connect(_player_state_changed)
-	if play_entrance:
+	if play_entrance and (not SceneTransit.active or Checkpoints.should_play_opening()):
 		player.begin_entrance(entrance_sequence)
 		$HUD/Root/Status.modulate.a = 0.0
 	else:
@@ -45,6 +45,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _entrance_finished() -> void:
+	GameProgress.finish_opening()
 	hud_reveal = 0.0
 
 

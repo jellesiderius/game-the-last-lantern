@@ -37,6 +37,7 @@ func can_interact(actor: Node3D) -> bool:
 		and conversation.has_content()
 		and not Dialogue.active
 		and not SceneTransit.active
+		and not Checkpoints.active
 	)
 
 

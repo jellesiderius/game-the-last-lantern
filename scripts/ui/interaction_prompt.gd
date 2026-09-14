@@ -9,10 +9,12 @@ func _process(delta: float) -> void:
 	var camera := get_viewport().get_camera_3d()
 	var available: bool = (
 		player != null
-		and target is DialogueInteractable
+		and is_instance_valid(target)
 		and camera != null
 		and not GameClock.paused
 		and not Dialogue.active
+		and not SceneTransit.active
+		and not Checkpoints.active
 		and player.state == "locomotion"
 	)
 	if available:

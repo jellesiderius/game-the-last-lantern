@@ -45,7 +45,6 @@ func _physics_process(_delta: float) -> void:
 	var delta: float = GameClock.dt
 	if delta <= 0:
 		return
-	shake = maxf(0, shake - delta * .45)
 	var look := (
 		Input.get_vector(
 			"look_left", "look_right", "look_up", "look_down", player.settings.stick_deadzone
@@ -60,12 +59,18 @@ func _physics_process(_delta: float) -> void:
 		clampf(player.position.z * .27 + look_offset.z, -1.2, 1.2)
 	)
 	camera_home = camera_home.lerp(target, 1 - exp(-delta * 16))
+	_apply_impact_camera(delta)
+	_draw_debug()
+
+
+## All level cameras apply the same hit response after calculating their follow position.
+func _apply_impact_camera(delta: float) -> void:
+	shake = maxf(0, shake - delta * .45)
 	camera_rig.position = camera_home
 	if player.settings.camera_shake and shake > 0:
 		camera_rig.position += (
 			Vector3(sin(GameClock.elapsed * 137), cos(GameClock.elapsed * 113), 0) * shake
 		)
-	_draw_debug()
 
 
 func impact(at: Vector3, power := 1.0, color := Color(1, .018, .15)) -> void:

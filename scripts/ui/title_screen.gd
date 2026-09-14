@@ -1,8 +1,7 @@
 extends Control
 ## The reference plate stays fixed; only its light and the saved particle layers animate.
-@export_file("*.tscn") var new_game_scene := "res://scenes/levels/ForestOpening.tscn"
+var new_game_scene := "res://scenes/levels/ForestOpening.tscn"
 @export_file("*.tscn") var test_scene := "res://scenes/levels/TestArena.tscn"
-@export var new_game_loading_title := "Een nieuw avontuur"
 @export_range(0.0, 1.0, .05) var flicker_strength := 1.0
 var animation_time := 0.0
 var starting := false
@@ -40,18 +39,21 @@ func _ready() -> void:
 		return
 	resized.connect(_fit_artwork)
 	_fit_artwork()
+	_refresh_continue()
+	SaveStore.slots_changed.connect(_refresh_continue)
 	var buttons: Array[Control] = []
 	for button: Button in options.get_children():
 		var entrance := ShaderMaterial.new()
 		entrance.shader = preload("res://shaders/menu_entrance.gdshader")
 		button.material = entrance
-		if button.disabled:
-			continue
-		buttons.append(button)
 		button.focus_entered.connect(_focus.bind(button))
 		button.mouse_entered.connect(button.grab_focus)
+		if not button.disabled and button.visible:
+			buttons.append(button)
 	_wire_focus(buttons)
 	$Artwork/Options/NewGame.pressed.connect(_launch_new_game)
+	$Artwork/Options/Continue.pressed.connect(_open_slots.bind(false))
+	$SaveSlots.closed.connect(_slots_closed)
 	SceneTransit.transition_failed.connect(_launch_failed)
 	$Artwork/Options/TestScene.pressed.connect(_launch_test_scene)
 	$Artwork/Options/Settings.pressed.connect(_open_settings)
@@ -73,6 +75,15 @@ func _ready() -> void:
 		]
 	)
 	$Artwork/Options/NewGame.grab_focus.call_deferred()
+	for suite in ["checkpoint", "save"]:
+		var replay_name: String = suite.capitalize() + "Replay"
+		if (
+			"--" + suite + "-replay" in OS.get_cmdline_user_args()
+			and not get_tree().root.has_node(replay_name)
+		):
+			var replay := load("res://tests/" + suite + "_replay.gd").new() as Node
+			replay.name = replay_name
+			get_tree().root.add_child.call_deferred(replay)
 	if (
 		"--intro-replay" in OS.get_cmdline_user_args()
 		and not get_tree().root.has_node("IntroReplay")
@@ -180,10 +191,23 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _launch_new_game() -> void:
-	_launch(new_game_scene, new_game_loading_title, true)
+	_open_slots(true)
+
+
+func _open_slots(new_game: bool) -> void:
+	options.hide()
+	pointer.hide()
+	$SaveSlots.open(new_game)
+
+
+func _slots_closed() -> void:
+	options.show()
+	pointer.show()
+	$Artwork/Options/NewGame.grab_focus()
 
 
 func _launch_test_scene() -> void:
+	GameProgress.leave_game()
 	_launch(test_scene)
 
 
@@ -201,3 +225,15 @@ func _launch_failed(reason: String) -> void:
 		starting = false
 		$Artwork/LaunchError.text = reason
 		$Artwork/LaunchError.show()
+
+
+func _refresh_continue() -> void:
+	var available := false
+	for slot in SaveSchema.SLOT_COUNT:
+		available = available or SaveStore.inspect_slot(slot).state == "filled"
+	$Artwork/Options/Continue.visible = available
+	var buttons: Array[Control] = []
+	for button: Button in options.get_children():
+		if button.visible and not button.disabled:
+			buttons.append(button)
+	_wire_focus(buttons)

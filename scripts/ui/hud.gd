@@ -86,7 +86,13 @@ func _process(_delta: float) -> void:
 	if arena.debug_enabled:
 		state_label.text += "\n" + AttackTokenManager.debug_status()
 	var menu_visible: bool = (
-		(GameClock.paused and not Dialogue.active and not SceneTransit.active) or dead
+		(
+			GameClock.paused
+			and not Dialogue.active
+			and not SceneTransit.active
+			and not Checkpoints.active
+		)
+		or (dead and not SceneTransit.active)
 	)
 	if menu_visible and not pause_panel.visible:
 		pause_panel.open(dead, p.settings.camera_shake, menu_reason)
@@ -96,6 +102,7 @@ func _process(_delta: float) -> void:
 		not menu_visible
 		and not Dialogue.active
 		and not SceneTransit.active
+		and not Checkpoints.active
 		and p.state != "entrance"
 	)
 	$Root/InputHint.text = (
@@ -112,7 +119,8 @@ func _process(_delta: float) -> void:
 		not menu_visible
 		and not Dialogue.active
 		and not SceneTransit.active
-		and not interaction is DialogueInteractable
+		and not Checkpoints.active
+		and not is_instance_valid(interaction)
 	)
 	$Root/ContextPrompt.text = (
 		"%s  %s" % [InputRouter.prompt("interact"), interaction.prompt]
@@ -134,7 +142,7 @@ func _process(_delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if Dialogue.active or SceneTransit.active or event.is_echo():
+	if Dialogue.active or SceneTransit.active or Checkpoints.active or event.is_echo():
 		return
 	if event.is_action_pressed("pause"):
 		if arena.player.state == "dead":
@@ -169,6 +177,9 @@ func _resume() -> void:
 
 
 func _restart() -> void:
+	if GameProgress.active_slot >= 0:
+		Checkpoints.respawn_player()
+		return
 	Dialogue.close(false)
 	menu_reason = ""
 	arena.restart()
@@ -177,6 +188,8 @@ func _restart() -> void:
 
 
 func _controller_disconnected() -> void:
+	if Checkpoints.active:
+		return
 	if SceneTransit.active:
 		SceneTransit.pause_on_arrival = true
 		return
@@ -222,4 +235,9 @@ func _choose_character() -> void:
 
 
 func _return_to_title() -> void:
-	SceneTransit.change_scene("res://scenes/ui/TitleScreen.tscn", "Terug bij het licht")
+	SceneTransit.change_scene(
+		"res://scenes/ui/TitleScreen.tscn",
+		"Terug bij het licht",
+		false,
+		func(_scene): GameProgress.leave_game()
+	)

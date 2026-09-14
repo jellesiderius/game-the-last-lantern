@@ -129,8 +129,74 @@ func _update_scene_travel(delta: float) -> void:
 	visual.sample("", 0, Vector2(velocity.x, velocity.z).length(), delta)
 
 
+var rest_point: Node3D
+var rest_already_lit := false
+var rest_destination := Vector3.ZERO
+
+
+func begin_rest_action(point: Node3D, already_lit: bool) -> void:
+	suspend_controls()
+	_clear_buffers()
+	rest_point = point
+	rest_already_lit = already_lit
+	var away := global_position - point.global_position
+	away.y = 0
+	if away.length_squared() < .01:
+		away = -facing
+	rest_destination = point.global_position + away.normalized() * point.rest_distance
+	_enter("rest_approach", "")
+
+
+func _update_rest_action(delta: float) -> void:
+	if delta <= 0:
+		return
+	if not is_instance_valid(rest_point):
+		Checkpoints.cancel_rest.call_deferred()
+		return
+	suspend_controls()
+	action_time += delta
+	var toward := rest_point.global_position - global_position
+	toward.y = 0
+	_face(toward.normalized(), delta)
+	if state == "rest_approach":
+		var distance := rest_destination - global_position
+		distance.y = 0
+		var speed := minf(2.0, distance.length() / maxf(delta, .001))
+		velocity = distance.normalized() * speed + Vector3.DOWN * .2
+		move_and_slide()
+		visual.sample("", 0, speed, delta)
+		if distance.length() < .035 or action_time > 1.2:
+			velocity = Vector3.ZERO
+			_enter(
+				"rest_settle" if rest_already_lit else "kindle",
+				visual.rest_clip if rest_already_lit else visual.kindle_clip
+			)
+		return
+	velocity = Vector3.DOWN * .2
+	move_and_slide()
+	visual.sample(clip, action_time, 0.0, delta)
+	if state == "kindle":
+		rest_point.sample_ignition(action_time, visual.carried_light_origin())
+	if action_time >= (.55 if rest_already_lit else 2.25):
+		_enter("resting", visual.rest_clip)
+		Checkpoints.finish_sitting.call_deferred()
+
+
+func hold_rest_pose() -> void:
+	_enter("resting", visual.rest_clip)
+	visual.sample(clip, .55, 0.0, 0.0)
+
+
+func finish_rest_action() -> void:
+	rest_point = null
+	suspend_controls()
+	velocity = Vector3.ZERO
+	_locomotion()
+
+
 func _ready() -> void:
 	add_to_group("player")
+	GameProgress.apply_stats(self)
 	input_device = InputRouter.kind
 	visual.weapon.swing_connected.connect(_on_melee_connected)
 	feedback.configure(visual.weapon.definition)
@@ -209,7 +275,7 @@ func _update_entrance(delta: float) -> void:
 
 
 func request_action(action: String, device := "keyboard") -> void:
-	if state in ["entrance", "scene_travel"]:
+	if state in ["entrance", "scene_travel", "rest_approach", "kindle", "rest_settle", "resting"]:
 		return
 	next_aim_device = device
 	pending_inputs.append(action)
@@ -252,6 +318,11 @@ func _physics_process(_delta: float) -> void:
 			bow.aim_held = false
 			heavy_held = false
 			_locomotion()
+	if state in ["rest_approach", "kindle", "rest_settle"]:
+		_update_rest_action(GameClock.dt)
+		return
+	if state == "resting":
+		return
 	if state == "scene_travel":
 		_update_scene_travel(GameClock.dt)
 		return
@@ -268,6 +339,8 @@ func _physics_process(_delta: float) -> void:
 				ranged_loadout.select_slot(slot)
 		if Input.is_action_just_pressed("interact") and state in ["locomotion", "bow_empty"]:
 			interaction.activate()
+			if Checkpoints.active:
+				return
 		if Input.is_action_just_pressed("dodge"):
 			request_action("dodge", input_device)
 		if Input.is_action_just_pressed("light"):
@@ -639,7 +712,7 @@ func attack_duration() -> float:
 func is_invulnerable() -> bool:
 	return (
 		invulnerability > 0
-		or state == "scene_travel"
+		or state in ["scene_travel", "rest_approach", "kindle", "rest_settle", "resting"]
 		or (
 			state == "roll"
 			and action_time >= settings.roll_iframe_start
@@ -679,6 +752,7 @@ func _clear_buffers() -> void:
 
 
 func respawn(at := Vector3.ZERO) -> void:
+	rest_point = null
 	entrance = null
 	_clear_buffers()
 	airborne_time = 0.0

@@ -1,16 +1,21 @@
-[gd_resource type="Resource" script_class="DialogueConversation" format=3]
-[ext_resource type="Script" path="res://scripts/components/dialogue_conversation.gd" id="Conversation"]
-[ext_resource type="Script" path="res://scripts/components/dialogue_line.gd" id="Line"]
+[gd_resource type="Resource" script_class="DialogueConversation" format=3 uid="uid://vp3r0ahdx0p8"]
+
+[ext_resource type="Script" uid="uid://7xygf8wm3wt7" path="res://scripts/components/dialogue_conversation.gd" id="Conversation"]
+[ext_resource type="Script" uid="uid://cempfu7wadcj4" path="res://scripts/components/dialogue_line.gd" id="Line"]
+
 [sub_resource type="Resource" id="Welcome"]
 script = ExtResource("Line")
 text = "Kom binnen. De deur staat altijd open voor iemand die een lichtje bij zich draagt."
+
 [sub_resource type="Resource" id="Lantern"]
 script = ExtResource("Line")
 text = "Soms lijkt het bos eindeloos. Maar zolang er ergens een lantaarn brandt, is er ook een plek om thuis te komen."
+
 [sub_resource type="Resource" id="Farewell"]
 script = ExtResource("Line")
 text = "Rust maar even uit. Als je verder wilt, vind je het bospad weer door de deur achter je."
+
 [resource]
 script = ExtResource("Conversation")
 speaker = "Linde"
-lines = Array[ExtResource("Line")]([SubResource("Welcome"),SubResource("Lantern"),SubResource("Farewell")])
+lines = Array[ExtResource("Line")]([SubResource("Welcome"), SubResource("Lantern"), SubResource("Farewell")])

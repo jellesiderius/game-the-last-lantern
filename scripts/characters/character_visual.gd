@@ -8,6 +8,9 @@ var gait_phase := 0.0
 var idle_time := 0.0
 var displayed_speed := 0.0
 ## Optional clips supplied by each character's own imported rig.
+@export_node_path("Node3D") var carried_light_emitter_path: NodePath
+@export var kindle_clip := "idle"
+@export var rest_clip := "idle"
 @export var fall_clip := ""
 @export var landing_clip := ""
 ## Optional carried props stay upright and are stowed when both hands are needed.
@@ -282,3 +285,11 @@ func show_damage_protection(remaining: float, duration: float) -> void:
 	damage_material.set_shader_parameter(
 		"tint", Color.WHITE if age < .075 else Color(1.0, .87, .62)
 	)
+
+
+func carried_light_origin() -> Vector3:
+	if not carried_light_emitter_path.is_empty():
+		return get_node(carried_light_emitter_path).global_position
+	if not upright_accessory_paths.is_empty():
+		return get_node(upright_accessory_paths[0]).global_position + Vector3.UP * .12
+	return global_position + Vector3.UP * .45 - global_basis.z * .3

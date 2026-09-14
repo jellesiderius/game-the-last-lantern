@@ -1,7 +1,12 @@
 [gd_scene format=3 uid="uid://ccwit6nv4nh3l"]
 
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/autumn_tree/Visual.tscn" id="2_ubly6"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/plaza_cliff/Visual.tscn" id="3_bcx3a"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/grass_tile/Visual.tscn" id="4_63ki8"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_butterfly/Visual.tscn" id="5_24i5e"]
 [ext_resource type="PackedScene" path="res://scenes/assets/props/hand_lantern/Visual.tscn" id="6_qo5ub"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/barrel/Visual.tscn" id="10_63ki8"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/flower_patch/Visual.tscn" id="12_nrsh3"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="HUD"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="Player"]
 [ext_resource type="Script" uid="uid://drprgcv3rjmh" path="res://scripts/world/prototype_room.gd" id="Room"]
@@ -308,6 +313,12 @@ mesh = SubResource("BackRimMesh")
 [node name="autumn_tree" parent="Geometry" unique_id=140429979 instance=ExtResource("2_ubly6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7445477, 0.014903527, 0.23350358)
 
+[node name="Visual" parent="Geometry" unique_id=1656677038 instance=ExtResource("3_bcx3a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.9171338, 1, 6.1154275)
+
+[node name="grass_tile" parent="Geometry" unique_id=1597313911 instance=ExtResource("4_63ki8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1805687, 0.3, 5.5668755)
+
 [node name="Collision" type="Node3D" parent="." unique_id=1551276253]
 
 [node name="EntranceBody" type="StaticBody3D" parent="Collision" unique_id=655607135]
@@ -429,6 +440,9 @@ collision_mask = 0
 [node name="Collision" type="CollisionShape3D" parent="Collision/CanalBank1_4Body" unique_id=1745204734]
 shape = SubResource("CanalBank1_4Shape")
 
+[node name="forest_butterfly" parent="Collision/CanalBank1_4Body" unique_id=548147227 instance=ExtResource("5_24i5e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.126555, -0.45, -1.0766406)
+
 [node name="RoomSide1Body" type="StaticBody3D" parent="Collision" unique_id=1617673440]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.92, 1, 0)
 collision_mask = 0
@@ -523,3 +537,9 @@ max_distance = 30.0
 
 [node name="Lantern" parent="." unique_id=1599148142 instance=ExtResource("6_qo5ub")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7371298, 1, 0.9777589)
+
+[node name="barrel" parent="." unique_id=1460836465 instance=ExtResource("10_63ki8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9383435, 0.8505251, 2.2958946)
+
+[node name="flower_patch" parent="." unique_id=499679344 instance=ExtResource("12_nrsh3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8061504, 1.3051708, 8.287031)

@@ -121,3 +121,12 @@ De manager valideert de geïnstantieerde bestemming vóór verwijdering van de b
 
 
 `SceneTransit.change_scene()` is ook de gedeelde ingang voor New Game, Testscene en menulanceringen. De opgeslagen `LoadingScreen` gebruikt UI-tijd, terwijl GameClock de afgedekte gameplay pauzeert. De New Game-intro blijft bevroren tot de fade is verdwenen. `ScenePortal` vraagt vanaf een configureerbare afstand resource-prefetch aan. De manager dedupliceert achtergrondtaken en bewaart maximaal drie recente PackedScenes; de huidige map en actieve bestemming worden beschermd. Er worden tijdens voorladen geen live actors aangemaakt. Gewone portals hebben `allow_loading_screen=false`; de huisdeuren gebruiken bovendien het korte deurprofiel zonder black hold. Alleen een expliciete grote overgang kan de laadkaart inschakelen. Zie [LOADING_SCREEN.md](LOADING_SCREEN.md).
+
+
+## Vuurlelie, rusten en opgeslagen spellen
+
+`SaveStore` verzorgt alleen schijftransacties. `GameProgress` bezit het actuele slot en de live voortgang. `Checkpoints` coördineert de rustactie en controleert het blijvende checkpoint-ID in het doelgebied voordat SceneTransit de oude scene vrijgeeft. Doodgaan gebruikt een kopie van de actuele data; alleen expliciet laden leest een slot van schijf. Hierdoor draait een dood nieuwe wereldflags, inventaris of skills niet terug.
+
+Een Vuurlelie is één opgeslagen scene. Area-resources onder settings/areas koppelen blijvende gebiedscodes aan scenes. Editorhelpers geven nieuwe geplaatste instanties een willekeurige code, ontdekken het gebied en tonen instelfouten. Verplaatsen en hernoemen veranderen de identiteit niet. De speler bezit de actietijd voor benaderen/kindle/zitten; de bloem leest die tijd voor de bladen en het overstekende vonkje. De optionele clips en lamp-emitter staan op CharacterVisual, zonder panda-botpaden in de gedeelde controller.
+
+Plaatsnemen opent alleen het menu. Rusten herstelt de meters, vervangt het checkpoint en vernieuwt gewone vijanden achter de bestaande, volledig dekkende scenefade. Permanent verslagen vijanden blijven weg. Daarna wordt het actuele slot veilig opgeslagen. De vaste UI toont alleen Rusten/Verdergaan en houdt dezelfde knopmaten bij disabled/focus. `SaveIndicator` luistert uitsluitend naar geslaagde schrijfacties en wacht tot de overgang weg is. Instellingen, schema, fouten en herstel: [VUURLELIE.md](VUURLELIE.md).

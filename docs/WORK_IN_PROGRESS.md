@@ -1,5 +1,17 @@
 # Huidige stand — 13 september 2026
 
+## Vuurlelie en drie save slots
+
+Checkpoint-IDs worden automatisch in de editor aangemaakt en in de levelscene bewaard. De ID is alleen-lezen; de handmatige genereerknop is verwijderd. Nieuwe duplicaten krijgen een eigen ID, terwijl verplaatsen/hernoemen de bestaande saveverwijzing behouden. Plaatsing wacht zo nodig totdat Godot de scene-eigenaar heeft ingesteld.
+
+De knop **Vul gebied automatisch in** levert zijn Callable via een getter in plaats van een opgeslagen functievariabele, zodat een editor-scriptreload geen lege knopverwijzing achterlaat. Handmatig invullen markeert het level als gewijzigd. Gericht gecontroleerd op alle drie Passage-lelies, vóór en na `reload(true)`; gebied correct ingevuld en bestaande checkpoint-IDs behouden.
+
+ForestPassage had drie opgeslagen lelies zonder ID, waardoor runtimevalidatie hun interactie uitschakelde. Alle drie hebben nu een opgeslagen eigen ID en gebied; de oorspronkelijke `lily.forest.cottage` is behouden voor bestaande saves. De editor herstelt ook een lege ID wanneer de tool-instantie al geïnitialiseerd was. Gerichte native controle van alle drie: 30 controles geslaagd, inclusief Ontsteek, rustmenu, meters herstellen, echte save per checkpoint en Verdergaan (959 renderframes). Zie `captures/vuurlelie/passage_rest_checks.json`.
+
+Herbruikbare Vuurlelie met vijf bewegende bronzen bladen, een echte 3D-vlam, zichtbare vonkjes en een groter formaat. Plaatsnemen opent alleen het menu; **Rusten** kiest het checkpoint, herstelt health/magic, vernieuwt gewone vijanden en slaat op via de bestaande scenefade. Alleen een klein oplichtend lantaarnicoon bevestigt succes; er is geen Opslaan-knop of succesregel. De layout blijft gelijk tijdens activering. Drie onafhankelijke slots, expliciete verwijdering, herstelkopieën en onderscheid tussen live respawn en disk load zijn toegevoegd. Continue is verborgen zonder geldige saves. Plaatsbare prefab, gebiedsregistratie, bron en actuele controles: [VUURLELIE.md](VUURLELIE.md). De bestaande 32 panda-Actions en meshes/skinweights zijn behouden; kindle/rest brengen het totaal op 34.
+
+Laatste visuele correctie: één bredere vlam van circa 1,1 m met een gele kern, bewegende oranje rand en negen grotere, heldere vonkjes. Het save-icoon is verkleind tot 78% met een subtielere achtergrond. Gericht bekeken in Forward+ Metal op normale camera-afstand, dichtbij en van vier kanten; screenshots in `captures/vuurlelie/fire_*.png` en `save_lantern_small.png`. De nieuwste gebruikerskeuze is gericht controleren; crow/capybara-tests zijn niet vereist en brede suites starten niet automatisch. Dit staat ook in AGENTS.md.
+
 ## Laden en snelle huisdeuren
 
 New Game gebruikt een opgeslagen laadscherm met rustige lantaarnvlam, enkele vonkjes en goudkleurige tekst. De stronkintro begint pas als het scherm weg is. Dezelfde service verwerkt Testscene en menulanceringen. Gewone portals tonen standaard alleen de fade; beide huisdeuren tonen nooit de laadkaart. Resources worden vanaf 8 m afstand alvast geladen en recent gebruikte maps blijven in een begrensde resourcecache. Het deurprofiel loopt circa 1 m door aan elke kant, met 0,28 s fade en geen ingestelde wachttijd. Native Forward+ Metal: 62 overgangscontroles slagen bij caps30/60/120. De gemeten huisovergangen duren 0,81–0,86 s; het volledig afgedekte moment is 57–134 ms. De 29 laadschermcontroles, 29 introcontroles, 37 selectorcontroles en 42 controllercontroles slagen. Instellingen, API en actuele controles: [LOADING_SCREEN.md](LOADING_SCREEN.md) en `LOADING_VALIDATION.json`.
@@ -14,11 +26,11 @@ De eerdere onafhankelijke assetmatch bleef op 5,6/10; de nieuwe opdracht gebruik
 
 ## Introscherm: The Last Lantern
 
-F5 opent nu `TitleScreen.tscn`, gebaseerd op de aangeleverde afbeelding. De titel verschijnt rustig zonder transparantievlekken. De opties volgen later met dezelfde easing en een kleinere beweging; ze blijven boven de lantaarn. Een bewegende vlam, subtiele lichtvariatie en enkele vonkjes vervangen de snelle pulsering en te grote deeltjeshoeveelheid. Testscene is instelbaar in de Inspector en opent voorlopig TestArena. New Game opent ForestOpening; Main menu in het pauzemenu keert terug. Continue blijft uitgeschakeld zolang er geen opslagsysteem is. Instellingen voor volledig scherm en controllertrilling werken. Zie [INTRO_SCREEN.md](INTRO_SCREEN.md) voor bestanden en controles.
+F5 opent nu `TitleScreen.tscn`, gebaseerd op de aangeleverde afbeelding. De titel verschijnt rustig zonder transparantievlekken. De opties volgen later met dezelfde easing en een kleinere beweging; ze blijven boven de lantaarn. Een bewegende vlam, subtiele lichtvariatie en enkele vonkjes vervangen de snelle pulsering en te grote deeltjeshoeveelheid. Testscene is instelbaar in de Inspector en opent voorlopig TestArena. New Game opent ForestOpening; Main menu in het pauzemenu keert terug. Continue verschijnt alleen wanneer minstens één geldige save bestaat. Instellingen voor volledig scherm en controllertrilling werken. Zie [INTRO_SCREEN.md](INTRO_SCREEN.md) voor bestanden en controles.
 
 ## Panda-beweging en grijze silhouetten
 
-Idle/walk/run zijn opnieuw geanimeerd op de bestaande panda; geometrie en skinweights zijn gelijk gebleven. De lage zwaardhouding beweegt met de arm mee, voetfasen sluiten aan tussen lopen/rennen en romp/staart bewegen mee. De laatste snelheidskeuze is 3,8 m/s. Negentien bestaande clips hebben aangepaste begin-/herstelposes voor de nieuwe draaghouding; actieve zwaardbanen en gameplayvensters blijven behouden. De actuele bron bevat 32 Actions, inclusief fall/land. Broncheckpoint, controles en opname: [PANDA_MOTION.md](PANDA_MOTION.md).
+Idle/walk/run zijn opnieuw geanimeerd op de bestaande panda; geometrie en skinweights zijn gelijk gebleven. De lage zwaardhouding beweegt met de arm mee, voetfasen sluiten aan tussen lopen/rennen en romp/staart bewegen mee. De laatste snelheidskeuze is 3,8 m/s. Negentien bestaande clips hebben aangepaste begin-/herstelposes voor de nieuwe draaghouding; actieve zwaardbanen en gameplayvensters blijven behouden. De actuele bron bevat 34 Actions, inclusief fall/land en kindle/rest. Broncheckpoint, controles en opname: [PANDA_MOTION.md](PANDA_MOTION.md).
 
 Speler, vijanden en passieve doelen tonen achter ondoorzichtige meshes hun volledige silhouet in `#414342`. De centrale materiaalresource en opgeslagen stencilpass gebruiken dezelfde kleur. Actuele Forward+ Metal-beelden staan in `captures/occlusion/`; `render.json` bevestigt de geladen kleur.
 
@@ -38,7 +50,7 @@ De nieuwe hoekreplay reproduceerde zes blokkades die de eerdere brug-/traptests 
 
 ## Geldende gebruikerskeuzes
 
-- Eén rode panda. De oorspronkelijke ronde chibi-anatomie uit `lantern_panda.png` blijft leidend. `ranger_panda.png` levert uitsluitend jack, shirt, riem/tasje, handschoenen en beenwikkels. Geen brede ranger-anatomie, geen cape. Bron: `assets/characters/red_panda/source.blend`; 32 clips in model.glb.
+- Eén rode panda. De oorspronkelijke ronde chibi-anatomie uit `lantern_panda.png` blijft leidend. `ranger_panda.png` levert uitsluitend jack, shirt, riem/tasje, handschoenen en beenwikkels. Geen brede ranger-anatomie, geen cape. Bron: `assets/characters/red_panda/source.blend`; 34 clips in model.glb.
 - Zwaard in rust in de rechterhand, brede zijden naar links/rechts. De tijdelijke rugvariant is expliciet teruggedraaid. Eén zwaardinstance; linkerhand draagt de losse lantaarn. Boog/rollen/dood verbergen de lantaarn.
 - Opgeslagen 32 × 32 m prototypekamer. Camera 13 m orthografisch, vaste 50°/45° hoek, zachtere horizontale halfwaardetijd 0,12 s en verticale 0,08 s. Geen vertraging toegevoegd aan spelerinvoer.
 - Lange testtrap links/west: 16 treden, 2 m breed, 8 m lang, 4 m stijging; bordes op 4 m. Onderkant (-11,0,0), bovenkant (-11,4,-8). Gladde rampcollision. Bestaande korte trap naar het dorpshuis blijft.
@@ -54,7 +66,7 @@ De nieuwe hoekreplay reproduceerde zes blokkades die de eerdere brug-/traptests 
 
 ## Huidige combatwijziging
 
-Sunblade: bereik blijft1,9 m, geladen2,4 m. Zes nieuwe botclips leveren rechte, stijgende en dalende slagen in beide richtingen, ondiep20°. De richting wisselt vast af en de stijl is willekeurig zonder directe herhaling. Geen klik-wachtrij: vroege klikken verdwijnen; een verse klik in de laatste0,10 s herstel start direct. Heavy-charge is versneld naar0,45 s en de laadclip schaalt mee. Godot importeert panda-animaties op120 samples/s na een gevonden foute tussendraai bij30. Die combatrevisie bevatte29 Actions; de actuele bron telt32 inclusief fall/land/entrance. Details en bewijs: COMBAT_SWINGS.md en VALIDATION_LANTERN.md.
+Sunblade: bereik blijft1,9 m, geladen2,4 m. Zes nieuwe botclips leveren rechte, stijgende en dalende slagen in beide richtingen, ondiep20°. De richting wisselt vast af en de stijl is willekeurig zonder directe herhaling. Geen klik-wachtrij: vroege klikken verdwijnen; een verse klik in de laatste0,10 s herstel start direct. Heavy-charge is versneld naar0,45 s en de laadclip schaalt mee. Godot importeert panda-animaties op120 samples/s na een gevonden foute tussendraai bij30. Die combatrevisie bevatte29 Actions; de actuele bron telt34 inclusief fall/land/entrance/kindle/rest. Details en bewijs: COMBAT_SWINGS.md en VALIDATION_LANTERN.md.
 
 ## Bronnen / voorzichtig hergebruik
 

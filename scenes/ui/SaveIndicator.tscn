@@ -1,0 +1,59 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/ui/save_indicator.gd" id="Script"]
+[ext_resource type="Texture2D" path="res://assets/ui/save_lantern.svg" id="Lantern"]
+[ext_resource type="Texture2D" path="res://assets/ui/save_flame.svg" id="Flame"]
+[ext_resource type="Shader" path="res://shaders/save_glow.gdshader" id="Glow"]
+[sub_resource type="ShaderMaterial" id="GlowMaterial"]
+shader = ExtResource("Glow")
+[sub_resource type="StyleBoxFlat" id="Background"]
+bg_color = Color(0.012,0.075,0.087,0.42)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_left = 18
+corner_radius_bottom_right = 18
+border_width_bottom = 1
+border_color = Color(0.72,0.55,0.25,0.12)
+[node name="SaveIndicator" type="CanvasLayer"]
+layer = 45
+script = ExtResource("Script")
+[node name="Icon" type="Control" parent="."]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -90.0
+offset_right = 92.0
+offset_bottom = -6.0
+scale = Vector2(0.78,0.78)
+grow_vertical = 0
+mouse_filter = 2
+[node name="Background" type="Panel" parent="Icon"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Background")
+[node name="Glow" type="ColorRect" parent="Icon"]
+offset_left = -10.0
+offset_top = -6.0
+offset_right = 78.0
+offset_bottom = 88.0
+material = SubResource("GlowMaterial")
+mouse_filter = 2
+[node name="Flame" type="TextureRect" parent="Icon"]
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 59.0
+offset_bottom = 75.0
+texture = ExtResource("Flame")
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+[node name="Lantern" type="TextureRect" parent="Icon"]
+offset_left = 9.0
+offset_top = 9.0
+offset_right = 59.0
+offset_bottom = 75.0
+texture = ExtResource("Lantern")
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2

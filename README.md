@@ -15,7 +15,7 @@ cd game-the-last-lantern
 git lfs pull
 ```
 
-Open `project.godot` in **Godot 4.7.2** en druk **F5**. De hoofdscene is `scenes/ui/TitleScreen.tscn`: het introscherm met geanimeerde titel, rustig vlamlicht en enkele opstijgende vonkjes. **New Game** opent `ForestOpening`; **Testscene** opent standaard `TestArena`. Selecteer de root van TitleScreen en wijzig **Test Scene** in de Inspector om een andere testscene in te stellen. Via **Main menu** in het pauzemenu kom je terug. Zie [INTRO_SCREEN.md](docs/INTRO_SCREEN.md).
+Open `project.godot` in **Godot 4.7.2** en druk **F5**. De hoofdscene is `scenes/ui/TitleScreen.tscn`: het introscherm met geanimeerde titel, rustig vlamlicht en enkele opstijgende vonkjes. **New Game** opent de drie save slots; een leeg slot begint in `ForestOpening`; **Testscene** opent standaard `TestArena`. Selecteer de root van TitleScreen en wijzig **Test Scene** in de Inspector om een andere testscene in te stellen. Via **Main menu** in het pauzemenu kom je terug. Zie [INTRO_SCREEN.md](docs/INTRO_SCREEN.md).
 
 De eerste area begint in het bos: de panda zit op een grote stronk, springt eraf en krijgt de besturing terug terwijl vlinders voorbijvliegen. Het pad leidt langs begroeiing, een vijver en rotsterrassen naar de Eikelwachter. Aan het einde opent de poort een tweede bos met een huis. De voordeur brengt je naar het interieur, waar je met Linde kunt praten; beide routes werken ook terug. Bewerkbare assets en bouwinstructies: [FOREST_OPENING.md](docs/FOREST_OPENING.md).
 
@@ -26,6 +26,8 @@ De afzonderlijke prototypekamer is **32 × 32 meter**, met een 2 meter breed wat
 ```
 
 Deze Mac gebruikt **Forward+ via Metal**, met MSAA/TAA, omgevingslicht, schaduwen en beperkte glow. Bewerkbare bronnen gebruiken **Blender 5.2.1 LTS**.
+
+Rustpunten, drie onafhankelijke spellen en bewerkbare checkpointinstellingen: [VUURLELIE.md](docs/VUURLELIE.md). Continue verschijnt pas zodra een save bestaat. Alleen **Rusten** herstelt meters, vernieuwt vijanden en slaat op; plaatsnemen opent uitsluitend het menu. Een klein lantaarnicoon bevestigt een geslaagde save.
 
 ## Besturing
 
@@ -53,7 +55,7 @@ Het zwaard blijft in rust in de **rechterhand**, met de brede zijden naar links/
 
 ## Bestanden
 
-- `assets/characters/red_panda/source.blend` en `model.glb`: huidige panda, eigen skelet en 32 Actions.
+- `assets/characters/red_panda/source.blend` en `model.glb`: huidige panda, eigen skelet en 34 Actions.
 - `assets/weapons/sunblade/`: los bewerkbaar kristalzwaard en GLB.
 - `assets/props/hand_lantern/`: losse messing lantaarn met glazen panelen, X-spijlen en lichtgevend kristal.
 - `assets/environment/<id>/`: herbruikbare grond, pad, klif, trap, brug, gebouwen, bomen en props.

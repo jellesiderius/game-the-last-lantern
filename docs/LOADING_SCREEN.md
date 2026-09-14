@@ -1,6 +1,6 @@
 # Laden en vloeiende doorgangen
 
-**New Game** toont het laadscherm van The Last Lantern: een rustige vlam in een gouden lantaarn, enkele vonkjes, een donkere teal achtergrond en de tekst ‘Een nieuw avontuur’. De introductie op de stronk begint pas nadat het scherm is verdwenen. Testscene en andere directe menulanceringen gebruiken dezelfde laadservice.
+Een leeg slot kiezen vanuit **New Game** toont het laadscherm van The Last Lantern: een rustige vlam in een gouden lantaarn, enkele vonkjes, een donkere teal achtergrond en de tekst ‘Een nieuw avontuur’. De introductie op de stronk begint pas nadat het scherm is verdwenen. Testscene en andere directe menulanceringen gebruiken dezelfde laadservice.
 
 **Gebouwen en de huidige bospoorten tonen geen laadscherm.** Terwijl de speler de doorgang nadert, worden de resources op de achtergrond geladen. De speler loopt kort door, het beeld vloeit uit en meteen weer in. Er verschijnt geen lantaarnkaart of laadtekst, ook niet bij een eerste bezoek. Mocht het laden bij een uitzonderlijk snelle benadering nog bezig zijn, dan blijft alleen de bestaande fade gesloten tot de bestemming klaar is.
 
@@ -23,7 +23,7 @@ De looprichting, hitbox en aankomstmarkers staan beschreven in [SCENE_TRANSITION
 ## Het laadscherm aanpassen
 
 - `scenes/ui/LoadingScreen.tscn`: opmaak, kleuren, lettertype en alle opgeslagen UI-elementen. Op de root staat **Caption** voor de korte sfeerzin en **Default Heading** als terugvaltekst.
-- `scenes/ui/TitleScreen.tscn`: **New Game Loading Title** bepaalt de kop bij New Game.
+- `scenes/world/checkpoints/CheckpointService.tscn`: **New Game Loading Title** bepaalt de kop bij New Game.
 - `scenes/ui/SceneTransit.tscn`: **New Game Loading Time** is standaard 1,1 s; **Minimum Loading Time** is 0,75 s voor andere werkelijk getoonde laadschermen. Dit voorkomt een korte flits. Deuren gebruiken deze wachttijden niet.
 - **Automatic Loading Delay** is 0,25 s voor directe laadacties waarbij resources nog ontbreken. Eerste of eerder dure scene-initialisaties tonen de kaart vóór de scene wordt aangemaakt.
 - **Cached Scene Limit** bewaart standaard maximaal drie PackedScenes, met bescherming voor de actieve bestemming en huidige map. Het cachet resources, geen levende NPC's of gameplaytoestand.

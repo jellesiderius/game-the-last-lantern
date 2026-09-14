@@ -24,6 +24,10 @@ AttackTokenManager="*res://scripts/ai/attack_token_manager.gd"
 GameSession="*res://scripts/core/game_session.gd"
 Dialogue="*res://scenes/ui/Dialogue.tscn"
 SceneTransit="*res://scenes/ui/SceneTransit.tscn"
+SaveStore="*res://scripts/saves/save_store.gd"
+GameProgress="*res://scripts/saves/game_progress.gd"
+Checkpoints="*res://scenes/world/checkpoints/CheckpointService.tscn"
+SaveIndicator="*res://scenes/ui/SaveIndicator.tscn"
 
 [display]
 

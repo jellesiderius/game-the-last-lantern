@@ -7,6 +7,9 @@
 [node name="CharacterVisual" type="Node3D"]
 script = ExtResource("Script")
 stow_at_rest = false
+kindle_clip = "kindle"
+rest_clip = "rest"
+carried_light_emitter_path = NodePath("Model/LanternPanda_Rig/Skeleton3D/LanternAttachment/Lantern/WarmLight")
 synchronize_gait_phase = true
 fall_clip = "fall"
 landing_clip = "land"

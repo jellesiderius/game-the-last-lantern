@@ -63,7 +63,7 @@ func _physics_process(delta: float) -> void:
 		):
 			if SceneTransit.prefetch_scene(target_scene) == OK:
 				_prefetched_path = target_scene
-	if SceneTransit.active or Dialogue.active or GameClock.paused:
+	if SceneTransit.active or Dialogue.active or Checkpoints.active or GameClock.paused:
 		return
 	for body in get_overlapping_bodies():
 		if not body is PlayerCharacter or body in ignored_until_exit:
