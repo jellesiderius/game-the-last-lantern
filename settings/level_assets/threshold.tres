@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/dungeons/Drempelpoort.tscn" id="1_p5g8n"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_xsyc0"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/threshold.res" id="3_xsyc0"]
+
+[resource]
+script = ExtResource("2_xsyc0")
+id = &"threshold"
+display_name = "Drempelpoort"
+category = "Gameplay"
+scene = ExtResource("1_p5g8n")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_xsyc0")

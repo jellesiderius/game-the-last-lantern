@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WorldArea" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/world_area.gd" id="1_h3kvu"]
+
+[resource]
+script = ExtResource("1_h3kvu")
+code = &"builder_city"
+display_name = "Bouwvoorbeeld stad"
+scene_path = "res://scenes/levels/BuilderCity.tscn"

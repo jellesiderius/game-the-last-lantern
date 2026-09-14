@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/timber_bridge/Asset.tscn" id="1_60ldc"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_yasrv"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/timber_bridge.res" id="3_yasrv"]
+
+[resource]
+script = ExtResource("2_yasrv")
+id = &"timber_bridge"
+display_name = "Timber Bridge"
+category = "Gebouwen en props"
+scene = ExtResource("1_60ldc")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_yasrv")

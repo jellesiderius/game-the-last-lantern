@@ -38,6 +38,10 @@ window/size/window_width_override=1280
 window/size/window_height_override=800
 window/stretch/mode="canvas_items"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/level_builder/plugin.cfg")
+
 [filesystem]
 
 import/blender/enabled=false

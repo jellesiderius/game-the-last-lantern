@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_oak/Visual.tscn" id="1_wowql"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_pre6m"]
+height = 1.59304
+radius = 0.58435
+
+[node name="ForestOak" type="Node3D" unique_id=2087213275]
+metadata/level_asset_source = "res://scenes/assets/environment/forest_oak/Visual.tscn"
+metadata/level_asset_collision_mode = 5
+
+[node name="Model" parent="." unique_id=2074622077 instance=ExtResource("1_wowql")]
+
+[node name="GeneratedCollision" type="StaticBody3D" parent="." unique_id=174195573]
+collision_mask = 0
+metadata/level_builder_generated = true
+
+[node name="@CollisionShape3D@9" type="CollisionShape3D" parent="GeneratedCollision" unique_id=449734493]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.001850009, 0.70502, 0.0013499856)
+shape = SubResource("CylinderShape3D_pre6m")

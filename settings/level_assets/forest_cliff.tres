@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_cliff/Asset.tscn" id="1_ahxpe"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_3hejj"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/forest_cliff.res" id="3_3hejj"]
+
+[resource]
+script = ExtResource("2_3hejj")
+id = &"forest_cliff"
+display_name = "Cliff"
+category = "Rotsen"
+scene = ExtResource("1_ahxpe")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_3hejj")

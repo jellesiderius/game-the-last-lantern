@@ -11,3 +11,6 @@
 *.fbx filter=lfs diff=lfs merge=lfs -text
 *.png filter=lfs diff=lfs merge=lfs -text
 *.casc filter=lfs diff=lfs merge=lfs -text
+
+# Saved model previews and generated terrain resources.
+*.res filter=lfs diff=lfs merge=lfs -text

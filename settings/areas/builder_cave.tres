@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WorldArea" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/world_area.gd" id="1_ycxm8"]
+
+[resource]
+script = ExtResource("1_ycxm8")
+code = &"builder_cave"
+display_name = "Bouwvoorbeeld grot"
+scene_path = "res://scenes/levels/BuilderCave.tscn"

@@ -5,6 +5,10 @@ signal state_changed(state: String)
 @export var settings: EnemySettings
 ## Zero derives a stable seed from the instance path; set explicitly for replays/spawns.
 @export var variation_seed := 0
+## Optional editor-placed route; individual state never mutates the shared Resource.
+var authored_patrol := PackedVector3Array()
+var ordered_patrol := true
+var spawn_floor_settled := false
 var state := "approach"
 var state_time := 0.0
 var direction := Vector3.FORWARD
@@ -219,6 +223,7 @@ func reset_brain() -> void:
 	AttackTokenManager.release(self)
 	_initialize_personality()
 	locomotion.reset()
+	spawn_floor_settled = false
 	state_time = 0
 	attack_index = 0
 	previous_attack_index = -1
@@ -292,6 +297,14 @@ func _enter(next: String) -> void:
 func tick(delta: float) -> Vector3:
 	turning_in_place = false
 	target = GameSession.player
+	if not spawn_floor_settled and actor.is_on_floor():
+		spawn_floor_settled = true
+		var offset: Vector3 = actor.global_position - actor.spawn_position
+		offset.y = 0
+		if offset.length() < settings.movement.radius * 2:
+			# A level edit can lower the ground beneath a placed enemy. Once it
+			# lands, its home must be on that floor rather than suspended in air.
+			actor.spawn_position.y = actor.global_position.y
 	if not operational():
 		if state not in ["idle", "dead"]:
 			suspend()
@@ -354,24 +367,23 @@ func tick(delta: float) -> Vector3:
 				return Vector3.ZERO
 			return _move_to(actor.spawn_position, settings.move_speed, delta)
 		"idle":
-			if not settings.patrol_offsets.is_empty() and state_time >= idle_duration:
+			if not _patrol_points().is_empty() and state_time >= idle_duration:
 				_enter("patrol")
 				_record_decision("patrol_home_area")
 			return Vector3.ZERO
 		"patrol":
-			var destination: Vector3 = (
-				actor.spawn_position
-				+ (
-					settings.patrol_offsets[patrol_index % settings.patrol_offsets.size()].rotated(
-						Vector3.UP, personality.get("patrol_yaw", 0.0)
-					)
+			var route := _patrol_points()
+			var offset := route[patrol_index % route.size()]
+			if authored_patrol.is_empty():
+				offset = (
+					offset.rotated(Vector3.UP, personality.get("patrol_yaw", 0.0))
 					* personality.get("patrol_scale", 1.0)
 				)
-			)
+			var destination: Vector3 = actor.spawn_position + offset
 			if actor.global_position.distance_to(destination) < .15 or state_time > 6.0:
 				patrol_index += (
-					routine_rng.randi_range(1, maxi(1, settings.patrol_offsets.size() - 1))
-					if settings.variation
+					routine_rng.randi_range(1, maxi(1, route.size() - 1))
+					if settings.variation and (authored_patrol.is_empty() or not ordered_patrol)
 					else 1
 				)
 				_enter_idle()
@@ -575,7 +587,7 @@ func _enter_idle() -> void:
 		routine_rng.randf_range(settings.idle_wait_min, settings.idle_wait_max)
 		* personality.get("wait", 1.0)
 	)
-	idle_look = not settings.patrol_offsets.is_empty()
+	idle_look = not _patrol_points().is_empty()
 	idle_look_delay = 0.0
 	if settings.variation:
 		idle_look = routine_rng.randf() < settings.variation.look_chance
@@ -640,3 +652,7 @@ func _move_to(destination: Vector3, speed: float, delta: float) -> Vector3:
 
 func _exit_tree() -> void:
 	AttackTokenManager.release(self)
+
+
+func _patrol_points() -> PackedVector3Array:
+	return authored_patrol if not authored_patrol.is_empty() else settings.patrol_offsets

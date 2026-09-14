@@ -65,3 +65,11 @@ Read `README.md` and `docs/ARCHITECTURE.md` before gameplay changes. Apply the p
 - Panda has 32 Actions including the new seated/rise/hop `entrance`; accepted anatomy and existing clips stay preserved. `PlayerCharacter` owns entrance timing/real physics; `settings/forest_entrance.tres` configures takeoff and handoff.
 - Forest ground uses exact exclusive grass/path/terrace footprints, with the area assertion in `author_ground.py`. The forest Environment uses `AMBIENT_SOURCE_COLOR` (2), not SKY (3) with an empty sky.
 - After forest changes, run native `--forest-replay --fps=60`, with caps30/120 after camera/traversal changes. `--forest-overview` and `--forest-asset-review` provide visual evidence; `--forest-movie` records a clean entrance/approach. Overview camera changes are test-only; gameplay retains size13 and fixed50°/45°.
+
+## Level authoring
+
+- New authored levels use `addons/level_builder` and `scripts/world/authoring`; read `docs/LEVEL_BUILDER.md` before changing this workflow. Keep AreaSet, SurfaceStyle and WorldArea independent.
+- Bottom panel is only the compact asset grid, without a preview slider. Right-hand tools separate Bouwen/Bewerken/Level; names and tab controls must remain readable in a narrow editor. Do not let GridContainer minimum width push sibling controls out of view.
+- Paths use a filtered mask independent of mesh resolution. Terrain/Baked and adjacent `<Level>.terrain/` binary resources are derived editor output; preserve authored curves and placements. No runtime terrain generation.
+- Ramp points contain actual heights. Height fields, vertical gizmos and linked plateaus share those values. Existing plateau connections are fitted perpendicular to their edge. Preserve Undo/Redo and scene save/reopen.
+- Run editor integration checks in an isolated project copy if the user is editing simultaneously. Do not close their editor, share test fixture names across processes, or write editor layout state from another process into their working project.

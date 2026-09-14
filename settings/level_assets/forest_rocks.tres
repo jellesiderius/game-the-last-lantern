@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_rocks/Asset.tscn" id="1_t6lnn"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_xu34o"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/forest_rocks.res" id="3_xu34o"]
+
+[resource]
+script = ExtResource("2_xu34o")
+id = &"forest_rocks"
+display_name = "Rocks"
+scene = ExtResource("1_t6lnn")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_xu34o")

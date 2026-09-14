@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_mushrooms/Visual.tscn" id="1_81qk4"]
+
+[node name="ForestMushrooms" type="Node3D" unique_id=1282478396]
+metadata/level_asset_source = "res://scenes/assets/environment/forest_mushrooms/Visual.tscn"
+metadata/level_asset_collision_mode = 1
+
+[node name="Model" parent="." unique_id=497157372 instance=ExtResource("1_81qk4")]

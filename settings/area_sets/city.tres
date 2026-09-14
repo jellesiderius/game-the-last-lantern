@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="AreaSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="1_beaeh"]
+[ext_resource type="Resource" path="res://settings/level_assets/cottage.tres" id="2_beaeh"]
+[ext_resource type="Resource" path="res://settings/level_assets/smithy.tres" id="3_ijsxh"]
+[ext_resource type="Resource" path="res://settings/level_assets/barrel.tres" id="4_gkiry"]
+[ext_resource type="Resource" path="res://settings/level_assets/timber_fence.tres" id="5_wqia7"]
+[ext_resource type="Resource" path="res://settings/level_assets/timber_bridge.tres" id="6_mnpno"]
+[ext_resource type="Resource" path="res://settings/level_assets/stone_stairs.tres" id="7_qs3i0"]
+[ext_resource type="Script" path="res://scripts/world/authoring/area_set.gd" id="8_xvjq8"]
+
+[resource]
+script = ExtResource("8_xvjq8")
+id = &"city"
+display_name = "Stad · startset"
+description = "Technische startset met de bestaande dorpsassets; uitbreidbaar met eigen stadsmodellen."
+assets = Array[ExtResource("1_beaeh")]([ExtResource("2_beaeh"), ExtResource("3_ijsxh"), ExtResource("4_gkiry"), ExtResource("5_wqia7"), ExtResource("6_mnpno"), ExtResource("7_qs3i0")])
+ground_color = Color(0.4745098, 0.4627451, 0.42352942, 1)
+path_color = Color(0.69411767, 0.654902, 0.5921569, 1)
+cliff_color = Color(0.40784314, 0.39607844, 0.3647059, 1)

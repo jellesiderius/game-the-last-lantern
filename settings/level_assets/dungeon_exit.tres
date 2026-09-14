@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/dungeons/DungeonExit.tscn" id="1_rw6ur"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_hpnr3"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/dungeon_exit.res" id="3_hpnr3"]
+
+[resource]
+script = ExtResource("2_hpnr3")
+id = &"dungeon_exit"
+display_name = "Dungeonuitgang"
+category = "Gameplay"
+scene = ExtResource("1_rw6ur")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_hpnr3")

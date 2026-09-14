@@ -87,6 +87,16 @@ func move(brain: EnemyBrain, goal: Vector3, pace: float, delta: float) -> Vector
 						relaxed.append(path[-1])
 					path = relaxed
 					route_surface = comfortable
+		# A 3D funnel can bend in X/Z at every sampled slope triangle. Flatten
+		# those unnecessary bends when the entire local corridor is walkable.
+		# Static clearance is checked along the surface; dynamic bodies still
+		# pass through the normal predictive steering and capsule sweeps below.
+		if (
+			path.size() > 1
+			and position.distance_to(path[-1]) < 12
+			and route_surface.segment_clear(position, path[-1], profile.radius)
+		):
+			path = PackedVector3Array([path[-1]])
 		destination = goal
 		repath_left = profile.path_interval * brain.personality.get("reaction", 1.0)
 		repaths += 1

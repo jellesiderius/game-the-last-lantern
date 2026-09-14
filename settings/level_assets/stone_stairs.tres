@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/stone_stairs/Asset.tscn" id="1_1q17a"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_seegx"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/stone_stairs.res" id="3_seegx"]
+
+[resource]
+script = ExtResource("2_seegx")
+id = &"stone_stairs"
+display_name = "Stone Stairs"
+category = "Gebouwen en props"
+scene = ExtResource("1_1q17a")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_seegx")

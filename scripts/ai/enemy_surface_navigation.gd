@@ -32,7 +32,7 @@ func route(from: Vector3, to: Vector3, radius: float) -> PackedVector3Array:
 	queries += 1
 	if not ready or radius > baked_radius:
 		return PackedVector3Array()
-	return NavigationServer3D.map_get_path(map_rid, from, to, true)
+	return NavigationServer3D.map_get_path(map_rid, closest_ground(from), closest_ground(to), true)
 
 
 func segment_clear(from: Vector3, to: Vector3, radius: float) -> bool:
@@ -47,17 +47,24 @@ func segment_clear(from: Vector3, to: Vector3, radius: float) -> bool:
 		var point := from.lerp(to, float(i) / samples)
 		# Follow the surface vertically; a steering probe has a horizontal goal.
 		point.y = previous.y
-		var projected := NavigationServer3D.map_get_closest_point(map_rid, point)
+		var projected := closest_ground(point)
 		if Vector2(projected.x - point.x, projected.z - point.z).length() > .035:
 			return false
 		if absf(projected.y - previous.y) > length / samples + .055:
 			return false
 		previous = projected
 	# A shortcut may not jump between stacked floors with identical X/Z.
-	return absf(previous.y - to.y) < maxf(.22, length * .65 + .10)
+	# Steering probes are horizontal even on a slope. The world's walkable limit
+	# is 45 degrees, so allow a metre of rise per metre of horizontal travel.
+	return absf(previous.y - to.y) < maxf(.22, length + .10)
 
 
 func closest_ground(point: Vector3) -> Vector3:
-	# Recast's sampled surface is slightly above the physical floor. This offset
-	# avoids a horizontal projection error on slopes while retaining world height.
-	return NavigationServer3D.map_get_closest_point(map_rid, point + Vector3.UP * .1)
+	# A Euclidean closest-point query slides sideways on a slope. That made valid
+	# floor contact look like an overstep and triggered alternating recovery turns.
+	# Project a short vertical segment instead: retain X/Z on the current floor,
+	# but still return its nearest edge when genuinely outside the walkable area.
+	# Keep the height window local so stacked floors cannot become shortcuts.
+	return NavigationServer3D.map_get_closest_point_to_segment(
+		map_rid, point + Vector3.UP * .25, point - Vector3.UP * .25
+	)

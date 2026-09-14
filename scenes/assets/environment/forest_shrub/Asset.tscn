@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_shrub/Visual.tscn" id="1_rlxng"]
+
+[node name="ForestShrub" type="Node3D" unique_id=929377386]
+metadata/level_asset_source = "res://scenes/assets/environment/forest_shrub/Visual.tscn"
+metadata/level_asset_collision_mode = 1
+
+[node name="Model" parent="." unique_id=1890676475 instance=ExtResource("1_rlxng")]

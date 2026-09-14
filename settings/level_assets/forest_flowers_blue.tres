@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_blue/Asset.tscn" id="1_sq3ob"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_cdyjj"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/forest_flowers_blue.res" id="3_cdyjj"]
+
+[resource]
+script = ExtResource("2_cdyjj")
+id = &"forest_flowers_blue"
+display_name = "Flowers Blue"
+category = "Begroeiing"
+scene = ExtResource("1_sq3ob")
+tags = PackedStringArray()
+scatter_allowed = true
+spacing = 0.7
+scale_range = Vector2(0.9, 1.1)
+random_yaw = true
+thumbnail = ExtResource("3_cdyjj")

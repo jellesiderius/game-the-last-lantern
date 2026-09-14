@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_mushrooms/Asset.tscn" id="1_co4br"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_ktkno"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/forest_mushrooms.res" id="3_ktkno"]
+
+[resource]
+script = ExtResource("2_ktkno")
+id = &"forest_mushrooms"
+display_name = "Mushrooms"
+category = "Begroeiing"
+scene = ExtResource("1_co4br")
+tags = PackedStringArray()
+scatter_allowed = true
+spacing = 0.7
+scale_range = Vector2(0.9, 1.1)
+random_yaw = true
+thumbnail = ExtResource("3_ktkno")

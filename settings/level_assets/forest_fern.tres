@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_fern/Asset.tscn" id="1_alr7d"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_2m1yb"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/forest_fern.res" id="3_2m1yb"]
+
+[resource]
+script = ExtResource("2_2m1yb")
+id = &"forest_fern"
+display_name = "Fern"
+category = "Begroeiing"
+scene = ExtResource("1_alr7d")
+tags = PackedStringArray()
+scatter_allowed = true
+spacing = 0.7
+scale_range = Vector2(0.9, 1.1)
+random_yaw = true
+thumbnail = ExtResource("3_2m1yb")

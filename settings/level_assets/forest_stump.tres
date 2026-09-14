@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_stump/Asset.tscn" id="1_l8rbg"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_lfi01"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/forest_stump.res" id="3_lfi01"]
+
+[resource]
+script = ExtResource("2_lfi01")
+id = &"forest_stump"
+display_name = "Stump"
+scene = ExtResource("1_l8rbg")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_lfi01")

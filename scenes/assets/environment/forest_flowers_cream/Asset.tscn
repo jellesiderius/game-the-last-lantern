@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_cream/Visual.tscn" id="1_nqvo1"]
+
+[node name="ForestFlowersCream" type="Node3D" unique_id=1520998503]
+metadata/level_asset_source = "res://scenes/assets/environment/forest_flowers_cream/Visual.tscn"
+metadata/level_asset_collision_mode = 1
+
+[node name="Model" parent="." unique_id=16887969 instance=ExtResource("1_nqvo1")]

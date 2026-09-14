@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/actors/npcs/friendly/forest_keeper/Keeper.tscn" id="1_deh5y"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_qtt1x"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/keeper.res" id="3_qtt1x"]
+
+[resource]
+script = ExtResource("2_qtt1x")
+id = &"keeper"
+display_name = "Bosbewoner"
+category = "Gameplay"
+scene = ExtResource("1_deh5y")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_qtt1x")

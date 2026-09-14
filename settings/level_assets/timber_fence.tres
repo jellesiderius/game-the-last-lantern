@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/timber_fence/Asset.tscn" id="1_qisfv"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_c3xd7"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/timber_fence.res" id="3_c3xd7"]
+
+[resource]
+script = ExtResource("2_c3xd7")
+id = &"timber_fence"
+display_name = "Timber Fence"
+category = "Gebouwen en props"
+scene = ExtResource("1_qisfv")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_c3xd7")

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_reeds/Asset.tscn" id="1_qxt7g"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_t8k6v"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/forest_reeds.res" id="3_t8k6v"]
+
+[resource]
+script = ExtResource("2_t8k6v")
+id = &"forest_reeds"
+display_name = "Reeds"
+category = "Begroeiing"
+scene = ExtResource("1_qxt7g")
+tags = PackedStringArray()
+scatter_allowed = true
+spacing = 0.7
+scale_range = Vector2(0.9, 1.1)
+random_yaw = true
+thumbnail = ExtResource("3_t8k6v")

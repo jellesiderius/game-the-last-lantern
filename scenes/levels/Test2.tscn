@@ -1,0 +1,209 @@
+[gd_scene format=3 uid="uid://b4n20ils6gc1i"]
+
+[ext_resource type="Script" uid="uid://dahr67yknirj2" path="res://scripts/world/authoring/authored_level.gd" id="1_8ixcj"]
+[ext_resource type="Resource" uid="uid://4xxi0t5jbl11" path="res://settings/areas/test_2.tres" id="2_dmd7w"]
+[ext_resource type="Resource" path="res://settings/area_sets/forest.tres" id="3_mou7e"]
+[ext_resource type="Script" uid="uid://clqcgbow6xpru" path="res://scripts/world/authoring/level_terrain.gd" id="4_705qo"]
+[ext_resource type="ArrayMesh" uid="uid://bkcegxene8bcl" path="res://scenes/levels/Test2.terrain/Terrain.res" id="5_n2t2t"]
+[ext_resource type="Shape3D" uid="uid://cer3b1ji3pwf5" path="res://scenes/levels/Test2.terrain/Terrain_collision.res" id="6_ub37l"]
+[ext_resource type="Script" uid="uid://baahi06eehkq4" path="res://scripts/world/scene_spawn_point.gd" id="7_8nech"]
+[ext_resource type="Script" uid="uid://dnfqek7ev0jgq" path="res://scripts/world/checkpoint_anchor.gd" id="8_5n8ye"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="9_0wat7"]
+[ext_resource type="Script" uid="uid://exdeqk8ee6ul" path="res://scripts/characters/player_controller.gd" id="10_wkce0"]
+[ext_resource type="Resource" path="res://settings/player_movement.tres" id="11_d27i0"]
+[ext_resource type="Resource" uid="uid://dudytmula46ut" path="res://settings/default_melee.tres" id="12_gl0ld"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="13_6xlai"]
+[ext_resource type="Script" uid="uid://c4wrfdoid0frl" path="res://scripts/ui/hud.gd" id="14_8oshs"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="15_lkqd0"]
+[ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="16_d0jwr"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hu4nx"]
+size = Vector3(0.5, 8, 25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7brla"]
+size = Vector3(0.5, 8, 25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ak1th"]
+size = Vector3(25, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qyu2a"]
+size = Vector3(25, 8, 0.5)
+
+[sub_resource type="Environment" id="Environment_f4mq7"]
+background_mode = 1
+background_color = Color(0.1254902, 0.19215687, 0.2, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6431373, 0.72156864, 0.69411767, 1)
+ambient_light_energy = 0.55
+reflected_light_source = 2
+tonemap_mode = 2
+tonemap_exposure = 1.3
+ssao_enabled = true
+ssao_radius = 0.4
+ssao_intensity = 0.7
+glow_enabled = true
+glow_intensity = 0.35
+fog_enabled = true
+fog_light_color = Color(0.21960784, 0.30980393, 0.28235295, 1)
+fog_density = 0.001
+
+[sub_resource type="ParticleProcessMaterial" id="Process"]
+emission_shape = 1
+emission_sphere_radius = 0.025
+direction = Vector3(0, 1, 0)
+spread = 140.0
+initial_velocity_min = 0.8
+initial_velocity_max = 2.0
+gravity = Vector3(0, -3, 0)
+scale_min = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+shading_mode = 0
+albedo_color = Color(1, 0.2, 0.4, 1)
+
+[sub_resource type="SphereMesh" id="SparkMesh"]
+material = SubResource("Material")
+radius = 0.024
+height = 0.048
+radial_segments = 8
+rings = 4
+
+[node name="Test2" type="Node3D" unique_id=7756134]
+script = ExtResource("1_8ixcj")
+area = ExtResource("2_dmd7w")
+area_set = ExtResource("3_mou7e")
+spawn_position = Vector3(0, 0, 6)
+camera_min = Vector2(-7, -7)
+camera_max = Vector2(7, 7)
+
+[node name="Terrain" type="Node3D" parent="." unique_id=1325601135]
+script = ExtResource("4_705qo")
+area_set = ExtResource("3_mou7e")
+baked_signature = "821b897977c8a2c61b5fc0a060557452616e37d91d94126a85f3e9d0576a9d7d"
+
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=564626160]
+metadata/level_builder_generated = true
+
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=1245887070]
+mesh = ExtResource("5_n2t2t")
+
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=385943136]
+collision_mask = 0
+
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=805937064]
+shape = ExtResource("6_ub37l")
+
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1723225348]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.25, 3, 0)
+shape = SubResource("BoxShape3D_hu4nx")
+
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1256488364]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.25, 3, 0)
+shape = SubResource("BoxShape3D_7brla")
+
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1241583691]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -12.25)
+shape = SubResource("BoxShape3D_ak1th")
+
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1802956984]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 12.25)
+shape = SubResource("BoxShape3D_qyu2a")
+
+[node name="Props" type="Node3D" parent="." unique_id=1150739691]
+
+[node name="Enemies" type="Node3D" parent="." unique_id=1428899986]
+
+[node name="Gameplay" type="Node3D" parent="." unique_id=1722463794]
+
+[node name="Routes" type="Node3D" parent="." unique_id=151574693]
+
+[node name="Spawns" type="Node3D" parent="." unique_id=7276609]
+
+[node name="Entrance" type="Marker3D" parent="Spawns" unique_id=789177722]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+script = ExtResource("7_8nech")
+
+[node name="StartCheckpoint" type="Marker3D" parent="Spawns" unique_id=1305559192]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+script = ExtResource("8_5n8ye")
+checkpoint_id = &"start.area.7b64e9ef994263440743e88a73c5df67"
+area = ExtResource("2_dmd7w")
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=1740884422 instance=ExtResource("9_0wat7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+collision_layer = 2
+collision_mask = 5
+floor_snap_length = 0.15
+script = ExtResource("10_wkce0")
+settings = ExtResource("11_d27i0")
+moveset = ExtResource("12_gl0ld")
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=1529421234]
+transform = Transform3D(0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76604444, -0.70710677, -0.5416752, 0.45451948, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=560366684]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
+projection = 1
+current = true
+size = 13.0
+far = 160.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1498932261]
+environment = SubResource("Environment_f4mq7")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1284099619]
+transform = Transform3D(0.8480481, 0.43408445, -0.3039492, 0, 0.57357645, 0.81915206, 0.52991927, -0.69468033, 0.48642042, 0, 0, 0)
+light_color = Color(1, 0.8862745, 0.72156864, 1)
+shadow_enabled = true
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=125368570 instance=ExtResource("13_6xlai")]
+script = ExtResource("14_8oshs")
+
+[node name="DebugVolumes" type="MeshInstance3D" parent="." unique_id=963183758]
+
+[node name="ImpactPool" type="Node3D" parent="." unique_id=1323376114]
+
+[node name="Spark0" type="GPUParticles3D" parent="ImpactPool" unique_id=1644744626 instance=ExtResource("15_lkqd0")]
+cast_shadow = 0
+emitting = false
+amount = 9
+lifetime = 0.24
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark1" type="GPUParticles3D" parent="ImpactPool" unique_id=653964663 instance=ExtResource("15_lkqd0")]
+cast_shadow = 0
+emitting = false
+amount = 9
+lifetime = 0.24
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark2" type="GPUParticles3D" parent="ImpactPool" unique_id=1570989819 instance=ExtResource("15_lkqd0")]
+cast_shadow = 0
+emitting = false
+amount = 9
+lifetime = 0.24
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark3" type="GPUParticles3D" parent="ImpactPool" unique_id=1429638926 instance=ExtResource("15_lkqd0")]
+cast_shadow = 0
+emitting = false
+amount = 9
+lifetime = 0.24
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="." unique_id=1587731477]
+stream = ExtResource("16_d0jwr")
+volume_db = -8.0
+max_distance = 30.0

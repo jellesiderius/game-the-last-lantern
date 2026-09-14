@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine_b/Asset.tscn" id="1_yr23f"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_r6213"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/forest_pine_b.res" id="3_r6213"]
+
+[resource]
+script = ExtResource("2_r6213")
+id = &"forest_pine_b"
+display_name = "Pine B"
+category = "Bomen"
+scene = ExtResource("1_yr23f")
+tags = PackedStringArray()
+scatter_allowed = true
+spacing = 2.3
+scale_range = Vector2(0.9, 1.1)
+random_yaw = true
+thumbnail = ExtResource("3_r6213")

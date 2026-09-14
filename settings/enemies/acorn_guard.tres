@@ -9,13 +9,13 @@
 [sub_resource type="Resource" id="QuickSwing"]
 script = ExtResource("Beat")
 start_range = 0.83
+strikes = Vector2i(1, 1)
+delay_range = Vector2(0, 0.2)
 clip = &"strike"
 windup = 0.68
 active_duration = 0.2
 recovery = 0.8
 enemy_contact_fraction = 0.45
-strikes = Vector2i(1, 1)
-delay_range = Vector2(0, 0.2)
 
 [sub_resource type="Resource" id="LungeSwing"]
 script = ExtResource("Beat")
@@ -24,15 +24,14 @@ half_angle = 45.0
 lunge = 0.65
 windup_clip = &"lunge_windup"
 recovery_clip = &"lunge_recover"
+followups = Array[int]([2])
+quick_windup = 0.48
+delay_range = Vector2(0, 0.28)
 clip = &"lunge_strike"
 windup = 0.76
 active_duration = 0.22
 recovery = 0.9
 enemy_contact_fraction = 0.4
-strikes = Vector2i(1, 2)
-followups = Array[int]([2])
-quick_windup = 0.48
-delay_range = Vector2(0, 0.28)
 
 [sub_resource type="Resource" id="Jab"]
 script = ExtResource("Beat")
@@ -41,11 +40,10 @@ hit_range = 0.92
 half_angle = 70.0
 lunge = 0.12
 windup_clip = &"jab_windup"
-selection_bias = 0.12
 recovery_clip = &"jab_recover"
+selection_bias = 0.12
 strikes = Vector2i(2, 3)
 followups = Array[int]([3])
-quick_windup = 0.5
 delay_range = Vector2(0, 0.12)
 clip = &"jab_strike"
 windup = 0.48
@@ -62,11 +60,10 @@ hit_range = 0.92
 half_angle = 70.0
 lunge = 0.12
 windup_clip = &"jab_back_windup"
-selection_bias = 0.12
 recovery_clip = &"jab_back_recover"
+selection_bias = 0.12
 strikes = Vector2i(2, 3)
 followups = Array[int]([2])
-quick_windup = 0.5
 delay_range = Vector2(0, 0.12)
 clip = &"jab_back_strike"
 windup = 0.48
@@ -81,6 +78,7 @@ script = ExtResource("Movement")
 
 [sub_resource type="Resource" id="GuardTactics"]
 script = ExtResource("Tactics")
+punish_states = null
 
 [sub_resource type="Resource" id="Individuality"]
 script = ExtResource("Variation")
@@ -111,5 +109,4 @@ path_update_interval = 0.08
 alternate_orbit_after_attack = true
 patrol_offsets = PackedVector3Array(0.65, 0, 0.25, -0.45, 0, -0.4, 0, 0, 0)
 post_attack_cooldown = 0.16
-retaliation_hits = 3
 retaliation_window = 1.5

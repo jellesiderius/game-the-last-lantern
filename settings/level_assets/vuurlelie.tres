@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/checkpoints/Vuurlelie.tscn" id="1_fua6j"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_mvtra"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/vuurlelie.res" id="3_mvtra"]
+
+[resource]
+script = ExtResource("2_mvtra")
+id = &"vuurlelie"
+display_name = "Vuurlelie"
+category = "Gameplay"
+scene = ExtResource("1_fua6j")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_mvtra")

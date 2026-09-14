@@ -29,6 +29,12 @@ Deze Mac gebruikt **Forward+ via Metal**, met MSAA/TAA, omgevingslicht, schaduwe
 
 Rustpunten, drie onafhankelijke spellen en bewerkbare checkpointinstellingen: [VUURLELIE.md](docs/VUURLELIE.md). Continue verschijnt pas zodra een save bestaat. Alleen **Rusten** herstelt meters, vernieuwt vijanden en slaat op; plaatsnemen opent uitsluitend het menu. Een klein lantaarnicoon bevestigt een geslaagde save.
 
+## Zelf levels maken
+
+Open **Level Builder** boven de 3D-weergave. Onderaan kies je assets met kleine modelpreviews; rechts staan **Bouwen**, **Bewerken** en **Level**. Via Level → Nieuw level kies je een areaset en eigen breedte/diepte. Paden blijven glad bij elke grondresolutie; ramps hebben versleepbare hoogtepunten en kunnen met één knop een aansluitend plateau krijgen. Assets nemen hun opgeslagen collision mee.
+
+Volledige uitleg: [LEVEL_BUILDER.md](docs/LEVEL_BUILDER.md). Voorbeelden: `BuilderForest.tscn`, `BuilderCave.tscn`, `BuilderCity.tscn`. Grot en stad zijn uitbreidbare startsets met bestaande assets.
+
 ## Besturing
 
 | Actie | PlayStation | PC |

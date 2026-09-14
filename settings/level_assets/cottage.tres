@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/cottage/Asset.tscn" id="1_7n2k5"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_asset.gd" id="2_vcdu6"]
+[ext_resource type="Texture2D" path="res://assets/editor/level_builder/cottage.res" id="3_vcdu6"]
+
+[resource]
+script = ExtResource("2_vcdu6")
+id = &"cottage"
+display_name = "Cottage"
+category = "Gebouwen en props"
+scene = ExtResource("1_7n2k5")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_vcdu6")

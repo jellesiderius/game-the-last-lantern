@@ -1,5 +1,17 @@
 # Huidige stand — 14 september 2026
 
+## Level Builder: eigen levels en area-/materiaalsets
+
+De nieuwe editorplugin heeft een compacte assetbibliotheek onderin met opgeslagen modelrenders en volledige namen. De rechterdock bevat Bouwen, Bewerken en Level. De nieuwste correctie heeft de previewslider verwijderd; het raster kan de andere bediening niet meer buiten beeld drukken.
+
+Nieuwe levels krijgen instelbare breedte/diepte, opgeslagen grond/collision en dezelfde speler/camera/HUD/services. Paden gebruiken een gefilterd masker en blijven glad bij grove meshresolutie. Hoogtepunten en eigen verticale sleepgrepen besturen ramps. RampConnection sluit een ramp ook bij een schuine benadering of van bovenaf loodrecht op een bestaande plateaurand aan; de verbinding blijft na bewerken bestaan. Vanuit een losse ramp maakt één knop een aansluitend plateau dat zijn hoogte deelt met dat uiteinde. Vloervlakken en optionele SurfaceStyle-materialen geven grond, ramps en plateaus Bosgras, Steen, Aarde of eigen kleuren/textures.
+
+Complete Asset.tscn-prefabs nemen hun collision mee; geregistreerde modelherimport bewaart handmatige nodes. Gebiedsidentiteit (WorldArea), assetpakket (AreaSet) en oppervlak (SurfaceStyle) zijn onafhankelijk. Enemy-IDs, patrouilles, encounters en portals gebruiken de bestaande gameplay-/savecontracten. Voorbeelden: BuilderForest, BuilderCave en BuilderCity. Grot/stad zijn startsets met bestaande art, geen nieuw afgewerkte artpacks.
+
+De macOS-crash van 16:22 is bevestigd in het systeemrapport; het rapport bevat geen bruikbare GDScript-locatie. Een geselecteerde gegenereerde node wordt nu vóór vervangen uit de editorselectie gehaald en live nodes worden uitgesteld vrijgegeven. De opslagroutine itereert alleen terrainroots, zodat vervangen kinderen geen verouderde verwijzingen in de save-loop achterlaten. Verdere editorproeven zijn uitgevoerd in `/tmp/lantern-builder-review`, los van het eigen werkvenster. De exacte oorspronkelijke crashoorzaak is niet bewezen.
+
+Handleiding en onderhoud: [LEVEL_BUILDER.md](LEVEL_BUILDER.md). De scenes met handmatige testnamen en de wijzigingen aan ForestCheckpoints/EnemySettings zijn gebruikerswerk en blijven behouden.
+
 ## Rusten reset ook niet-geladen dungeons
 
 De vier gewone wachters in RootCellar en ForgottenSanctum stonden foutief op Permanent. Beide opgeslagen scenes en de offline dungeonbuilder gebruiken nu On rest. De bestaande wereldwijde `defeated_since_rest`-registratie houdt hen verslagen bij opnieuw betreden en wordt bij rusten in elk gebied geleegd; geladen vijanden resetten direct, niet-geladen vijanden bij de volgende aankomst. Bossregels, dungeonvoltooiing, gouden poorten en eenmalige loot blijven behouden. Oude permanente vlaggen voor deze gewone wachters verhinderen hun terugkeer niet meer.

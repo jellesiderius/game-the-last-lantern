@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_blue/Visual.tscn" id="1_nudbb"]
+
+[node name="ForestFlowersBlue" type="Node3D" unique_id=42914194]
+metadata/level_asset_source = "res://scenes/assets/environment/forest_flowers_blue/Visual.tscn"
+metadata/level_asset_collision_mode = 1
+
+[node name="Model" parent="." unique_id=1150743675 instance=ExtResource("1_nudbb")]
