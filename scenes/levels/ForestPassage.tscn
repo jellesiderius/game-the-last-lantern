@@ -1,4 +1,6 @@
 [gd_scene format=3 uid="uid://bmw7sgn7kxf60"]
+[ext_resource type="PackedScene" path="res://scenes/world/dungeons/Drempelpoort.tscn" id="ThresholdGate"]
+[ext_resource type="Resource" path="res://settings/dungeons/forgotten_sanctum.tres" id="Dungeon"]
 
 [ext_resource type="Resource" path="res://settings/areas/forest_passage.tres" id="Area"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/barrel/Visual.tscn" id="barrel"]
@@ -380,22 +382,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 9.6)
 script = ExtResource("Spawn")
 spawn_id = &"SouthGate"
 
-[node name="Vuurlelie" parent="." unique_id=2145624679 instance=ExtResource("Lily")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 0, 1)
-checkpoint_id = &"lily.forest.cottage"
-checkpoint_editor_scene_path = "res://scenes/levels/ForestPassage.tscn"
-area = ExtResource("Area")
-
 [node name="Vuurlelie2" parent="." unique_id=1776460660 instance=ExtResource("Lily")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 0, 4.3951783)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, 2.3951783)
 checkpoint_id = &"lily.4638ae34ec0646312d1448b5051a9c3f"
+checkpoint_editor_scene_uid = 3276078542688385763
 checkpoint_editor_scene_path = "res://scenes/levels/ForestPassage.tscn"
 area = ExtResource("Area")
 
-[node name="Vuurlelie3" parent="." unique_id=981676198 instance=ExtResource("Lily")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.737, 0, 3.044)
-checkpoint_id = &"lily.d3cb85cde5e944908290f16ab06430ff"
-checkpoint_editor_scene_path = "res://scenes/levels/ForestPassage.tscn"
-area = ExtResource("Area")
-location_name = "Test"
-open_duration = 1.7000000000000002
+
+[node name="Drempelpoort" parent="." instance=ExtResource("ThresholdGate")]
+position = Vector3(5.5, 0, -5.6)
+dungeon = ExtResource("Dungeon")
+gate_id = &"gate.a15ea8b544f54856b778346f7aa97ea1"
+identity_scene = "res://scenes/levels/ForestPassage.tscn"

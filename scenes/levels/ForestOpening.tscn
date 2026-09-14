@@ -1,7 +1,10 @@
 [gd_scene format=3 uid="uid://ngle1xc26fnb"]
+[ext_resource type="PackedScene" path="res://scenes/world/dungeons/Drempelpoort.tscn" id="ThresholdGate"]
+[ext_resource type="Resource" path="res://settings/dungeons/root_cellar.tres" id="Dungeon"]
 
 [ext_resource type="PackedScene" path="res://scenes/world/checkpoints/Vuurlelie.tscn" id="32_64twm"]
 [ext_resource type="Resource" path="res://settings/areas/forest_opening.tres" id="33_p486m"]
+[ext_resource type="Script" path="res://scripts/world/checkpoint_anchor.gd" id="StartAnchor"]
 [ext_resource type="PackedScene" path="res://scenes/actors/npcs/enemy/AcornGuard.tscn" id="Acorn"]
 [ext_resource type="Resource" path="res://settings/forest_entrance.tres" id="Entrance"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_butterfly/Visual.tscn" id="forest_butterfly"]
@@ -3570,6 +3573,12 @@ trigger_size = Vector3(6, 3, 2.6)
 [node name="Player" parent="." unique_id=1461638207 instance=ExtResource("Player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.565, 4.72)
 
+[node name="StartCheckpoint" type="Marker3D" parent="."]
+position = Vector3(-3, 0, 7.4)
+script = ExtResource("StartAnchor")
+checkpoint_id = &"start.forest_stump"
+area = ExtResource("33_p486m")
+
 [node name="AcornGuard" parent="." unique_id=1471400471 instance=ExtResource("Acorn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -12)
 respawn_rule = 1
@@ -3655,8 +3664,14 @@ respawn_rule = 1
 persistent_id = &"acorn.forest.stump"
 
 [node name="Vuurlelie" parent="." unique_id=1304473317 instance=ExtResource("32_64twm")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.091, 0, 4.133)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3724942, 0, 4.133)
 checkpoint_id = &"lily.d4ae3a89cf335ee8a264de5b66b738b2"
 checkpoint_editor_scene_uid = 925517665180612215
 checkpoint_editor_scene_path = "res://scenes/levels/ForestOpening.tscn"
 area = ExtResource("33_p486m")
+
+[node name="Drempelpoort" parent="." instance=ExtResource("ThresholdGate")]
+position = Vector3(3.8, 0, -29.5)
+dungeon = ExtResource("Dungeon")
+gate_id = &"gate.965d9988e83c444ea40fc2c5838d137a"
+identity_scene = "res://scenes/levels/ForestOpening.tscn"

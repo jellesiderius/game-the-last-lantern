@@ -27,6 +27,7 @@ SceneTransit="*res://scenes/ui/SceneTransit.tscn"
 SaveStore="*res://scripts/saves/save_store.gd"
 GameProgress="*res://scripts/saves/game_progress.gd"
 Checkpoints="*res://scenes/world/checkpoints/CheckpointService.tscn"
+DungeonTravel="*res://scripts/dungeons/dungeon_travel.gd"
 SaveIndicator="*res://scenes/ui/SaveIndicator.tscn"
 
 [display]

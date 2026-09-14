@@ -12,3 +12,7 @@ func entry_direction() -> Vector3:
 	var direction := -global_basis.z
 	direction.y = 0.0
 	return direction.normalized()
+
+
+func spawn_key() -> StringName:
+	return spawn_id

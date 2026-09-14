@@ -14,6 +14,7 @@ De scene bezit de onderdelen; gameplaycode verandert hun toestand. Imports zitte
 | `CombatMoveset` / `AttackDefinition` | Benoemde meleeclips, voorbereiding, actieve duur, herstel en schade; bewerkbaar in `default_melee.tres` |
 | `CharacterVisual` | Handmatig gesamplede AnimationTree, botblends, hand-/rugsocket en zichtbaarheid van de twee wapentypes |
 | `MeleeWeapon` | Het echte lemmetpad en optionele zichtbare energievoorrand sweepen, doelen per zwaai dedupliceren en één `swing_connected`-signaal versturen |
+| `BladeSweep` | Korte zichtbare geschiedenis van de werkelijke lemmetbasis, punt en energie-eindpunt; gebruikt GameClock en veroorzaakt zelf geen schade |
 | `BowCombat` / `BowSettings` | Booginvoer en regels, gestuurd door dezelfde playerstate/actietijd; afvuurpunt, korte richtlijn en projectielaanmaak |
 | `MagicComponent` | Begrensde voorraad, atomaire `try_spend`, herstel en feedbacksignalen; geen automatische regeneratie |
 | `MagicArrow` | Rechte beweging, volledige trajectray per physicsstap, eerste treffer, opruimen bij afstandslimiet |
@@ -83,6 +84,8 @@ InputRouter schakelt eventaccumulatie uit voor directere aim-/triggerinput. Volg
 
 PrototypeRoom erft de gedeelde arena-feedback en levert eigen grenzen, respawn en cameravolging. Het level bestaat uit opgeslagen asset-instances; author_room.py is uitsluitend offline tooling. Grondvoetafdrukken zijn niet overlappend, colliders zijn doorlopend en de vier treden hebben een hellingcollider. De ruimte is 32 × 32 m, camera size 13 m met vaste 50°/45° kijkrichting.
 
+Alle levelcamera's passen na het volgen dezelfde `_apply_impact_camera()` uit `arena.gd` toe. TestArena, PrototypeRoom, ForestOpening, ForestPassage en ForestHouse krijgen zo automatisch dezelfde cameratrilling bij treffers. De eerdere horizontale verzwakking tot 30% in de hoofdgame is verwijderd. De bestaande cameratrilling-instelling en GameClock-pauze blijven gerespecteerd.
+
 De cameravolging gebruikt exponentiële demping met een instelbare halfwaardetijd (horizontaal 0,12 s; verticaal 0,08 s). De gewichten komen uit `GameClock.dt`, zodat renderfrequentie, pauze en hitstop geen afzonderlijke cameraklok introduceren. De speler reageert direct; alleen de framing loopt iets achter. Het doel wordt vóór het dempen begrensd. `reset_camera()` wist die achterstand bij respawn/teleport. Het historische TestArena behoudt zijn eigen beperkte arena-framing. Er is geen extra vertraging in beweging of input.
 
 CharacterVisual heeft optionele upright_accessory_paths voor gedragen props. Ze volgen de botpositie en blijven rechtop; boog/rollen/dood verbergen de lantaarn. De keuze voor hand- of rugwapen blijft een visual-instelling. De panda gebruikt stow_at_rest=false. Een opgeslagen roll op sunblade/WeaponModel laat de brede lemmetzijden naar buiten wijzen zonder een extra controller of andere schadebaan.
@@ -130,3 +133,10 @@ De manager valideert de geïnstantieerde bestemming vóór verwijdering van de b
 Een Vuurlelie is één opgeslagen scene. Area-resources onder settings/areas koppelen blijvende gebiedscodes aan scenes. Editorhelpers geven nieuwe geplaatste instanties een willekeurige code, ontdekken het gebied en tonen instelfouten. Verplaatsen en hernoemen veranderen de identiteit niet. De speler bezit de actietijd voor benaderen/kindle/zitten; de bloem leest die tijd voor de bladen en het overstekende vonkje. De optionele clips en lamp-emitter staan op CharacterVisual, zonder panda-botpaden in de gedeelde controller.
 
 Plaatsnemen opent alleen het menu. Rusten herstelt de meters, vervangt het checkpoint en vernieuwt gewone vijanden achter de bestaande, volledig dekkende scenefade. Permanent verslagen vijanden blijven weg. Daarna wordt het actuele slot veilig opgeslagen. De vaste UI toont alleen Rusten/Verdergaan en houdt dezelfde knopmaten bij disabled/focus. `SaveIndicator` luistert uitsluitend naar geslaagde schrijfacties en wacht tot de overgang weg is. Instellingen, schema, fouten en herstel: [VUURLELIE.md](VUURLELIE.md).
+
+
+## Drempelpoorten en dungeonroutes
+
+`ThresholdGate` en `DungeonExit` specialiseren de bestaande `ScenePortal`; `DungeonDefinition` levert identiteit, bestemming, ingang en eenmalige loot. `DungeonTravel` bewaart terugkeerroutes en voltooiing in de huidige savewereld. Alleen de speler start een overgang, ook tijdens een rol. De gedeelde `SceneTransit` valideert aankomstpunten vóór scenevervanging en blokkeert dubbele verzoeken/invoer. De dynamische `SceneSpawnPoint.spawn_key()` laat een poortmarker de blijvende poort-ID gebruiken zonder afhankelijk te zijn van `_ready()` tijdens validatie.
+
+`PortalAbsorption` is uitsluitend presentatie: vooraf voorbereide oorspronkelijke materialen, gezamenlijke transparantie en afbouw van gedragen licht. Silhouetten, schaduw en voetstof reizen niet zichtbaar door het portaal. De actor blijft zijn bestaande `scene_travel`-beweging uitvoeren. Het vooraf tekenen van de materiaalvarianten valt binnen de laadvoorbereiding. Fouten herstellen de oorspronkelijke materialen en plaatsen de speler weer vóór de poort. Dungeonpoorten en huisdeuren gebruiken een korte fade zonder laadscherm; New Game behoudt zijn laadscherm. Zie [DREMPELPOORT.md](DREMPELPOORT.md).

@@ -4,6 +4,8 @@ De laatste bediening is **Ontsteek/Rust → plaatsnemen → Rusten of Verdergaan
 
 **Rusten** herstelt health en magic, kiest deze lelie als checkpoint, laat gewone vijanden terugkeren en slaat het actieve slot op. Dit gebruikt dezelfde volledig afdekkende petrolfade en dezelfde `default.tres`-duur als de bospoort. Er verschijnt geen laadscherm. De panda blijft zitten en het rustmenu blijft op zijn plaats. **Verdergaan** sluit het menu. Er is geen aparte Opslaan-knop of tekstmelding bij succes: linksonder verschijnt kort een lantaarn die oplicht en weer uitfade. Alleen een daadwerkelijk geslaagde schrijfactie mag dat icoon activeren. Een opslagfout blijft als foutmelding in het menu staan.
 
+Dit reset gewone vijanden in **alle gebieden**, ook niet-geladen dungeons. Geplaatste gewone vijanden gebruiken **Respawn Rule → On rest** met een blijvende `persistent_id`; **Permanent** blijft voor bosses/eenmalige vijanden. Dungeonvoltooiing, eenmalige loot en andere permanente wereldvoortgang worden niet gereset.
+
 ## Een rustpunt plaatsen
 
 1. Sleep `scenes/world/checkpoints/Vuurlelie.tscn` vanuit FileSystem in je level.
@@ -31,6 +33,8 @@ New Game en Continue openen hetzelfde overzicht met drie slots. New Game focust 
 Een slot bewaart seconden speeltijd, maximale health/magic, `display_lives`, inventaris, skills, permanente wereldflags, ontstoken lelies, het laatste checkpoint met gebied en locatienaam, introstatus, formaatversie en succesvolle savetijd. `display_lives` is voorlopig het maximale aantal health chunks; er bestaat geen limiet aan respawnpogingen. Tijd telt alleen tijdens actieve gameplay. Menu’s, laden, intro en doodtijd tellen niet mee. De weergave is uren:minuten.
 
 **Doodgaan gebruikt de actuele toestand in het geheugen.** Verzamelde spullen, nieuwe skills en permanente flags sinds het rusten verdwijnen daardoor niet. Alleen bewust een slot laden leest zijn opgeslagen toestand terug. Beide aankomsten herstellen health en magic volledig. Valutaverlies is niet aan checkpoints gekoppeld.
+
+Het nieuwe spel verwijst naar de opgeslagen `StartCheckpoint` in ForestOpening, met vaste code `start.forest_stump`. Bewaar deze marker bij het aanpassen van het bos: de opening start op de stronk, maar laden/respawn na de opening gebruikt de veilige grondmarker. De gerichte controle `--checkpoint-replay --checkpoint-start-only --fps=60` controleert New Game en bestaande slots zonder de volledige checkpoint-suite uit te voeren.
 
 ## Verantwoordelijkheden en uitbreiden
 

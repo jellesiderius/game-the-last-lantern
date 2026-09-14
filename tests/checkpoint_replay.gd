@@ -299,6 +299,11 @@ func run() -> void:
 		await step(1)
 	check("opening completion persisted", SaveStore.read_slot(0).opening_completed)
 	check("stump stays initial checkpoint", GameProgress.data.checkpoint.id == SaveSchema.START_ID)
+	if "--checkpoint-start-only" in OS.get_cmdline_user_args():
+		phase = "new_game_start"
+		await start_reload_checks()
+		finish()
+		return
 	# A death before resting uses the safe ground next to the stump, without replaying the intro.
 	GameProgress.set_world_flag("picked_before_first_rest", true)
 	p.receive_hit(99, 19001, p.position + Vector3.RIGHT)
@@ -726,6 +731,35 @@ func passage_rest_review() -> void:
 			label + " returns control and offers Rust",
 			not Checkpoints.active and p.state == "locomotion" and point.prompt == "Rust"
 		)
+
+
+func start_reload_checks() -> void:
+	# A failed New Game already wrote its slot. It must work without deleting that save.
+	var initial := SaveSchema.new_game()
+	initial.inventory["recovery_fixture"] = 1
+	check("existing unfinished slot fixture saved", SaveStore.write_slot(1, initial, true).ok)
+	check("existing unfinished slot starts", Checkpoints.start_slot(1))
+	await settle_scene()
+	check("unfinished slot plays opening", p.state == "entrance", p.state)
+	check("existing slot data retained", GameProgress.data.inventory.get("recovery_fixture") == 1)
+	for i in 1000:
+		if p.state != "entrance":
+			break
+		await step(1)
+	check("recovered opening completes", SaveStore.read_slot(1).opening_completed)
+	check("completed first slot loads", Checkpoints.start_slot(0))
+	await settle_scene()
+	check(
+		"completed opening loads on safe ground without replaying intro",
+		p.state == "locomotion" and p.position.distance_to(Vector3(-3, 0, 7.4)) < .1,
+		p.position
+	)
+	check("start anchor is on walkable ground", p.is_on_floor())
+	check(
+		"recovered slot remains independent",
+		not GameProgress.data.inventory.has("recovery_fixture")
+	)
+	await photo("new_game_safe_start")
 
 
 func finish() -> void:

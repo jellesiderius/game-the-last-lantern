@@ -135,20 +135,39 @@ func change_scene(
 
 
 func request(portal: ScenePortal, player: PlayerCharacter) -> bool:
-	if GameClock.paused or player.state not in ["locomotion", "bow_empty"]:
-		return false
-	if not _begin(portal.target_scene):
-		return false
-	var settings := portal.settings if portal.settings else SceneTravelSettings.new()
-	_travel.call_deferred(
+	return request_destination(
 		player,
 		portal.target_scene,
 		portal.target_spawn,
 		portal.exit_direction(),
-		settings,
+		portal.settings,
 		portal.loading_title,
 		portal.allow_loading_screen
 	)
+
+
+## Reusable travel entry point for routes whose return destination is chosen at runtime.
+func request_destination(
+	player: PlayerCharacter,
+	path: String,
+	spawn_id: StringName,
+	direction: Vector3,
+	travel_settings: SceneTravelSettings,
+	heading: String,
+	allow_loading := true,
+	allow_dodge := false
+) -> bool:
+	if not is_instance_valid(player):
+		return false
+	var movable := player.state in ["locomotion", "bow_empty"]
+	if GameClock.paused or not (movable or (allow_dodge and player.state == "roll")):
+		return false
+	if not _begin(path):
+		return false
+	var settings := travel_settings if travel_settings else SceneTravelSettings.new()
+	# Lock gameplay immediately, in the trigger's frame, including pending attacks.
+	player.begin_scene_travel(direction, settings.walk_speed, settings.exit_walk_distance)
+	_travel.call_deferred(player, path, spawn_id, settings, heading, allow_loading)
 	return true
 
 
@@ -208,6 +227,7 @@ func _replace_scene(old_scene: Node, next_scene: Node) -> void:
 
 
 func _finish_preparing(path: String) -> void:
+	await DungeonTravel.prepare_arrival()
 	await _render_frame()
 	await _render_frame()
 	preparation_seconds[path] = (Time.get_ticks_msec() - _preparation_started) / 1000.0
@@ -273,7 +293,6 @@ func _travel(
 	player: PlayerCharacter,
 	path: String,
 	spawn_id: StringName,
-	direction: Vector3,
 	settings: SceneTravelSettings,
 	heading: String,
 	allow_loading: bool
@@ -286,10 +305,9 @@ func _travel(
 	if load_error != OK:
 		await _recover(player, "De bestemming kon niet worden geladen.", settings.fade_duration)
 		return
-	player.begin_scene_travel(direction, settings.walk_speed, settings.exit_walk_distance)
 	fade.show()
 	fade.modulate.a = 0
-	await get_tree().create_timer(.12).timeout
+	await get_tree().create_timer(settings.departure_fade_delay).timeout
 	await _fade_to(1, settings.fade_duration)
 	while is_instance_valid(player) and not player.scene_travel_done:
 		await get_tree().physics_frame
@@ -308,9 +326,12 @@ func _travel(
 	# Validate the spawn before removing the current map.
 	var spawn: SceneSpawnPoint
 	for node in next_scene.find_children("*", "Marker3D", true, false):
-		if node is SceneSpawnPoint and node.spawn_id == spawn_id:
+		if node is SceneSpawnPoint and node.spawn_key() == spawn_id:
+			if spawn != null:
+				next_scene.free()
+				await _recover(player, "Het aankomstpunt is niet uniek.", settings.fade_duration)
+				return
 			spawn = node
-			break
 	var next_player := next_scene.get_node_or_null("Player") as PlayerCharacter
 	if spawn == null or next_player == null:
 		next_scene.free()

@@ -50,7 +50,9 @@ func sample(active_started: bool) -> void:
 		InputRouter.feedback(.25, .32, .11)
 	# A short fading tail continues into recovery; only the leading edge during the
 	# active window deals damage. The weapon owns that head's angle and radius.
-	slash.visible = phase >= 0.0 and phase < 1.55
+	# Energy weapons draw the short history of their real blade in MeleeWeapon.
+	# The legacy planar effect remains available to physical-only weapon profiles.
+	slash.visible = player.visual.weapon.energy_radius() <= 0.0 and phase >= 0.0 and phase < 1.55
 	if slash.visible:
 		var weapon: MeleeWeapon = player.visual.weapon
 		var energy := weapon.energy_radius() > 0.0

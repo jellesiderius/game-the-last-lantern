@@ -1,4 +1,26 @@
-# Huidige stand — 13 september 2026
+# Huidige stand — 14 september 2026
+
+## Rusten reset ook niet-geladen dungeons
+
+De vier gewone wachters in RootCellar en ForgottenSanctum stonden foutief op Permanent. Beide opgeslagen scenes en de offline dungeonbuilder gebruiken nu On rest. De bestaande wereldwijde `defeated_since_rest`-registratie houdt hen verslagen bij opnieuw betreden en wordt bij rusten in elk gebied geleegd; geladen vijanden resetten direct, niet-geladen vijanden bij de volgende aankomst. Bossregels, dungeonvoltooiing, gouden poorten en eenmalige loot blijven behouden. Oude permanente vlaggen voor deze gewone wachters verhinderen hun terugkeer niet meer.
+
+Gericht gecontroleerd met `tests/DrempelpoortReplay.tscn -- --dungeon-rest-only` in Forward+ Metal: 45 controles geslaagd, 249 echte renderframes. Beide dungeons leegmaken, herbezoeken vóór rusten, plaatsnemen zonder reset, echt rusten bij de boslelie, terugkerende vijanden in beide dungeons, volle meters, reset onder de bestaande fade, behouden boss-/wereldflags en geen dubbele loot. De save-fixture bevat ook de oude foutieve permanente vlaggen. Geen andere karakter- of combatsuites uitgevoerd. Rapport en beelden: `captures/drempelpoort/rest_review.json`, `rest_*_after.png`.
+
+## New Game hersteld en Drempelpoorten
+
+ForestOpening bevat weer de opgeslagen `StartCheckpoint` met de vaste code `start.forest_stump`, op veilige grond bij `(-3, 0, 7.4)`. Die ontbrak en daardoor weigerde aankomstvalidatie ieder nieuw spel. De offline bosgenerator bewaart dit startpunt nu ook. Gericht via het echte hoofdmenu gecontroleerd in Forward+ Metal: 20 controles, 781 renderframes. New Game speelt de stronkintro; een al aangemaakt onafgerond slot werkt zonder verwijderen; een afgeronde opening laadt op veilige grond zonder de intro te herhalen.
+
+ForestOpening en ForestPassage zijn afzonderlijke bossen met elk een eigen Drempelpoort naar respectievelijk RootCellar en ForgottenSanctum. De herbruikbare staande boog heeft een ondoorzichtig grijs portaal, of warm oranje/geel na voltooiing. Lopen en rollen starten direct de reis. De hele panda, uitrusting, schaduwen, voetstof en gedragen licht verdwijnen vóór het portaalvlak. Materiaalvarianten worden vóór contact voorbereid en gerenderd. Beide reisrichtingen gebruiken de korte petrolfade zonder laadscherm; New Game behoudt zijn laadscherm.
+
+Gerichte native poortreplay: 10 geslaagde overgangen (acht dungeonreizen plus huisdeur heen/terug), met controle van beide bossen, terugkeer naar de gebruikte poort, drie onafhankelijke slots, eenmalige loot en herstel bij een ontbrekend aankomstpunt. Geen brede karakter-/combatsuites. Zie `captures/drempelpoort/journey_review.json` en [DREMPELPOORT.md](DREMPELPOORT.md). De dungeons zijn kleine uitbreidbare voorbeeldkamers; de steenmaterialen blijven eenvoudiger dan de referentie.
+
+## Gedeelde hitfeedback en zwaardspoor
+
+TestArena en alle hoofdlevels gebruiken automatisch dezelfde cameratrilling na hun eigen cameravolging; de bosvariant is niet langer tot 30% en één as beperkt. De gerichte native controle slaagt voor TestArena, ForestOpening, ForestPassage en ForestHouse, inclusief een echte melee-treffer, pauze en de bestaande shake-instelling: 35 controles, 345 renderframes (`captures/impact_feedback/review.json`).
+
+De Sunblade gebruikt nu de opgeslagen `BladeSweep.tscn` in het gedeelde wapen: een duidelijk amberkleurig spoor met lichte kern dat de echte zwaardbasis, punt en zichtbare energie-uitloop volgt. Die uitloop deelt zijn punten met de schadecontrole; bereik blijft 1,9/2,4 m. Een tijdelijke achterwaartse uitschieter bij de dalende lichte slag wordt in de energie opgevangen, zodat hij geen vouw vormt. De cosmetische naloop krijgt afgeronde verbindingen en zachte uiteinden. De onderliggende botclips zijn behouden. Alle zes lichte slagen, geladen slag en vier kijkrichtingen zijn in Forward+ Metal bekeken (`captures/impact_feedback/after_*`). Zie [COMBAT_SWINGS.md](COMBAT_SWINGS.md).
+
+De gerichte Sunblade-replay na bovenstaande sweepcorrectie slaagt: 80 controles in Forward+ Metal, waaronder bereik, muren, doelregistratie, afwisselen en onderbreken. Geen brede character-/controllersuites uitgevoerd.
 
 ## Vuurlelie en drie save slots
 

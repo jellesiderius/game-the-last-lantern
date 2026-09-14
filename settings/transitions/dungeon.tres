@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SceneTravelSettings" format=3]
+[ext_resource type="Script" path="res://scripts/components/scene_travel_settings.gd" id="Script"]
+[resource]
+script = ExtResource("Script")
+exit_walk_distance = 0.85
+entry_walk_distance = 0.45
+walk_speed = 2.6
+fade_duration = 0.28
+black_hold = 0.0
+departure_fade_delay = 0.24

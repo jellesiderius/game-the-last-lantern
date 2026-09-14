@@ -194,7 +194,8 @@ func finish_sitting() -> void:
 
 
 func _respawn_world() -> void:
-	# Rest rules are per enemy. Never clear permanent world flags or defeated bosses.
+	# Clear defeats globally, including unloaded areas; their actors restore on next entry.
+	# Loaded actors reset now. Permanent world flags and defeated bosses stay intact.
 	GameProgress.defeated_since_rest.clear()
 	for enemy in get_tree().get_nodes_in_group("damageable"):
 		if enemy.has_method("rest_respawn"):

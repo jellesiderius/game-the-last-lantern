@@ -8,6 +8,7 @@ signal transition_started(actor: Node3D)
 @export var loading_title := "De reis gaat verder"
 ## Local doors/gates use a fade only. Opt in only for a substantially larger map change.
 @export var allow_loading_screen := false
+## Load resources as the player approaches, before the transition covers the scene.
 @export_range(0, 30, .5, "suffix:m") var prefetch_distance := 8.0
 @export var enabled := true
 @export var settings: SceneTravelSettings
@@ -68,10 +69,17 @@ func _physics_process(delta: float) -> void:
 	for body in get_overlapping_bodies():
 		if not body is PlayerCharacter or body in ignored_until_exit:
 			continue
-		# Rolling/hurt/attacks keep priority; start once the actor can walk again.
-		if body.state not in ["locomotion", "bow_empty"]:
+		if not can_travel(body):
 			continue
 		ignored_until_exit.append(body)
-		if SceneTransit.request(self, body):
+		if _try_travel(body):
 			transition_started.emit(body)
 		break
+
+
+func _try_travel(player: PlayerCharacter) -> bool:
+	return SceneTransit.request(self, player)
+
+
+func can_travel(player: PlayerCharacter) -> bool:
+	return player.state in ["locomotion", "bow_empty"]

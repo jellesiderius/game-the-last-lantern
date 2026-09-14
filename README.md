@@ -118,3 +118,5 @@ Gesprekken en configureerbare Praten/Lezen-labels beheren: [docs/DIALOGUE.md](do
 Herbruikbare poorten, deuren en aankomstpunten instellen: [docs/SCENE_TRANSITIONS.md](docs/SCENE_TRANSITIONS.md).
 
 Laadscherm bij New Game en snelle gebouwdoorgangen met voorladen: [docs/LOADING_SCREEN.md](docs/LOADING_SCREEN.md).
+
+Herbruikbare dungeonpoorten, onafhankelijke dungeons en terugkeerpunten: [docs/DREMPELPOORT.md](docs/DREMPELPOORT.md).
