@@ -1,0 +1,94 @@
+{
+  "date": "2026-09-14",
+  "engine": "Godot 4.7.2 stable",
+  "native_renderer": "Forward+ Metal",
+  "reports": [
+    {
+      "report": "captures/level_builder/editor_checks.json",
+      "checks": 52,
+      "failures": 0,
+      "rendered_frames": null,
+      "mode": "native editor"
+    },
+    {
+      "report": "captures/level_builder/runtime_checks.json",
+      "checks": 64,
+      "failures": 0,
+      "rendered_frames": 963,
+      "mode": "Forward+ Metal"
+    },
+    {
+      "report": "captures/level_builder/enemy_ramps_30.json",
+      "checks": 12,
+      "failures": 0,
+      "rendered_frames": 445,
+      "mode": "Forward+ Metal"
+    },
+    {
+      "report": "captures/level_builder/enemy_ramps_120.json",
+      "checks": 12,
+      "failures": 0,
+      "rendered_frames": 811,
+      "mode": "Forward+ Metal"
+    },
+    {
+      "report": "captures/level_builder/traversal_30.json",
+      "checks": 11,
+      "failures": 0,
+      "rendered_frames": 168,
+      "mode": "Forward+ Metal"
+    },
+    {
+      "report": "captures/level_builder/traversal_120.json",
+      "checks": 11,
+      "failures": 0,
+      "rendered_frames": 329,
+      "mode": "Forward+ Metal"
+    },
+    {
+      "report": "captures/level_builder/requested_ramps_60.json",
+      "checks": 16,
+      "failures": 0,
+      "rendered_frames": 2339,
+      "mode": "Forward+ Metal"
+    },
+    {
+      "report": "captures/level_builder/requested_ramps_120.json",
+      "checks": 16,
+      "failures": 0,
+      "rendered_frames": 2310,
+      "mode": "Forward+ Metal"
+    },
+    {
+      "report": "captures/level_builder/authored_patrol.json",
+      "checks": 4,
+      "failures": 0,
+      "rendered_frames": 410,
+      "mode": "Forward+ Metal"
+    },
+    {
+      "report": "captures/level_builder/corner_checks.json",
+      "checks": 54,
+      "failures": 0,
+      "mode": "headless logic"
+    }
+  ],
+  "requested_scene_repair": {
+    "authored_nodes_unchanged": 201,
+    "collision_triangles": 5199,
+    "degenerate_triangles": 0,
+    "scene": "res://scenes/levels/Testje.tscn",
+    "scene_hash_unchanged": true
+  },
+  "limitations": [
+    "Cave and city are starter kits using existing models.",
+    "Height-linked new plateaus follow ramp height; horizontal outline edits remain explicit.",
+    "Existing shader/RID shutdown warnings remain; the original editor crash cause is unproven."
+  ],
+  "native_evidence": [
+    "captures/level_builder/editor.png",
+    "captures/level_builder/stone_floor.png",
+    "captures/level_builder/steep_down_009.png",
+    "captures/level_builder/requested_Ramp_chase_down_010.png"
+  ]
+}

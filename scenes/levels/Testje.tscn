@@ -5,9 +5,9 @@
 [ext_resource type="Resource" path="res://settings/area_sets/cave.tres" id="3_yc6yn"]
 [ext_resource type="Script" uid="uid://clqcgbow6xpru" path="res://scripts/world/authoring/level_terrain.gd" id="4_ha6c1"]
 [ext_resource type="Script" uid="uid://cxwe78k8exu1i" path="res://scripts/world/authoring/level_terrace.gd" id="5_7f24k"]
-[ext_resource type="ArrayMesh" uid="uid://ddvxkqehxniiq" path="res://scenes/levels/Testje.terrain/Terrain.res" id="5_oihav"]
+[ext_resource type="ArrayMesh" uid="uid://bqo00eddm5tkw" path="res://scenes/levels/Testje.terrain/Terrain.res" id="5_oihav"]
 [ext_resource type="Script" uid="uid://gp1iqi0vqmvb" path="res://scripts/world/authoring/level_ramp.gd" id="6_3moym"]
-[ext_resource type="Shape3D" uid="uid://cisqj275juoix" path="res://scenes/levels/Testje.terrain/Terrain_collision.res" id="6_3twre"]
+[ext_resource type="Shape3D" uid="uid://cwrh3m5acxb71" path="res://scenes/levels/Testje.terrain/Terrain_collision.res" id="6_3twre"]
 [ext_resource type="Script" uid="uid://baahi06eehkq4" path="res://scripts/world/scene_spawn_point.gd" id="7_v8xyu"]
 [ext_resource type="Script" uid="uid://dnfqek7ev0jgq" path="res://scripts/world/checkpoint_anchor.gd" id="8_h85wo"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="9_a1omd"]
@@ -105,7 +105,7 @@ camera_max = Vector2(7, 7)
 [node name="Terrain" type="Node3D" parent="." unique_id=35565611]
 script = ExtResource("4_ha6c1")
 area_set = ExtResource("3_yc6yn")
-baked_signature = "8512a74e346ffade4079db4d900a6ce77598c42f2e92f4d0d2edfd13c24de877"
+baked_signature = "a10478e7a812c50752ffbc6320bffc1c80547735604fac1f80f6cbad3070e4f5"
 
 [node name="Terras" type="Path3D" parent="Terrain" unique_id=985458787]
 curve = SubResource("Curve3D_3moym")
@@ -126,31 +126,31 @@ terrace_attachment = NodePath("../Terras")
 points_define_height = true
 end_height = 2.013495
 
-[node name="Baked" type="Node3D" parent="Terrain" unique_id=234265007]
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=1864688012]
 metadata/level_builder_generated = true
 
-[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=1292569798]
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=1334700601]
 mesh = ExtResource("5_oihav")
 
-[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=1896649160]
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=1539445058]
 collision_mask = 0
 
-[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1806296937]
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1803342948]
 shape = ExtResource("6_3twre")
 
-[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1730623401]
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1693669030]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.25, 3, 0)
 shape = SubResource("BoxShape3D_8vf3x")
 
-[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=138700824]
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=223555446]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.25, 3, 0)
 shape = SubResource("BoxShape3D_yc6yn")
 
-[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=372919389]
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=208328939]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -12.25)
 shape = SubResource("BoxShape3D_ha6c1")
 
-[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1463064793]
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=960067154]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 12.25)
 shape = SubResource("BoxShape3D_oihav")
 

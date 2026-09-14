@@ -12,6 +12,16 @@ func run() -> void:
 		get_window().grab_focus()
 	GameProgress.ensure_preview()
 	GameProgress.active_slot = 0
+	if "--builder-patrol-only" in OS.get_cmdline_user_args():
+		await load_world("BuilderForest")
+		for enemy in world.get_node("Enemies").get_children():
+			enemy.disabled = true
+		var guard: CharacterBody3D = world.get_node("Enemies").get_child(0)
+		await _trip(
+			guard, "authored_patrol", Vector3(1.7, 0, -8), Vector3(-4.7, 1.5, -8), false, true
+		)
+		_finish("authored_patrol")
+		return
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--builder-ramp-scene="):
 			var source: Node = load(argument.trim_prefix("--builder-ramp-scene=")).instantiate()
@@ -89,7 +99,12 @@ func _ramp_trips(label: String, pursuit := false) -> void:
 
 
 func _trip(
-	guard: CharacterBody3D, label: String, from: Vector3, to: Vector3, pursuit := false
+	guard: CharacterBody3D,
+	label: String,
+	from: Vector3,
+	to: Vector3,
+	pursuit := false,
+	patrol := false
 ) -> void:
 	world.player.respawn(to if pursuit else Vector3(-9, 0, 9))
 	world.player.invulnerability = 0
@@ -109,6 +124,11 @@ func _trip(
 		guard.brain.last_seen = to
 		guard.brain.memory = 60
 		guard.brain._enter("approach")
+	if patrol:
+		guard.spawn_position = from
+		guard.brain.returning_after_leash = false
+		guard.brain.authored_patrol = PackedVector3Array([to - from])
+		guard.brain._enter("patrol")
 	var forward := Vector3(to.x - from.x, 0, to.z - from.z).normalized()
 	guard.brain.direction = forward
 	var side := forward.cross(Vector3.UP)
@@ -125,11 +145,15 @@ func _trip(
 	var recovery_ticks := 0
 	var trace: Array[Dictionary] = []
 	var reached := false
+	var interrupted_patrol := false
+	var started := GameClock.elapsed
 	world.set_physics_process(false)
 	world.get_node("CameraRig/Camera3D").size = 9
 	for i in 2000:
 		await frames(1)
 		var at := guard.global_position
+		if patrol and guard.brain.state != "patrol" and at.distance_to(to) > .22:
+			interrupted_patrol = true
 		if absf((at - previous).dot(side)) > .04:
 			var contacts: Array = []
 			for j in guard.get_slide_collision_count():
@@ -176,6 +200,12 @@ func _trip(
 			label + " stays straight without slalom",
 			lateral < .15 and reversals < .08,
 			{"lateral": lateral, "backwards": reversals, "recovery_ticks": recovery_ticks}
+		)
+	if patrol:
+		check(
+			"long authored patrol is not cut off after six seconds",
+			reached and not interrupted_patrol and GameClock.elapsed - started > 6,
+			GameClock.elapsed - started
 		)
 	(
 		FileAccess

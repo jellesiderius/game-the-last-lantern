@@ -76,6 +76,8 @@ De plaatsbare eikelwacht gebruikt standaard **On rest**. De editor kent iedere p
 
 **Patrouille tekenen** maakt een Path3D met controlepunten. Wijs bij **Enemy** de geplaatste vijand aan. De punten bepalen uitsluitend zijn eigen routine; de bestaande EnemyBrain en navigatie blijven verantwoordelijk voor de beweging. **Encounter** maakt een doel met toegewezen enemies, te ontgrendelen portals en optioneel een DungeonDefinition/blijvende voltooiingsflag.
 
+Eigen patrouilles blijven hun punt volgen zolang de route duurt; de korte tijdslimiet van de standaard lokale dwaalroutine geldt daar niet voor. Op ramps volgt de navigatie het oppervlak verticaal, zonder onnodige zijwaartse herstelbewegingen. De builder verwijdert driehoeken zonder oppervlakte uit de grond en collision: die konden de physics op steile ramps opzij laten springen. Een enemy die na het verlagen van grond eerst naar beneden valt, neemt bij zijn eerste grondcontact de werkelijke hoogte als thuishoogte over.
+
 Een **Doorgang** krijgt Target Scene via de bestandskiezer en Target Spawn via een lijst van beschikbare aankomstpunten. De editor tekent het triggergebied en een richtingspijl. Nieuwe levels bevatten `Spawns/Entrance`; extra Marker3D-nodes krijgen `scene_spawn_point.gd` en een unieke Spawn Id. Drempelpoorten gebruiken de bestaande DungeonDefinition en hun eigen terugkeermarker.
 
 ## Eigenaarschap en onderhoud
@@ -89,6 +91,9 @@ Gerichte controles:
 ```sh
 /Applications/Godot.app/Contents/MacOS/Godot --path . --max-fps 60 tests/LevelBuilderReplay.tscn -- --save-test-root=level_builder_review
 /Applications/Godot.app/Contents/MacOS/Godot --editor --path . -- --level-builder-editor-checks
+/Applications/Godot.app/Contents/MacOS/Godot --path . --max-fps 60 tests/LevelBuilderEnemyReplay.tscn -- --save-test-root=builder_enemy_review
 ```
 
 Voer de editorcontrole in een geïsoleerde projectkopie uit wanneer je tegelijk zelf in Godot werkt. De controle gebruikt een unieke tijdelijke fixture per proces. Resultaten en native beelden komen in `captures/level_builder/`. De replay gebruikt een eigen savemap. De replay kan beperkt worden tot camera/helling via `--builder-traversal-only`; gebruik `--max-fps 30`, `60` of `120`. De bestaande headless replay op poort9090 wordt niet gebruikt om native controles te besturen.
+
+De enemyreplay ondersteunt `--builder-ramp-scene=res://scenes/levels/Testje.tscn` voor de twee ramps uit het gemelde level. Hij bewaart een testkopie onder captures en controleert oplopen, afdalen, achtervolgen en terugkeren. `--builder-patrol-only` controleert een lange, eigen patrouille. Actuele resultaten: [LEVEL_BUILDER_VALIDATION.json](LEVEL_BUILDER_VALIDATION.json).

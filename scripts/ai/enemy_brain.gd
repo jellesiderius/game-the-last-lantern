@@ -380,7 +380,10 @@ func tick(delta: float) -> Vector3:
 					* personality.get("patrol_scale", 1.0)
 				)
 			var destination: Vector3 = actor.spawn_position + offset
-			if actor.global_position.distance_to(destination) < .15 or state_time > 6.0:
+			if (
+				actor.global_position.distance_to(destination) < .15
+				or (authored_patrol.is_empty() and state_time > 6.0)
+			):
 				patrol_index += (
 					routine_rng.randi_range(1, maxi(1, route.size() - 1))
 					if settings.variation and (authored_patrol.is_empty() or not ordered_patrol)

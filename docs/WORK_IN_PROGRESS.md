@@ -10,6 +10,10 @@ Complete Asset.tscn-prefabs nemen hun collision mee; geregistreerde modelherimpo
 
 De macOS-crash van 16:22 is bevestigd in het systeemrapport; het rapport bevat geen bruikbare GDScript-locatie. Een geselecteerde gegenereerde node wordt nu vóór vervangen uit de editorselectie gehaald en live nodes worden uitgesteld vrijgegeven. De opslagroutine itereert alleen terrainroots, zodat vervangen kinderen geen verouderde verwijzingen in de save-loop achterlaten. Verdere editorproeven zijn uitgevoerd in `/tmp/lantern-builder-review`, los van het eigen werkvenster. De exacte oorspronkelijke crashoorzaak is niet bewezen.
 
+Het slingeren en vastlopen op ramps had meerdere oorzaken. De verticale navmeshprojectie voorkomt vals herstel naast de loopvloer; lokale vrije routes krijgen geen onnodige bochten langs navmeshdriehoeken. De terreinbakker verwijdert nuloppervlakdriehoeken die fysieke zijsprongen veroorzaakten. Een enemy neemt bij zijn eerste grondcontact de juiste thuishoogte over als de grond na plaatsing is verlaagd. Eigen patrouilles worden niet meer na zes seconden afgebroken. Vloervlakken op hoogte nul behouden die hoogte na opslaan/heropenen.
+
+Gericht gecontroleerd: 52 editorchecks en 64 runtimechecks; native speler-/enemyhellingcontroles bij caps30/120; beide ramps van Testje, inclusief achtervolging omhoog/omlaag en thuishoogte, bij caps60/120. De 54 bestaande obstakel-/hoek-/doorgangchecks slagen ook. De gegenereerde grondresources van Testje zijn vernieuwd met behoud van alle 201 authored nodes en een ongewijzigde scenefile. Rapport en huidige renderbeelden staan in `captures/level_builder/`; overzicht: [LEVEL_BUILDER_VALIDATION.json](LEVEL_BUILDER_VALIDATION.json). De bekende shader/RID-melding bij afsluiten blijft zichtbaar; een native crash is tijdens de afgeronde controles niet gereproduceerd.
+
 Handleiding en onderhoud: [LEVEL_BUILDER.md](LEVEL_BUILDER.md). De scenes met handmatige testnamen en de wijzigingen aan ForestCheckpoints/EnemySettings zijn gebruikerswerk en blijven behouden.
 
 ## Rusten reset ook niet-geladen dungeons
