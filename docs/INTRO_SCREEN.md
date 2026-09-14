@@ -17,11 +17,11 @@ Selecteer **TitleScreen** in de Inspector:
 
 | Eigenschap | Standaard |
 |---|---|
-| New Game Scene | `res://scenes/levels/PrototypeRoom.tscn` |
+| Startgebied van een nieuw slot | `settings/areas/forest_opening.tres` |
 | Test Scene | `res://scenes/levels/TestArena.tscn` |
 | Flicker Strength | 1,0, op de rustige lichtcurve |
 
-De Testscene-knop leest de ingestelde scene bij activering. New Game en Testscene gebruiken dezelfde bestaande GameSession/PlayerCharacter. Continue is uitgeschakeld: een echt opslagsysteem valt buiten deze wijziging. Settings biedt volledig scherm en controllertrilling. Deze instellingen worden binnen de sessie toegepast; er is nog geen nieuw instellingenbestand op schijf. Main menu in het gameplaypauzemenu opent het introscherm opnieuw.
+De Testscene-knop leest de ingestelde scene bij activering. New Game en Testscene gebruiken dezelfde bestaande GameSession/PlayerCharacter. New Game en Continue openen hetzelfde overzicht met drie onafhankelijke save slots. Continue is verborgen zolang geen geldig slot bestaat. Zie [VUURLELIE.md](VUURLELIE.md). Settings biedt volledig scherm en controllertrilling. Deze instellingen worden binnen de sessie toegepast; er is nog geen nieuw instellingenbestand op schijf. Main menu in het gameplaypauzemenu opent het introscherm opnieuw.
 
 Muis, toetsenbord en controller gebruiken native focus. Openen/terugkeren wist de gameplaypauze en gebruikt de bestaande InputRouter-overgangsblokkade; kruisje-bevestigen wordt geen dodge. Bestaande CLI room-/energyreplays worden vanuit het introscherm naar PrototypeRoom doorgestuurd. TestArena blijft rechtstreeks startbaar.
 

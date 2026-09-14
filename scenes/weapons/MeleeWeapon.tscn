@@ -1,5 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 [ext_resource type="Script" path="res://scripts/combat/melee_weapon.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/effects/BladeSweep.tscn" id="Sweep"]
 [sub_resource type="StandardMaterial3D" id="TrailMaterial"]
 shading_mode = 0
 transparency = 1
@@ -25,3 +26,5 @@ shadow_enabled = false
 top_level = true
 material_override = SubResource("TrailMaterial")
 cast_shadow = 0
+
+[node name="EnergyBladeTrail" parent="." instance=ExtResource("Sweep")]

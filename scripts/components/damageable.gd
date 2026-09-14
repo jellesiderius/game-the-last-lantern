@@ -1,6 +1,9 @@
 extends CharacterBody3D
 ## Shared damage receiver. Optional Brain/visual components supply enemy behaviour.
 @export var enemy := false
+@export_enum("Timed", "On rest", "Permanent") var respawn_rule := 0
+@export var persistent_id: StringName
+
 @export var label_text := "TRAINING"
 var spawn_position := Vector3.ZERO
 var last_ids: Dictionary = {}
@@ -14,6 +17,7 @@ var disabled := false:
 			brain.suspend()
 var flash_material: ShaderMaterial
 var health_label: Label3D
+var health_label_visible := true
 var visual: Node3D
 var brain: EnemyBrain
 @onready var health: HealthComponent = $Health
@@ -28,6 +32,7 @@ func _ready() -> void:
 	_assign_hit_flash(visual)
 	OcclusionSilhouette.apply(visual)
 	health_label = $HealthLabel
+	health_label_visible = health_label.visible
 	brain = get_node_or_null("Brain") as EnemyBrain
 	if brain:
 		health.maximum = brain.settings.maximum_health
@@ -35,11 +40,12 @@ func _ready() -> void:
 		label_text = brain.settings.display_name
 		brain.reset_brain()
 	_update_label()
+	_restore_progress.call_deferred()
 
 
 func _physics_process(_delta: float) -> void:
 	var delta: float = GameClock.dt
-	if delta <= 0:
+	if delta <= 0 or Checkpoints.active:
 		return
 	flash = maxf(0, flash - delta)
 	flash_material.set_shader_parameter("flash", flash)
@@ -50,7 +56,12 @@ func _physics_process(_delta: float) -> void:
 			visual.present_death(2.5 - reset_time)
 		reset_time -= delta
 		if reset_time <= 0:
-			reset_target()
+			if respawn_rule == 0:
+				reset_target()
+			else:
+				_keep_dead()
+		return
+	if health.current <= 0:
 		return
 	var desired := brain.tick(delta) if brain else Vector3.ZERO
 	velocity.x = knockback.x + desired.x
@@ -74,6 +85,11 @@ func receive_hit(amount: float, id: int, origin: Vector3, force := 1.0) -> bool:
 	knockback.y = 0
 	_update_label()
 	if health.current <= 0:
+		if not persistent_id.is_empty():
+			if respawn_rule == 2:
+				GameProgress.set_world_flag("enemy:" + String(persistent_id))
+			elif respawn_rule == 1:
+				GameProgress.defeated_since_rest[String(persistent_id)] = true
 		reset_time = 2.5
 		if visual.has_method("present_death"):
 			visual.present_death(0.0)
@@ -110,6 +126,9 @@ func show_hit_color(color: Color) -> void:
 
 
 func reset_target() -> void:
+	if respawn_rule == 2 and GameProgress.world_flag("enemy:" + String(persistent_id)):
+		_keep_dead()
+		return
 	global_position = spawn_position
 	velocity = Vector3.ZERO
 	knockback = Vector3.ZERO
@@ -119,6 +138,7 @@ func reset_target() -> void:
 	flash_material.set_shader_parameter("flash", 0.0)
 	last_ids.clear()
 	visual.show()
+	health_label.visible = health_label_visible
 	visual.scale = Vector3.ONE
 	visual.rotation = Vector3.ZERO
 	visual.position = Vector3.ZERO
@@ -129,3 +149,35 @@ func reset_target() -> void:
 	$Hurtbox.collision_layer = CombatLayers.TARGET_HURTBOX
 	$ExtraHurtbox.collision_layer = CombatLayers.TARGET_HURTBOX
 	_update_label()
+
+
+func _keep_dead() -> void:
+	health.current = 0
+	reset_time = 0
+	velocity = Vector3.ZERO
+	if brain:
+		brain.suspend()
+	visual.hide()
+	health_label.hide()
+	collision_layer = 0
+	$Hurtbox.collision_layer = 0
+	$ExtraHurtbox.collision_layer = 0
+	if has_node("Telegraph"):
+		$Telegraph.hide()
+
+
+func _restore_progress() -> void:
+	if respawn_rule != 0 and persistent_id.is_empty():
+		push_warning("Persistent enemies need an explicit permanent ID for cross-area progress.")
+	if persistent_id.is_empty():
+		return
+	if (
+		(respawn_rule == 2 and GameProgress.world_flag("enemy:" + String(persistent_id)))
+		or (respawn_rule == 1 and GameProgress.defeated_since_rest.has(String(persistent_id)))
+	):
+		_keep_dead()
+
+
+func rest_respawn() -> void:
+	if enemy:
+		reset_target()

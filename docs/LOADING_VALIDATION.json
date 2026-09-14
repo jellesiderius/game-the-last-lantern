@@ -1,0 +1,182 @@
+{
+  "date": "2026-09-13",
+  "engine": "Godot 4.7.2",
+  "renderer": "Forward+ Metal",
+  "hardware": "Apple M4 Pro",
+  "physics_fps": 120,
+  "loading_native": {
+    "report": "captures/loading/checks.json",
+    "checks": 29,
+    "failures": 0,
+    "cap": 60,
+    "render_frames": 428,
+    "renderer": "forward_plus"
+  },
+  "intro_native": {
+    "report": "captures/intro/checks.json",
+    "checks": 29,
+    "failures": 0,
+    "observed_render_fps": 60.0801068090788,
+    "renderer": "forward_plus"
+  },
+  "portals_native": [
+    {
+      "report": "captures/forest/transition_checks_30.json",
+      "checks": 62,
+      "failures": 0,
+      "cap": 30,
+      "render_frames": 501,
+      "travel_measurements": [
+        {
+          "loading_card": false,
+          "opaque_ms": 266,
+          "portal": "new_forest",
+          "prefetched": true,
+          "seconds": 1.366
+        },
+        {
+          "loading_card": false,
+          "opaque_ms": 134,
+          "portal": "inside_house",
+          "prefetched": true,
+          "seconds": 0.834
+        },
+        {
+          "loading_card": false,
+          "opaque_ms": 133,
+          "portal": "outside_house",
+          "prefetched": true,
+          "seconds": 0.834
+        },
+        {
+          "loading_card": false,
+          "opaque_ms": 301,
+          "portal": "back_in_first_forest",
+          "prefetched": true,
+          "seconds": 1.368
+        }
+      ]
+    },
+    {
+      "report": "captures/forest/transition_checks_60.json",
+      "checks": 62,
+      "failures": 0,
+      "cap": 60,
+      "render_frames": 983,
+      "travel_measurements": [
+        {
+          "loading_card": false,
+          "opaque_ms": 268,
+          "portal": "new_forest",
+          "prefetched": true,
+          "seconds": 1.383
+        },
+        {
+          "loading_card": false,
+          "opaque_ms": 109,
+          "portal": "inside_house",
+          "prefetched": true,
+          "seconds": 0.859
+        },
+        {
+          "loading_card": false,
+          "opaque_ms": 84,
+          "portal": "outside_house",
+          "prefetched": true,
+          "seconds": 0.808
+        },
+        {
+          "loading_card": false,
+          "opaque_ms": 283,
+          "portal": "back_in_first_forest",
+          "prefetched": true,
+          "seconds": 1.383
+        }
+      ]
+    },
+    {
+      "report": "captures/forest/transition_checks_120.json",
+      "checks": 62,
+      "failures": 0,
+      "cap": 120,
+      "render_frames": 1930,
+      "travel_measurements": [
+        {
+          "loading_card": false,
+          "opaque_ms": 276,
+          "portal": "new_forest",
+          "prefetched": true,
+          "seconds": 1.383
+        },
+        {
+          "loading_card": false,
+          "opaque_ms": 95,
+          "portal": "inside_house",
+          "prefetched": true,
+          "seconds": 0.839
+        },
+        {
+          "loading_card": false,
+          "opaque_ms": 57,
+          "portal": "outside_house",
+          "prefetched": true,
+          "seconds": 0.807
+        },
+        {
+          "loading_card": false,
+          "opaque_ms": 277,
+          "portal": "back_in_first_forest",
+          "prefetched": true,
+          "seconds": 1.381
+        }
+      ]
+    }
+  ],
+  "selection_native": {
+    "report": "captures/selection_checks.json",
+    "checks": 37,
+    "failures": 0
+  },
+  "images": [
+    "docs/images/loading-new-game.png",
+    "captures/forest/inside_house.png",
+    "captures/forest/outside_house.png"
+  ],
+  "limits": [
+    "Door times are measurements on this Mac, not guarantees for other hardware.",
+    "Prefetch retains PackedScene resources only; it does not preserve mutable NPC/gameplay state.",
+    "A cold destination can extend the covered fade; ordinary portals still never show the loading card."
+  ],
+  "existing_regression": [
+    {
+      "report": "captures/runtime_checks_red_panda_60.json",
+      "checks": 76,
+      "failures": 0,
+      "render_cap": 60,
+      "observed_render_fps": 0.0
+    },
+    {
+      "report": "captures/bow_checks_red_panda_60.json",
+      "checks": 69,
+      "failures": 0,
+      "render_cap": 60,
+      "observed_render_fps": 0.0
+    },
+    {
+      "report": "captures/enemy_checks_red_panda_60.json",
+      "checks": 46,
+      "failures": 1,
+      "render_cap": 60,
+      "observed_render_fps": 0.0
+    }
+  ],
+  "known_issue": "The pre-existing TestArena enemy admission check (waiting enemies eventually get a turn) still fails.",
+  "controller_native": {
+    "report": "captures/controller_checks_red_panda_60.json",
+    "checks": 42,
+    "failures": 0,
+    "render_cap": 60,
+    "observed_render_fps": 59.4809480948095,
+    "input": "Native InputEvents using saved bindings restricted to an unused test device. Connected physical pad jitter is excluded within the replay only."
+  }
+}

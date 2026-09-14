@@ -85,12 +85,26 @@ func _process(_delta: float) -> void:
 	var dead = p.state == "dead" and p.action_time > .9
 	if arena.debug_enabled:
 		state_label.text += "\n" + AttackTokenManager.debug_status()
-	var menu_visible: bool = GameClock.paused or dead
+	var menu_visible: bool = (
+		(
+			GameClock.paused
+			and not Dialogue.active
+			and not SceneTransit.active
+			and not Checkpoints.active
+		)
+		or (dead and not SceneTransit.active)
+	)
 	if menu_visible and not pause_panel.visible:
 		pause_panel.open(dead, p.settings.camera_shake, menu_reason)
 	elif not menu_visible and pause_panel.visible:
 		pause_panel.close()
-	$Root/InputHint.visible = not menu_visible
+	$Root/InputHint.visible = (
+		not menu_visible
+		and not Dialogue.active
+		and not SceneTransit.active
+		and not Checkpoints.active
+		and p.state != "entrance"
+	)
 	$Root/InputHint.text = (
 		"%s  Sword    %s  Dodge    %s  Bow    %s  Menu"
 		% [
@@ -101,7 +115,13 @@ func _process(_delta: float) -> void:
 		]
 	)
 	var interaction: Interactable = p.interaction.target
-	$Root/ContextPrompt.visible = not menu_visible
+	$Root/ContextPrompt.visible = (
+		not menu_visible
+		and not Dialogue.active
+		and not SceneTransit.active
+		and not Checkpoints.active
+		and not is_instance_valid(interaction)
+	)
 	$Root/ContextPrompt.text = (
 		"%s  %s" % [InputRouter.prompt("interact"), interaction.prompt]
 		if is_instance_valid(interaction) and p.state == "locomotion"
@@ -122,7 +142,7 @@ func _process(_delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event.is_echo():
+	if Dialogue.active or SceneTransit.active or Checkpoints.active or event.is_echo():
 		return
 	if event.is_action_pressed("pause"):
 		if arena.player.state == "dead":
@@ -157,6 +177,10 @@ func _resume() -> void:
 
 
 func _restart() -> void:
+	if GameProgress.active_slot >= 0:
+		Checkpoints.respawn_player()
+		return
+	Dialogue.close(false)
 	menu_reason = ""
 	arena.restart()
 	InputRouter.block_gameplay_input()
@@ -164,6 +188,12 @@ func _restart() -> void:
 
 
 func _controller_disconnected() -> void:
+	if Checkpoints.active:
+		return
+	if SceneTransit.active:
+		SceneTransit.pause_on_arrival = true
+		return
+	Dialogue.close(false)
 	if arena.player.state != "dead":
 		_pause("Controller disconnected")
 
@@ -173,7 +203,7 @@ func _ability_denied(_slot: int) -> void:
 
 
 func _magic_changed(_current: int, _maximum: int, reason: StringName) -> void:
-	if reason == &"reset":
+	if reason in [&"reset", &"scene_travel"]:
 		magic_feedback_until = 0.0
 		magic_hint_until = 0.0
 		return
@@ -191,7 +221,9 @@ func _magic_denied() -> void:
 
 
 func _health_changed(current: float, maximum: float) -> void:
-	if current < last_health:
+	if SceneTransit.active:
+		health_feedback_until = 0.0
+	elif current < last_health:
 		health_feedback_until = GameClock.elapsed + .25
 	elif current >= maximum:
 		health_feedback_until = 0.0
@@ -199,15 +231,13 @@ func _health_changed(current: float, maximum: float) -> void:
 
 
 func _choose_character() -> void:
-	GameClock.reset()
-	AttackTokenManager.reset()
-	InputRouter.block_gameplay_input()
-	get_tree().change_scene_to_file("res://scenes/ui/CharacterSelect.tscn")
+	SceneTransit.change_scene("res://scenes/ui/CharacterSelect.tscn", "Kies je reiziger")
 
 
 func _return_to_title() -> void:
-	arena.player.suspend_controls()
-	GameClock.reset()
-	AttackTokenManager.reset()
-	InputRouter.block_gameplay_input()
-	get_tree().change_scene_to_file("res://scenes/ui/TitleScreen.tscn")
+	SceneTransit.change_scene(
+		"res://scenes/ui/TitleScreen.tscn",
+		"Terug bij het licht",
+		false,
+		func(_scene): GameProgress.leave_game()
+	)

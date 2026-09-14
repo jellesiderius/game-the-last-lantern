@@ -124,6 +124,18 @@ func run() -> void:
 		"recovery hides warning",
 		not enemy.get_node("Telegraph").visible and visual.current_clip == enemy.brain.recovery_clip
 	)
+	var recovery_start: Vector3 = enemy.position
+	var recovery_health := p.health.current
+	await step(60)
+	check(
+		"stumble gives a stationary counterattack window",
+		(
+			enemy.brain.state == "recover"
+			and enemy.position.distance_to(recovery_start) < .04
+			and p.health.current == recovery_health
+		),
+		enemy.brain.state_time
+	)
 	await reset(Vector3(0, 0, -2))
 	deploy(enemy, Vector3(0, 0, -2.75))
 	await wait_state(enemy, "windup")
@@ -215,14 +227,24 @@ func source_review(enemy) -> void:
 	if DisplayServer.get_name() == "headless":
 		return
 	await reset(Vector3(0, 0, -2))
-	enemy.position = Vector3(-1, 0, -3)
+	enemy.position = Vector3(0, 0, 9)
+	enemy.reset_physics_interpolation()
 	enemy.disabled = true
 	enemy.visual.rotation = Vector3.ZERO
 	GameClock.paused = true
 	p.hide()
 	arena.get_node("HUD").hide()
+	var hidden_geometry: Array[Node3D] = []
+	for child: Node3D in arena.get_node("Geometry").get_children():
+		if child.visible and not child.name.begins_with("Ground_"):
+			hidden_geometry.append(child)
+			child.hide()
 	var camera := get_viewport().get_camera_3d()
-	camera.size = 1.65
+	var gameplay_camera_transform := camera.transform
+	var gameplay_camera_size := camera.size
+	camera.size = 1.85
+	var interpolation := camera.physics_interpolation_mode
+	camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	var center: Vector3 = enemy.position + Vector3(0, .54, 0)
 	for view in {
 		"front": Vector3(0, .05, -4),
@@ -260,32 +282,46 @@ func source_review(enemy) -> void:
 	DirAccess.make_dir_recursive_absolute(
 		ProjectSettings.globalize_path("res://captures/acorn_guard/motion")
 	)
-	for f in 120:
-		var time := f / 30.0
-		if time < .8:
-			enemy.visual.sample("run", fmod(time, 41.0 / 120.0))
-		elif time < 1.22:
-			enemy.visual.sample("windup", (time - .8) / .42 * .65)
-		elif time < 1.38:
-			enemy.visual.sample("strike", (time - 1.22) / .16 * (22.0 / 120.0))
-		elif time < 1.72:
-			enemy.visual.sample("recover", (time - 1.38) / .34 * .65)
-		elif time < 2.28:
-			enemy.visual.sample("lunge_windup", time - 1.72)
-		elif time < 2.50:
-			enemy.visual.sample("lunge_strike", time - 2.28)
-		elif time < 3.0:
-			enemy.visual.sample("lunge_recover", time - 2.5)
-		else:
-			enemy.visual.sample("idle", time - 3.0)
-		await shot("motion/%03d" % f)
+	var clips := [
+		"run",
+		"windup",
+		"strike",
+		"recover",
+		"lunge_windup",
+		"lunge_strike",
+		"lunge_recover",
+		"idle"
+	]
+	var durations := [
+		.8,
+		enemy.brain.settings.attack.windup,
+		enemy.brain.settings.attack.active_duration,
+		enemy.brain.settings.attack.recovery,
+		enemy.brain.settings.attack_variants[1].windup,
+		enemy.brain.settings.attack_variants[1].active_duration,
+		enemy.brain.settings.attack_variants[1].recovery,
+		.5
+	]
+	var frame := 0
+	for i in clips.size():
+		var clip_name: String = clips[i]
+		var duration: float = durations[i]
+		var imported_length: float = enemy.visual.animation_player.get_animation(clip_name).length
+		for f in ceili(duration * 30.0):
+			var time := float(f) / 30.0
+			enemy.visual.sample(clip_name, time / duration * imported_length)
+			await shot("motion/%03d" % frame)
+			frame += 1
+	for child in hidden_geometry:
+		child.show()
 	# Final screenshot uses the actual unchanged gameplay framing.
 	GameClock.paused = false
 	p.show()
 	arena.get_node("HUD").show()
-	camera.position = Vector3(0, 0, 24)
-	camera.rotation = Vector3.ZERO
-	camera.size = 13.0
+	camera.transform = gameplay_camera_transform
+	camera.size = gameplay_camera_size
+	camera.physics_interpolation_mode = interpolation
+	camera.reset_physics_interpolation()
 	for d in targets:
 		d.disabled = false
 		d.reset_target()

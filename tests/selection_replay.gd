@@ -25,6 +25,15 @@ func tap(index: int) -> void:
 	await frames(5)
 
 
+func finish_transition() -> void:
+	for i in 2400:
+		if not SceneTransit.active:
+			break
+		await frames(1)
+	await RenderingServer.frame_post_draw
+	await frames(3)
+
+
 func check(label: String, passed: bool) -> void:
 	results.append({"check": label, "passed": passed})
 	failures += 0 if passed else 1
@@ -32,6 +41,14 @@ func check(label: String, passed: bool) -> void:
 
 
 func run() -> void:
+	# This historical selector replay opts into its three profiles; the real game keeps one panda.
+	GameSession.characters.assign(
+		[
+			load("res://settings/characters/red_panda.tres"),
+			load("res://settings/characters/crow.tres"),
+			load("res://settings/characters/capybara.tres")
+		]
+	)
 	await frames(12)
 	get_window().position = Vector2i(80, 80)
 	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, true)
@@ -49,7 +66,7 @@ func run() -> void:
 		var focused := get_viewport().gui_get_focus_owner() as CharacterChoice
 		check("controller focuses " + id, focused != null and focused.definition.id == id)
 		await tap(JOY_BUTTON_A)
-		await frames(10)
+		await finish_transition()
 		var arena = get_tree().current_scene
 		var player: PlayerCharacter = arena.player
 		for target in get_tree().get_nodes_in_group("damageable"):
@@ -109,7 +126,7 @@ func run() -> void:
 		var menu = arena.get_node("HUD").pause_panel
 		menu.get_node("Layout/Tabs/Game/ChooseCharacter").grab_focus()
 		await tap(JOY_BUTTON_A)
-		await frames(10)
+		await finish_transition()
 		check(
 			id + " returns to selector",
 			get_tree().current_scene.name == "CharacterSelect" and not GameClock.paused

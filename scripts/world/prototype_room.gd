@@ -33,7 +33,6 @@ func _physics_process(_delta: float) -> void:
 	var delta := GameClock.dt
 	if delta <= 0.0:
 		return
-	shake = maxf(0, shake - delta * .45)
 	var look := (
 		Input.get_vector(
 			"look_left", "look_right", "look_up", "look_down", player.settings.stick_deadzone
@@ -53,9 +52,7 @@ func _physics_process(_delta: float) -> void:
 	camera_home.x = lerpf(camera_home.x, target.x, weight)
 	camera_home.z = lerpf(camera_home.z, target.z, weight)
 	camera_home.y = lerpf(camera_home.y, target.y, 1.0 - pow(0.5, delta / camera_height_half_life))
-	camera_rig.position = camera_home
-	if player.settings.camera_shake:
-		camera_rig.position.x += sin(GameClock.elapsed * 137) * shake * .3
+	_apply_impact_camera(delta)
 	_draw_debug()
 
 

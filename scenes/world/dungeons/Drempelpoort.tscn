@@ -1,0 +1,18 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://scenes/components/ScenePortal.tscn" id="Portal"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/threshold_gate/Visual.tscn" id="Visual"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/threshold_gate/Collision.tscn" id="Collision"]
+[ext_resource type="Script" path="res://scripts/dungeons/threshold_gate.gd" id="Gate"]
+[ext_resource type="Script" path="res://scripts/dungeons/gate_return_point.gd" id="Return"]
+[ext_resource type="Resource" path="res://settings/transitions/dungeon.tres" id="Travel"]
+[node name="Drempelpoort" instance=ExtResource("Portal")]
+script = ExtResource("Gate")
+trigger_size = Vector3(1.5,2.65,0.55)
+settings = ExtResource("Travel")
+allow_loading_screen = false
+[node name="Visual" parent="." instance=ExtResource("Visual")]
+[node name="StoneCollision" parent="." instance=ExtResource("Collision")]
+[node name="ReturnPoint" type="Marker3D" parent="."]
+position = Vector3(0,0,2.0)
+rotation_degrees = Vector3(0,180,0)
+script = ExtResource("Return")

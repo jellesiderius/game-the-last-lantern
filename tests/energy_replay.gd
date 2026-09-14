@@ -90,27 +90,48 @@ func run() -> void:
 	await reset(origin)
 	await start("light")
 	await step(12)
-	var mat := p.feedback.slash.material_override as ShaderMaterial
+	var trail := p.visual.weapon.energy_trail
+	var mat := trail.material_override as ShaderMaterial
 	var color: Color = mat.get_shader_parameter("slash_color")
 	check("sunblade slash uses amber palette", color.g > .55 and color.b < .2, color)
 	check(
-		"visual radius equals damage radius",
-		is_equal_approx(mat.get_shader_parameter("radius"), p.visual.weapon.energy_radius())
+		"visible energy retains horizontal damage radius",
+		is_equal_approx(
+			(
+				Vector2(
+					p.visual.weapon.energy_tip.x - p.global_position.x,
+					p.visual.weapon.energy_tip.z - p.global_position.z
+				)
+				. length()
+			),
+			p.visual.weapon.energy_radius()
+		)
 	)
 	check(
-		"visual plane equals swept plane",
-		p.feedback.slash.basis.is_equal_approx(p.visual.weapon.swing_basis)
+		"ribbon follows actual sword and swept edge instead of a planar fan",
+		(
+			trail.visible
+			and not p.feedback.slash.visible
+			and not trail.samples.is_empty()
+			and trail.samples.back()[0].is_equal_approx(
+				p.visual.weapon.get_node("BladeBase").global_position
+			)
+			and trail.samples.back()[1].is_equal_approx(
+				p.visual.weapon.get_node("BladeTip").global_position
+			)
+			and trail.samples.back()[2].is_equal_approx(p.visual.weapon.energy_tip)
+		)
 	)
 	p.receive_hit(1, GameClock.next_attack_id(), p.position + Vector3.RIGHT)
 	await step(1)
 	check(
 		"hurt clears energy and trail",
-		not p.feedback.slash.visible and not p.visual.weapon.energy_primed
+		not trail.visible and trail.samples.is_empty() and not p.visual.weapon.energy_primed
 	)
 	arena.restart()
 	check(
 		"restart clears energy and active window",
-		not p.feedback.slash.visible and not p.active_window
+		not trail.visible and trail.samples.is_empty() and not p.active_window
 	)
 	var directions: Dictionary = {}
 	var poses: Dictionary = {}

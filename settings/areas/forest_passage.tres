@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="WorldArea" format=3]
+[ext_resource type="Script" path="res://scripts/world/world_area.gd" id="Script"]
+[resource]
+script = ExtResource("Script")
+code = &"forest.passage"
+scene_path = "res://scenes/levels/ForestPassage.tscn"

@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://devpvr6exyosx"]
+
+[ext_resource type="Texture2D" uid="uid://yqv18jqiy8hs" path="res://assets/environment/forest_materials/atlas.png" id="Atlas"]
+[ext_resource type="PackedScene" uid="uid://5r1l37smn1f4" path="res://assets/environment/forest_ground/model.glb" id="Model"]
+[ext_resource type="Shader" uid="uid://ccbiqac5yogua" path="res://shaders/forest_ground.gdshader" id="Shader"]
+
+[sub_resource type="ShaderMaterial" id="Surface"]
+render_priority = 0
+shader = ExtResource("Shader")
+shader_parameter/atlas = ExtResource("Atlas")
+
+[node name="ForestGround" type="Node3D" unique_id=406570399]
+
+[node name="Model" parent="." unique_id=1904187959 instance=ExtResource("Model")]
+
+[node name="Ground" parent="Model" index="0" unique_id=150584727]
+material_override = SubResource("Surface")
+
+[editable path="Model"]

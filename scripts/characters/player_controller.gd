@@ -1,6 +1,11 @@
 class_name PlayerCharacter
 extends CharacterBody3D
 signal state_changed(next: String)
+signal entrance_finished
+var entrance: EntranceSequence
+var entrance_launched := false
+var entrance_landed := false
+var entrance_landing_time := 0.0
 @export var settings: MovementSettings
 @export var moveset: CombatMoveset
 var definition: CharacterDefinition
@@ -73,8 +78,125 @@ func _enter_tree() -> void:
 		get_node("Health").maximum = definition.maximum_health
 
 
+var scene_travel_done := true
+var travel_direction := Vector3.FORWARD
+var travel_speed := 0.0
+var travel_distance := 0.0
+var travel_elapsed := 0.0
+var travel_timeout := 2.0
+
+
+func begin_scene_travel(direction: Vector3, speed: float, distance: float) -> void:
+	suspend_controls()
+	entrance = null
+	travel_direction = direction.normalized()
+	travel_speed = speed
+	travel_distance = distance
+	travel_elapsed = 0.0
+	travel_timeout = distance / maxf(speed, .1) + .8
+	scene_travel_done = false
+	_enter("scene_travel", "")
+
+
+func finish_scene_travel() -> void:
+	suspend_controls()
+	scene_travel_done = true
+	airborne_time = 0.0
+	_locomotion()
+
+
+func _update_scene_travel(delta: float) -> void:
+	if delta <= 0.0:
+		return
+	suspend_controls()
+	action_time += delta
+	travel_elapsed += delta
+	var moving := not scene_travel_done
+	var flat := Vector3(velocity.x, 0, velocity.z).move_toward(
+		travel_direction * travel_speed if moving else Vector3.ZERO, settings.acceleration * delta
+	)
+	velocity.x = flat.x
+	velocity.z = flat.z
+	velocity.y = -.2 if is_on_floor() else velocity.y - settings.gravity * delta
+	_face(travel_direction, delta)
+	var before := global_position
+	move_and_slide()
+	travel_distance -= Vector2(global_position.x - before.x, global_position.z - before.z).length()
+	# A blocked threshold never traps the transition in an endless walk animation.
+	if travel_distance <= .01 or travel_elapsed >= travel_timeout:
+		scene_travel_done = true
+	ground_feedback.sample_motion(delta, moving)
+	visual.sample("", 0, Vector2(velocity.x, velocity.z).length(), delta)
+
+
+var rest_point: Node3D
+var rest_already_lit := false
+var rest_destination := Vector3.ZERO
+
+
+func begin_rest_action(point: Node3D, already_lit: bool) -> void:
+	suspend_controls()
+	_clear_buffers()
+	rest_point = point
+	rest_already_lit = already_lit
+	var away := global_position - point.global_position
+	away.y = 0
+	if away.length_squared() < .01:
+		away = -facing
+	rest_destination = point.global_position + away.normalized() * point.rest_distance
+	_enter("rest_approach", "")
+
+
+func _update_rest_action(delta: float) -> void:
+	if delta <= 0:
+		return
+	if not is_instance_valid(rest_point):
+		Checkpoints.cancel_rest.call_deferred()
+		return
+	suspend_controls()
+	action_time += delta
+	var toward := rest_point.global_position - global_position
+	toward.y = 0
+	_face(toward.normalized(), delta)
+	if state == "rest_approach":
+		var distance := rest_destination - global_position
+		distance.y = 0
+		var speed := minf(2.0, distance.length() / maxf(delta, .001))
+		velocity = distance.normalized() * speed + Vector3.DOWN * .2
+		move_and_slide()
+		visual.sample("", 0, speed, delta)
+		if distance.length() < .035 or action_time > 1.2:
+			velocity = Vector3.ZERO
+			_enter(
+				"rest_settle" if rest_already_lit else "kindle",
+				visual.rest_clip if rest_already_lit else visual.kindle_clip
+			)
+		return
+	velocity = Vector3.DOWN * .2
+	move_and_slide()
+	visual.sample(clip, action_time, 0.0, delta)
+	if state == "kindle":
+		rest_point.sample_ignition(action_time, visual.carried_light_origin())
+	if action_time >= (.55 if rest_already_lit else 2.25):
+		_enter("resting", visual.rest_clip)
+		Checkpoints.finish_sitting.call_deferred()
+
+
+func hold_rest_pose() -> void:
+	_enter("resting", visual.rest_clip)
+	visual.sample(clip, .55, 0.0, 0.0)
+
+
+func finish_rest_action() -> void:
+	rest_point = null
+	suspend_controls()
+	velocity = Vector3.ZERO
+	_locomotion()
+
+
 func _ready() -> void:
 	add_to_group("player")
+	GameProgress.apply_stats(self)
 	input_device = InputRouter.kind
 	visual.weapon.swing_connected.connect(_on_melee_connected)
 	feedback.configure(visual.weapon.definition)
@@ -104,7 +226,57 @@ func suspend_controls() -> void:
 		_locomotion()
 
 
+func begin_entrance(sequence: EntranceSequence) -> void:
+	suspend_controls()
+	entrance = sequence
+	entrance_launched = false
+	entrance_landed = false
+	entrance_landing_time = 0.0
+	velocity = Vector3.ZERO
+	facing = sequence.direction.normalized()
+	pivot.rotation.y = atan2(-facing.x, -facing.z)
+	var animation := sequence.animation
+	if not visual.animation_player.has_animation(animation):
+		animation = "idle"
+	_enter("entrance", animation)
+	visual.sample(clip, 0.0, 0.0, 0.0)
+
+
+func _update_entrance(delta: float) -> void:
+	if delta <= 0.0:
+		return
+	suspend_controls()
+	action_time += delta
+	if action_time >= entrance.takeoff_time and not entrance_launched:
+		entrance_launched = true
+		velocity = facing * entrance.horizontal_speed + Vector3.UP * entrance.jump_speed
+	if entrance_launched and not entrance_landed:
+		velocity.y -= settings.gravity * delta
+		var impact_speed := maxf(0.0, -velocity.y)
+		move_and_slide()
+		if is_on_floor() and action_time > entrance.takeoff_time + .12:
+			entrance_landed = true
+			entrance_landing_time = action_time
+			velocity = Vector3.ZERO
+			landed.emit(impact_speed)
+	else:
+		velocity = Vector3.DOWN * .2
+		move_and_slide()
+	if entrance_landed and not visual.landing_clip.is_empty():
+		visual.sample(visual.landing_clip, action_time - entrance_landing_time, 0.0, delta)
+	else:
+		visual.sample(clip, action_time, 0.0, delta)
+	if entrance_landed and action_time - entrance_landing_time >= entrance.landing_recovery:
+		entrance = null
+		airborne_time = 0.0
+		_locomotion()
+		InputRouter.block_gameplay_input()
+		entrance_finished.emit()
+
+
 func request_action(action: String, device := "keyboard") -> void:
+	if state in ["entrance", "scene_travel", "rest_approach", "kindle", "rest_settle", "resting"]:
+		return
 	next_aim_device = device
 	pending_inputs.append(action)
 
@@ -146,6 +318,17 @@ func _physics_process(_delta: float) -> void:
 			bow.aim_held = false
 			heavy_held = false
 			_locomotion()
+	if state in ["rest_approach", "kindle", "rest_settle"]:
+		_update_rest_action(GameClock.dt)
+		return
+	if state == "resting":
+		return
+	if state == "scene_travel":
+		_update_scene_travel(GameClock.dt)
+		return
+	if state == "entrance":
+		_update_entrance(GameClock.dt)
+		return
 	if not use_test_input and InputRouter.gameplay_input_blocked():
 		suspend_controls()
 		return
@@ -156,6 +339,8 @@ func _physics_process(_delta: float) -> void:
 				ranged_loadout.select_slot(slot)
 		if Input.is_action_just_pressed("interact") and state in ["locomotion", "bow_empty"]:
 			interaction.activate()
+			if Checkpoints.active:
+				return
 		if Input.is_action_just_pressed("dodge"):
 			request_action("dodge", input_device)
 		if Input.is_action_just_pressed("light"):
@@ -527,6 +712,7 @@ func attack_duration() -> float:
 func is_invulnerable() -> bool:
 	return (
 		invulnerability > 0
+		or state in ["scene_travel", "rest_approach", "kindle", "rest_settle", "resting"]
 		or (
 			state == "roll"
 			and action_time >= settings.roll_iframe_start
@@ -566,6 +752,8 @@ func _clear_buffers() -> void:
 
 
 func respawn(at := Vector3.ZERO) -> void:
+	rest_point = null
+	entrance = null
 	_clear_buffers()
 	airborne_time = 0.0
 	landing_time = -1.0

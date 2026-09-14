@@ -24,8 +24,10 @@ var debug_enabled := false
 var sweep_shape := CapsuleShape3D.new()
 var sweep_query := PhysicsShapeQueryParameters3D.new()
 var energy_primed := false
+var energy_tip := Vector3.ZERO
+var previous_energy_tip := Vector3.ZERO
 var previous_energy_angle := 0.0
-var previous_energy_origin := Vector3.ZERO
+@onready var energy_trail: BladeSweep = $EnergyBladeTrail
 var swing_basis := Basis.IDENTITY
 var swing_direction := -1.0
 var swing_half_angle := deg_to_rad(75.0)
@@ -62,6 +64,7 @@ func _ready() -> void:
 	trail.material_override = trail.material_override.duplicate()
 	trail.material_override.emission = definition.glow_color
 	$WeaponLight.light_color = definition.glow_color
+	energy_trail.configure(definition)
 
 
 func set_charge(charge: float) -> void:
@@ -160,6 +163,8 @@ func clear_swing() -> void:
 	debug_volumes.clear()
 	if trail_mesh:
 		trail_mesh.clear_surfaces()
+	if energy_trail:
+		energy_trail.clear()
 
 
 func prime() -> void:
@@ -179,6 +184,7 @@ func sample_hit(actor: Node3D, active: bool, phase := 0.0, facing := Vector3.FOR
 		prime()
 		trail_points.clear()
 		trail_mesh.clear_surfaces()
+		energy_trail.refresh()
 		return
 	if not primed:
 		prime()
@@ -198,13 +204,15 @@ func sample_hit(actor: Node3D, active: bool, phase := 0.0, facing := Vector3.FOR
 			)
 			_sweep_segment(actor, space, a, b)
 	if energy_radius() > 0.0:
-		_sample_energy(actor, space, phase, facing)
+		_sample_energy(actor, space, facing)
+		energy_trail.sample_blade(base, tip, energy_tip, impact_power > 1.5)
 	for i in blade_samples.size():
 		previous_samples[i] = blade_samples[i].global_position
-	trail_points.append([base, tip])
-	if trail_points.size() > 7:
-		trail_points.pop_front()
-	_draw_trail()
+	if energy_radius() <= 0.0:
+		trail_points.append([base, tip])
+		if trail_points.size() > 7:
+			trail_points.pop_front()
+		_draw_trail()
 	last_base = base
 	last_tip = tip
 
@@ -227,31 +235,43 @@ func energy_local_point(angle: float, radius: float) -> Vector3:
 	return swing_basis * Vector3(sin(angle) * radius, 0, -cos(angle) * radius)
 
 
-func _sample_energy(
-	actor: Node3D, space: PhysicsDirectSpaceState3D, phase: float, facing: Vector3
-) -> void:
-	var angle := energy_angle(phase)
-	var origin := actor.global_position + Vector3.UP * energy_height()
+func _sample_energy(actor: Node3D, space: PhysicsDirectSpaceState3D, facing: Vector3) -> void:
+	var base: Vector3 = $BladeBase.global_position
+	var tip: Vector3 = $BladeTip.global_position
 	var aim_basis := Basis(Vector3.UP, atan2(-facing.x, -facing.z))
+	var local_tip := aim_basis.inverse() * (tip - actor.global_position)
+	# Follow the evaluated bone pose, including its real speed and slope. Keep the
+	# extension in the forward sector, at the existing horizontal damage radius.
+	var angle := clampf(atan2(local_tip.x, -local_tip.z), -swing_half_angle, swing_half_angle)
+	var blade_axis := tip - base
+	var slope := clampf(
+		blade_axis.y / maxf(Vector2(blade_axis.x, blade_axis.z).length(), .05), -.364, .364
+	)
+	var extension := maxf(0.0, energy_radius() - Vector2(local_tip.x, local_tip.z).length())
+	var height := maxf(.10, local_tip.y + slope * extension)
+	# Some interpolated arm poses briefly recoil within an otherwise one-way light
+	# cut. Do not amplify that single sample into a backwards fold in the energy.
+	# The physical blade still follows its pose; both energy damage and rendering
+	# use this same continuous leading edge.
+	if energy_primed and swing_style and (angle - previous_energy_angle) * swing_direction < 0.0:
+		angle = previous_energy_angle
+		height = previous_energy_tip.y - actor.global_position.y
+	energy_tip = (
+		actor.global_position
+		+ aim_basis * Vector3(sin(angle) * energy_radius(), height, -cos(angle) * energy_radius())
+	)
 	if not energy_primed:
-		previous_energy_angle = energy_angle(0.0)
-		previous_energy_origin = origin
+		previous_energy_tip = energy_tip
 		energy_primed = true
-	# Sweep the moving leading edge, not a permanent overlap of the entire fan.
-	# The fading arc behind it is only a visual trail, sharing this exact head angle.
-	var travel := absf(angle - previous_energy_angle) * energy_radius()
-	travel += origin.distance_to(previous_energy_origin)
+	# The actual blade is already swept above. This visible continuation shares its
+	# attack ID and target deduplication; the fading history never deals damage.
+	var travel := maxf(energy_tip.distance_to(previous_energy_tip), tip.distance_to(last_tip))
 	var steps := maxi(1, ceili(travel / .07))
 	for i in range(steps + 1):
 		var t := float(i) / steps
-		var sweep_angle := lerpf(previous_energy_angle, angle, t)
-		var ray_direction := aim_basis * energy_local_point(sweep_angle, 1.0)
-		var center := previous_energy_origin.lerp(origin, t)
-		_sweep_segment(
-			actor, space, center + ray_direction * .3, center + ray_direction * energy_radius()
-		)
+		_sweep_segment(actor, space, last_tip.lerp(tip, t), previous_energy_tip.lerp(energy_tip, t))
+	previous_energy_tip = energy_tip
 	previous_energy_angle = angle
-	previous_energy_origin = origin
 
 
 func _sweep_segment(

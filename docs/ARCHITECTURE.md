@@ -14,6 +14,7 @@ De scene bezit de onderdelen; gameplaycode verandert hun toestand. Imports zitte
 | `CombatMoveset` / `AttackDefinition` | Benoemde meleeclips, voorbereiding, actieve duur, herstel en schade; bewerkbaar in `default_melee.tres` |
 | `CharacterVisual` | Handmatig gesamplede AnimationTree, botblends, hand-/rugsocket en zichtbaarheid van de twee wapentypes |
 | `MeleeWeapon` | Het echte lemmetpad en optionele zichtbare energievoorrand sweepen, doelen per zwaai dedupliceren en één `swing_connected`-signaal versturen |
+| `BladeSweep` | Korte zichtbare geschiedenis van de werkelijke lemmetbasis, punt en energie-eindpunt; gebruikt GameClock en veroorzaakt zelf geen schade |
 | `BowCombat` / `BowSettings` | Booginvoer en regels, gestuurd door dezelfde playerstate/actietijd; afvuurpunt, korte richtlijn en projectielaanmaak |
 | `MagicComponent` | Begrensde voorraad, atomaire `try_spend`, herstel en feedbacksignalen; geen automatische regeneratie |
 | `MagicArrow` | Rechte beweging, volledige trajectray per physicsstap, eerste treffer, opruimen bij afstandslimiet |
@@ -69,7 +70,7 @@ Het pauzemenu kent Game/Controls/Settings, schouderknoppen voor tabs, expliciete
 
 ## Speelbare typen en geladen slagen
 
-Een nieuw speelbaar type krijgt `assets/characters/<id>/{source.blend,model.glb}`, een visuele wrapper in `scenes/assets/characters/<id>/Visual.tscn` en een `CharacterDefinition` in `settings/characters/`. Registreer die alleen in GameSession wanneer meerdere speelbare typen weer gewenst zijn; momenteel opent New Game vanuit TitleScreen één rode panda in PrototypeRoom; direct starten blijft mogelijk. CharacterSelect is historisch. De wrapper levert Skeleton3D, AnimationPlayer, SwordAttachment, BowAttachment en BowDrawAttachment met het gedeelde socketcontract. De speler kent geen GLB-botpad of vogel-/zoogdierbranch. `stow_at_rest` en natuurlijke stapcyclus-snelheden staan op de visual.
+Een nieuw speelbaar type krijgt `assets/characters/<id>/{source.blend,model.glb}`, een visuele wrapper in `scenes/assets/characters/<id>/Visual.tscn` en een `CharacterDefinition` in `settings/characters/`. Registreer die alleen in GameSession wanneer meerdere speelbare typen weer gewenst zijn; momenteel opent New Game vanuit TitleScreen één rode panda in ForestOpening; direct starten blijft mogelijk. CharacterSelect is historisch. De wrapper levert Skeleton3D, AnimationPlayer, SwordAttachment, BowAttachment en BowDrawAttachment met het gedeelde socketcontract. De speler kent geen GLB-botpad of vogel-/zoogdierbranch. `stow_at_rest` en natuurlijke stapcyclus-snelheden staan op de visual.
 
 GameSession initialiseert zijn standaardprofiel en eventuele `--character=<id>` al in `_init()`. Een direct gestart level kan `_enter_tree()` bereiken vóór de autoload-`_ready()`; een pas daar ingevulde keuze was te laat. Selectie, herstart en menuovergangen worden apart getest.
 
@@ -82,6 +83,8 @@ InputRouter schakelt eventaccumulatie uit voor directere aim-/triggerinput. Volg
 ## Huidige miniature room
 
 PrototypeRoom erft de gedeelde arena-feedback en levert eigen grenzen, respawn en cameravolging. Het level bestaat uit opgeslagen asset-instances; author_room.py is uitsluitend offline tooling. Grondvoetafdrukken zijn niet overlappend, colliders zijn doorlopend en de vier treden hebben een hellingcollider. De ruimte is 32 × 32 m, camera size 13 m met vaste 50°/45° kijkrichting.
+
+Alle levelcamera's passen na het volgen dezelfde `_apply_impact_camera()` uit `arena.gd` toe. TestArena, PrototypeRoom, ForestOpening, ForestPassage en ForestHouse krijgen zo automatisch dezelfde cameratrilling bij treffers. De eerdere horizontale verzwakking tot 30% in de hoofdgame is verwijderd. De bestaande cameratrilling-instelling en GameClock-pauze blijven gerespecteerd.
 
 De cameravolging gebruikt exponentiële demping met een instelbare halfwaardetijd (horizontaal 0,12 s; verticaal 0,08 s). De gewichten komen uit `GameClock.dt`, zodat renderfrequentie, pauze en hitstop geen afzonderlijke cameraklok introduceren. De speler reageert direct; alleen de framing loopt iets achter. Het doel wordt vóór het dempen begrensd. `reset_camera()` wist die achterstand bij respawn/teleport. Het historische TestArena behoudt zijn eigen beperkte arena-framing. Er is geen extra vertraging in beweging of input.
 
@@ -96,3 +99,44 @@ CharacterVisual heeft optionele upright_accessory_paths voor gedragen props. Ze 
 De sunblade kan expliciet energie toevoegen aan het korte fysieke lemmet. MeleeWeapon bezit hiervoor straal, hoogte, 3D-basis en bewegende voorrand; CombatFeedback geeft precies die waarden door aan de opgeslagen slashscene. Willekeurige hoek-/breedtevariatie wordt één keer bij swingstart gekozen. Lichte slagrichting wisselt deterministisch over de combo-grens en kiest een passende botclip; de presentatieklok wordt per fase naar de gameplayklok geschaald. De grondgolf van heavy blijft cosmetisch. Zie `COMBAT_SWINGS.md`.
 
 MeleeSwingStyle koppelt echte linker/rechter clipvarianten aan vlak/helling en faseverhoudingen. De player bewaart geen lichte vervolgaanvallen; alleen een verse klik in het instelbare laatste herstel start direct. Charge-duur schaalt de volledige laadclip, onafhankelijk van de bronduur.
+
+## Bosopening en introductieactie
+
+`ForestOpening` gebruikt de bestaande camera/feedback uit PrototypeRoom en opgeslagen omgevingsinstances. `EntranceSequence` is een instelbare Resource; `PlayerCharacter` bezit de `entrance`-toestand, actietijd, echte sprongvelocity, zwaartekracht en landingsdetectie. De pose volgt dezelfde GameClock. Er is geen extra AnimationTree-state-machine of timer die controle of schade afhandelt. Pause/hitstop bevriezen ook water en vlinders; hurt/death behouden hun prioriteit. Na landing wordt invoer kort afgeschermd en verschijnt de compacte HUD. Restart begint op veilige grond.
+
+`forest_butterfly.gd` beweegt de vleugelgroepen van het opgeslagen GLB en de vluchtpositie met GameClock. `tools/forest/` is uitsluitend offline authoring: bronnen, export, precisie-geknipte niet-overlappende grond, colliders en alle plaatsingen worden vooraf opgeslagen. De grasranden delen hun exacte veelhoekgrens met de rotswanden.
+
+
+## Gedeelde dialogen en interactielabels
+
+`DialogueConversation` en `DialogueLine` zijn bewerkbare Resources onder `scripts/components`. `DialogueInteractable` specialiseert de bestaande `Interactable`: dezelfde afstandsselectie en wereld-zichttest werken voor NPC's, borden en inscripties. Alleen colliders van het aangesproken object zelf worden uitgesloten. `Prompt`, `Conversation`, `Interaction Radius`, `Facing Node` en `Turn Speed` zijn Inspector-velden; tekst is niet hardcoded in de HUD.
+
+De `Dialogue`-autoload instantieert de opgeslagen `scenes/ui/Dialogue.tscn`. Hij presenteert een lineaire reeks tekstblokken, gebruikt de bestaande `GameClock.paused` en de overgangsblokkade van InputRouter en laat de HUD het pauzemenu onderdrukken zolang een gesprek actief is. UI-tekstanimatie loopt op UI-tijd; er is geen extra gameplayclock. Het optionele naar-de-lezer-draaien blijft tijdens het gesprek alleen een visuele reactie. `conversation_finished` is een gebeurtenis voor verdere gameplay, geen rechtstreekse quest-/HUD-koppeling.
+
+`InteractionPrompt.tscn` projecteert een klein configureerbaar label naast de speler en toont de actieve interactieknop. `ForestKeeper` en `ForestWaymarker` zijn opgeslagen gebruiksvoorbeelden. Zie [DIALOGUE.md](DIALOGUE.md) voor beheren en koppelen.
+
+
+## Gedeelde sceneovergangen
+
+`ScenePortal` (Area3D) en `SceneSpawnPoint` (Marker3D) bevatten alleen de doorgangsconfiguratie. De blijvende `SceneTransit`-autoload regelt asynchroon laden en de fade. `SceneTravelSettings` is een Resource. `PlayerCharacter` bezit de tijdelijke `scene_travel`-toestand, loopafstand, collisionbeweging en animaties op GameClock; er is geen tweede gameplay-state-machine in een AnimationTree. Tijdens de zwarte laadfase staat dezelfde klok stil.
+
+De manager valideert de geïnstantieerde bestemming vóór verwijdering van de bronmap, neemt levens/magie mee en positioneert de speler op de benoemde marker. InputRouter schermt vertrek/aankomst af; de HUD behandelt de transit apart van een pauzemenu. Aankomst in een overlappende portal blijft geblokkeerd tot verlaten/herintreden. ForestOpening, ForestPassage en ForestHouse zijn actuele toepassingen; zie [SCENE_TRANSITIONS.md](SCENE_TRANSITIONS.md).
+
+
+`SceneTransit.change_scene()` is ook de gedeelde ingang voor New Game, Testscene en menulanceringen. De opgeslagen `LoadingScreen` gebruikt UI-tijd, terwijl GameClock de afgedekte gameplay pauzeert. De New Game-intro blijft bevroren tot de fade is verdwenen. `ScenePortal` vraagt vanaf een configureerbare afstand resource-prefetch aan. De manager dedupliceert achtergrondtaken en bewaart maximaal drie recente PackedScenes; de huidige map en actieve bestemming worden beschermd. Er worden tijdens voorladen geen live actors aangemaakt. Gewone portals hebben `allow_loading_screen=false`; de huisdeuren gebruiken bovendien het korte deurprofiel zonder black hold. Alleen een expliciete grote overgang kan de laadkaart inschakelen. Zie [LOADING_SCREEN.md](LOADING_SCREEN.md).
+
+
+## Vuurlelie, rusten en opgeslagen spellen
+
+`SaveStore` verzorgt alleen schijftransacties. `GameProgress` bezit het actuele slot en de live voortgang. `Checkpoints` coördineert de rustactie en controleert het blijvende checkpoint-ID in het doelgebied voordat SceneTransit de oude scene vrijgeeft. Doodgaan gebruikt een kopie van de actuele data; alleen expliciet laden leest een slot van schijf. Hierdoor draait een dood nieuwe wereldflags, inventaris of skills niet terug.
+
+Een Vuurlelie is één opgeslagen scene. Area-resources onder settings/areas koppelen blijvende gebiedscodes aan scenes. Editorhelpers geven nieuwe geplaatste instanties een willekeurige code, ontdekken het gebied en tonen instelfouten. Verplaatsen en hernoemen veranderen de identiteit niet. De speler bezit de actietijd voor benaderen/kindle/zitten; de bloem leest die tijd voor de bladen en het overstekende vonkje. De optionele clips en lamp-emitter staan op CharacterVisual, zonder panda-botpaden in de gedeelde controller.
+
+Plaatsnemen opent alleen het menu. Rusten herstelt de meters, vervangt het checkpoint en vernieuwt gewone vijanden achter de bestaande, volledig dekkende scenefade. Permanent verslagen vijanden blijven weg. Daarna wordt het actuele slot veilig opgeslagen. De vaste UI toont alleen Rusten/Verdergaan en houdt dezelfde knopmaten bij disabled/focus. `SaveIndicator` luistert uitsluitend naar geslaagde schrijfacties en wacht tot de overgang weg is. Instellingen, schema, fouten en herstel: [VUURLELIE.md](VUURLELIE.md).
+
+
+## Drempelpoorten en dungeonroutes
+
+`ThresholdGate` en `DungeonExit` specialiseren de bestaande `ScenePortal`; `DungeonDefinition` levert identiteit, bestemming, ingang en eenmalige loot. `DungeonTravel` bewaart terugkeerroutes en voltooiing in de huidige savewereld. Alleen de speler start een overgang, ook tijdens een rol. De gedeelde `SceneTransit` valideert aankomstpunten vóór scenevervanging en blokkeert dubbele verzoeken/invoer. De dynamische `SceneSpawnPoint.spawn_key()` laat een poortmarker de blijvende poort-ID gebruiken zonder afhankelijk te zijn van `_ready()` tijdens validatie.
+
+`PortalAbsorption` is uitsluitend presentatie: vooraf voorbereide oorspronkelijke materialen, gezamenlijke transparantie en afbouw van gedragen licht. Silhouetten, schaduw en voetstof reizen niet zichtbaar door het portaal. De actor blijft zijn bestaande `scene_travel`-beweging uitvoeren. Het vooraf tekenen van de materiaalvarianten valt binnen de laadvoorbereiding. Fouten herstellen de oorspronkelijke materialen en plaatsen de speler weer vóór de poort. Dungeonpoorten en huisdeuren gebruiken een korte fade zonder laadscherm; New Game behoudt zijn laadscherm. Zie [DREMPELPOORT.md](DREMPELPOORT.md).

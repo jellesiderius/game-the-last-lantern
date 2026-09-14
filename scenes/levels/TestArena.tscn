@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/actors/npcs/friendly/TrainingDummy.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/actors/npcs/enemy/AcornGuard.tscn" id="4_wk3x3"]
 [ext_resource type="PackedScene" path="res://scenes/actors/npcs/enemy/PracticeEnemy.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_butterfly/Visual.tscn" id="5_iwryf"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/GroundTile.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/assets/environment/LowWall.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="8"]
@@ -267,6 +268,9 @@ enemy = false
 [node name="AcornGuard7" parent="Modules" unique_id=1054133523 instance=ExtResource("4_wk3x3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.3464136, 0.06299944, 3.2527218)
 enemy = false
+
+[node name="forest_butterfly" parent="Modules" unique_id=1620614357 instance=ExtResource("5_iwryf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1991358, 0.7294761, 3.7999468)
 
 [node name="Player" parent="." unique_id=1600863638 instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.2)

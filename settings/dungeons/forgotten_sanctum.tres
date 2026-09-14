@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DungeonDefinition" format=3]
+[ext_resource type="Script" path="res://scripts/dungeons/dungeon_definition.gd" id="Script"]
+[resource]
+script = ExtResource("Script")
+id = &"forgotten_sanctum"
+display_name = "Vergeten heiligdom"
+scene_path = "res://scenes/levels/ForgottenSanctum.tscn"
+entrance = &"DungeonEntrance"
+completion_loot = Dictionary[String, int]({"lantern_shard": 1})

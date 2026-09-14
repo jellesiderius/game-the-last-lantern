@@ -1,0 +1,21 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/world/forest_keeper.gd" id="Keeper"]
+[ext_resource type="PackedScene" path="res://scenes/assets/characters/capybara/Visual.tscn" id="Visual"]
+[ext_resource type="Script" path="res://scripts/components/dialogue_interactable.gd" id="Interaction"]
+[ext_resource type="Resource" path="res://settings/dialogue/forest_keeper.tres" id="Conversation"]
+[sub_resource type="CapsuleShape3D" id="Body"]
+radius = 0.34
+height = 1.3
+[node name="ForestKeeper" type="StaticBody3D"]
+script = ExtResource("Keeper")
+[node name="CharacterVisual" parent="." instance=ExtResource("Visual")]
+[node name="Shape" type="CollisionShape3D" parent="."]
+position = Vector3(0,0.65,0)
+shape = SubResource("Body")
+[node name="Conversation" type="Node3D" parent="."]
+position = Vector3(0,0,0)
+script = ExtResource("Interaction")
+prompt = "Praten"
+interaction_radius = 2.0
+conversation = ExtResource("Conversation")
+facing_node = NodePath("../CharacterVisual")

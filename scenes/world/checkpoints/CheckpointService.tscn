@@ -1,0 +1,8 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/core/checkpoints.gd" id="Script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/RestMenu.tscn" id="Menu"]
+[node name="Checkpoints" type="Node"]
+script = ExtResource("Script")
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 40
+[node name="RestMenu" parent="UI" instance=ExtResource("Menu")]

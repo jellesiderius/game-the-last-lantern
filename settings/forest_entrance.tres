@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="EntranceSequence" format=3]
+[ext_resource type="Script" path="res://scripts/characters/entrance_sequence.gd" id="Sequence"]
+[resource]
+script = ExtResource("Sequence")
+takeoff_time = 2.55
+landing_recovery = 0.32
+direction = Vector3(0, 0, 1)
+horizontal_speed = 3.2
+jump_speed = 3.5

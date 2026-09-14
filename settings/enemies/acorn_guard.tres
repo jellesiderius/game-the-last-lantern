@@ -10,9 +10,9 @@
 script = ExtResource("Beat")
 start_range = 0.83
 clip = &"strike"
-windup = 0.42
-active_duration = 0.16
-recovery = 0.34
+windup = 0.68
+active_duration = 0.2
+recovery = 0.8
 enemy_contact_fraction = 0.45
 
 [sub_resource type="Resource" id="LungeSwing"]
@@ -23,9 +23,9 @@ lunge = 0.65
 windup_clip = &"lunge_windup"
 recovery_clip = &"lunge_recover"
 clip = &"lunge_strike"
-windup = 0.56
+windup = 0.76
 active_duration = 0.22
-recovery = 0.5
+recovery = 0.9
 enemy_contact_fraction = 0.4
 
 [sub_resource type="Resource" id="GroundMovement"]

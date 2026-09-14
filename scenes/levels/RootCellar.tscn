@@ -1,0 +1,186 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/dungeons/dungeon_room.gd" id="World"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="Player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="HUD"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="Spark"]
+[ext_resource type="AudioStream" path="res://assets/audio/impact.wav" id="Sound"]
+[ext_resource type="PackedScene" path="res://scenes/world/dungeons/DungeonExit.tscn" id="Exit"]
+[ext_resource type="PackedScene" path="res://scenes/world/dungeons/Drempelpoort.tscn" id="Gate"]
+[ext_resource type="Script" path="res://scripts/world/scene_spawn_point.gd" id="Spawn"]
+[ext_resource type="Resource" path="res://settings/dungeons/root_cellar.tres" id="Dungeon"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npcs/enemy/AcornGuard.tscn" id="Enemy"]
+[sub_resource type="Environment" id="Environment"]
+background_mode = 1
+background_color = Color(0.045,0.066,0.068,1)
+ambient_light_source = 2
+ambient_light_color = Color(0.58,0.67,0.72,1)
+ambient_light_energy = 0.65
+tonemap_mode = 2
+ssao_enabled = true
+glow_enabled = true
+glow_intensity = 0.75
+reflected_light_source = 2
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.31,0.30,0.23,1)
+roughness = 0.91
+[sub_resource type="StandardMaterial3D" id="WallMaterial"]
+albedo_color = Color(0.27,0.28,0.20,1)
+roughness = 0.88
+[sub_resource type="BoxMesh" id="Foundation"]
+size = Vector3(14,0.5,18)
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(14,0.5,18)
+[sub_resource type="BoxMesh" id="SideWall"]
+size = Vector3(0.65,2.5,18)
+[sub_resource type="BoxShape3D" id="SideShape"]
+size = Vector3(0.65,2.5,18)
+[sub_resource type="BoxMesh" id="EndWall"]
+size = Vector3(14,2.5,0.65)
+[sub_resource type="BoxShape3D" id="EndShape"]
+size = Vector3(14,2.5,0.65)
+[sub_resource type="BoxMesh" id="CutawayWall"]
+size = Vector3(14,0.55,0.65)
+[sub_resource type="CylinderMesh" id="Column"]
+top_radius = 0.43
+bottom_radius = 0.5
+height = 2.25
+radial_segments = 8
+[sub_resource type="CylinderShape3D" id="ColumnShape"]
+radius = 0.47
+height = 2.25
+[node name="RootCellar" type="Node3D"]
+script = ExtResource("World")
+spawn_position = Vector3(0,0,4.7)
+camera_min = Vector2(-2.5,-4.2)
+camera_max = Vector2(2.5,4.3)
+dungeon = ExtResource("Dungeon")
+required_enemies = Array[NodePath]([NodePath("Wachter1"),NodePath("Wachter2")])
+[node name="Player" parent="." instance=ExtResource("Player")]
+position = Vector3(0,0,4.7)
+[node name="CameraRig" type="Node3D" parent="."]
+transform = Transform3D(0.7071069,-0.54167527,0.4545192,0,0.64278734,0.7660447,-0.70710665,-0.54167545,0.45451936,0,0.65,4)
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+position = Vector3(0,0,30)
+projection = 1
+current = true
+size = 13.0
+far = 120.0
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55,-32,0)
+light_color = Color(1,0.88,0.7,1)
+light_energy = 0.75
+shadow_enabled = true
+shadow_blur = 2.0
+directional_shadow_max_distance = 70.0
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+[node name="HUD" parent="." instance=ExtResource("HUD")]
+[node name="DebugVolumes" type="MeshInstance3D" parent="."]
+[node name="ImpactPool" type="Node3D" parent="."]
+[node name="Spark0" parent="ImpactPool" instance=ExtResource("Spark")]
+[node name="Spark1" parent="ImpactPool" instance=ExtResource("Spark")]
+[node name="Spark2" parent="ImpactPool" instance=ExtResource("Spark")]
+[node name="Spark3" parent="ImpactPool" instance=ExtResource("Spark")]
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("Sound")
+volume_db = -8.0
+max_distance = 30.0
+[node name="DungeonEntrance" type="Marker3D" parent="."]
+position = Vector3(0,0,4.7)
+script = ExtResource("Spawn")
+spawn_id = &"DungeonEntrance"
+[node name="Floor" type="StaticBody3D" parent="."]
+position = Vector3(0,-0.25,0)
+[node name="Mesh" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("Foundation")
+material_override = SubResource("FloorMaterial")
+[node name="Shape" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("FloorShape")
+[node name="WestWall" type="StaticBody3D" parent="."]
+position = Vector3(-7,1.25,0)
+[node name="Mesh" type="MeshInstance3D" parent="WestWall"]
+mesh = SubResource("SideWall")
+material_override = SubResource("WallMaterial")
+[node name="Shape" type="CollisionShape3D" parent="WestWall"]
+shape = SubResource("SideShape")
+[node name="EastWall" type="StaticBody3D" parent="."]
+position = Vector3(7,1.25,0)
+[node name="Mesh" type="MeshInstance3D" parent="EastWall"]
+mesh = SubResource("SideWall")
+material_override = SubResource("WallMaterial")
+[node name="Shape" type="CollisionShape3D" parent="EastWall"]
+shape = SubResource("SideShape")
+[node name="NorthWall" type="StaticBody3D" parent="."]
+position = Vector3(0,1.25,-9)
+[node name="Mesh" type="MeshInstance3D" parent="NorthWall"]
+mesh = SubResource("EndWall")
+material_override = SubResource("WallMaterial")
+[node name="Shape" type="CollisionShape3D" parent="NorthWall"]
+shape = SubResource("EndShape")
+[node name="SouthWall" type="StaticBody3D" parent="."]
+position = Vector3(0,0.275,9)
+[node name="Mesh" type="MeshInstance3D" parent="SouthWall"]
+mesh = SubResource("CutawayWall")
+material_override = SubResource("WallMaterial")
+[node name="Shape" type="CollisionShape3D" parent="SouthWall"]
+shape = SubResource("EndShape")
+[node name="Uitgang" parent="." instance=ExtResource("Exit")]
+position = Vector3(0,0,6.5)
+rotation_degrees = Vector3(0,180,0)
+dungeon = ExtResource("Dungeon")
+[node name="Wachter1" parent="." instance=ExtResource("Enemy")]
+position = Vector3(-1.8,0,-1)
+respawn_rule = 1
+persistent_id = &"dungeon.root_cellar.guard1"
+[node name="Wachter2" parent="." instance=ExtResource("Enemy")]
+position = Vector3(1.8,0,-3.0)
+respawn_rule = 1
+persistent_id = &"dungeon.root_cellar.guard2"
+[node name="Column0" type="StaticBody3D" parent="."]
+position = Vector3(-5,1.125,-6)
+[node name="Mesh" type="MeshInstance3D" parent="Column0"]
+mesh = SubResource("Column")
+material_override = SubResource("WallMaterial")
+[node name="Shape" type="CollisionShape3D" parent="Column0"]
+shape = SubResource("ColumnShape")
+[node name="Lamp" type="OmniLight3D" parent="Column0"]
+position = Vector3(0,1.2,0)
+light_color = Color(1,0.65,0.25,1)
+light_energy = 0.8
+omni_range = 4.0
+[node name="Column1" type="StaticBody3D" parent="."]
+position = Vector3(5,1.125,-6)
+[node name="Mesh" type="MeshInstance3D" parent="Column1"]
+mesh = SubResource("Column")
+material_override = SubResource("WallMaterial")
+[node name="Shape" type="CollisionShape3D" parent="Column1"]
+shape = SubResource("ColumnShape")
+[node name="Lamp" type="OmniLight3D" parent="Column1"]
+position = Vector3(0,1.2,0)
+light_color = Color(1,0.65,0.25,1)
+light_energy = 0.8
+omni_range = 4.0
+[node name="Column2" type="StaticBody3D" parent="."]
+position = Vector3(-5,1.125,2)
+[node name="Mesh" type="MeshInstance3D" parent="Column2"]
+mesh = SubResource("Column")
+material_override = SubResource("WallMaterial")
+[node name="Shape" type="CollisionShape3D" parent="Column2"]
+shape = SubResource("ColumnShape")
+[node name="Lamp" type="OmniLight3D" parent="Column2"]
+position = Vector3(0,1.2,0)
+light_color = Color(1,0.65,0.25,1)
+light_energy = 0.8
+omni_range = 4.0
+[node name="Column3" type="StaticBody3D" parent="."]
+position = Vector3(5,1.125,2)
+[node name="Mesh" type="MeshInstance3D" parent="Column3"]
+mesh = SubResource("Column")
+material_override = SubResource("WallMaterial")
+[node name="Shape" type="CollisionShape3D" parent="Column3"]
+shape = SubResource("ColumnShape")
+[node name="Lamp" type="OmniLight3D" parent="Column3"]
+position = Vector3(0,1.2,0)
+light_color = Color(1,0.65,0.25,1)
+light_energy = 0.8
+omni_range = 4.0

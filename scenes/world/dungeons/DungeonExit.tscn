@@ -1,0 +1,13 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://scenes/components/ScenePortal.tscn" id="Portal"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/threshold_gate/Visual.tscn" id="Visual"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/threshold_gate/Collision.tscn" id="Collision"]
+[ext_resource type="Script" path="res://scripts/dungeons/dungeon_exit.gd" id="Exit"]
+[ext_resource type="Resource" path="res://settings/transitions/dungeon.tres" id="Travel"]
+[node name="DungeonExit" instance=ExtResource("Portal")]
+script = ExtResource("Exit")
+trigger_size = Vector3(1.5,2.65,0.55)
+settings = ExtResource("Travel")
+allow_loading_screen = false
+[node name="Visual" parent="." instance=ExtResource("Visual")]
+[node name="StoneCollision" parent="." instance=ExtResource("Collision")]

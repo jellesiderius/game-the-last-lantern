@@ -1,0 +1,151 @@
+[gd_scene format=3 uid="uid://chtq37qvdosuy"]
+
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_butterfly/Visual.tscn" id="forest_butterfly"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_cliff/Visual.tscn" id="forest_cliff"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_fence/Visual.tscn" id="forest_fence"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_fern/Visual.tscn" id="forest_fern"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_blue/Visual.tscn" id="forest_flowers_blue"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_cream/Visual.tscn" id="forest_flowers_cream"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_gate/Visual.tscn" id="forest_gate"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_hollow_log/Visual.tscn" id="forest_hollow_log"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_lily/Visual.tscn" id="forest_lily"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_mushrooms/Visual.tscn" id="forest_mushrooms"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_oak/Visual.tscn" id="forest_oak"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pebbles/Visual.tscn" id="forest_pebbles"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine/Visual.tscn" id="forest_pine"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine_b/Visual.tscn" id="forest_pine_b"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine_c/Visual.tscn" id="forest_pine_c"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_reeds/Visual.tscn" id="forest_reeds"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_rocks/Visual.tscn" id="forest_rocks"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_shrub/Visual.tscn" id="forest_shrub"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_stump/Visual.tscn" id="forest_stump"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_clearing/Visual.tscn" id="forest_tile_clearing"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_corner/Visual.tscn" id="forest_tile_corner"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_grass/Visual.tscn" id="forest_tile_grass"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_junction/Visual.tscn" id="forest_tile_junction"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_slope/Visual.tscn" id="forest_tile_slope"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_tile_straight/Visual.tscn" id="forest_tile_straight"]
+[ext_resource type="Script" uid="uid://chte6t6ai7pm5" path="res://tests/forest_asset_review.gd" id="Review"]
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.78, 0.74, 0.65, 1)
+roughness = 0.9
+
+[sub_resource type="PlaneMesh" id="FloorMesh"]
+material = SubResource("FloorMaterial")
+size = Vector2(60, 60)
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 1
+background_color = Color(0.78, 0.74, 0.65, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.75, 0.79, 0.77, 1)
+ambient_light_energy = 0.75
+tonemap_mode = 4
+ssao_enabled = true
+ssao_radius = 0.3
+ssao_intensity = 0.7
+
+[node name="ForestAssetGallery" type="Node3D" unique_id=536544890]
+script = ExtResource("Review")
+
+[node name="Assets" type="Node3D" parent="." unique_id=1674740570]
+
+[node name="forest_butterfly" parent="Assets" unique_id=1772871015 instance=ExtResource("forest_butterfly")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -10)
+
+[node name="forest_cliff" parent="Assets" unique_id=39701649 instance=ExtResource("forest_cliff")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -10)
+
+[node name="forest_fence" parent="Assets" unique_id=781865772 instance=ExtResource("forest_fence")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
+
+[node name="forest_fern" parent="Assets" unique_id=1218556290 instance=ExtResource("forest_fern")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -10)
+
+[node name="forest_flowers_blue" parent="Assets" unique_id=813912702 instance=ExtResource("forest_flowers_blue")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -10)
+
+[node name="forest_flowers_cream" parent="Assets" unique_id=1948906942 instance=ExtResource("forest_flowers_cream")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -5)
+
+[node name="forest_gate" parent="Assets" unique_id=124244833 instance=ExtResource("forest_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -5)
+
+[node name="forest_hollow_log" parent="Assets" unique_id=486124808 instance=ExtResource("forest_hollow_log")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5)
+
+[node name="forest_lily" parent="Assets" unique_id=954345794 instance=ExtResource("forest_lily")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -5)
+
+[node name="forest_mushrooms" parent="Assets" unique_id=415563791 instance=ExtResource("forest_mushrooms")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -5)
+
+[node name="forest_oak" parent="Assets" unique_id=201591393 instance=ExtResource("forest_oak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0)
+
+[node name="forest_pebbles" parent="Assets" unique_id=1248758524 instance=ExtResource("forest_pebbles")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 0)
+
+[node name="forest_pine" parent="Assets" unique_id=913588773 instance=ExtResource("forest_pine")]
+
+[node name="forest_pine_b" parent="Assets" unique_id=971188829 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
+
+[node name="forest_pine_c" parent="Assets" unique_id=1427235151 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 0)
+
+[node name="forest_reeds" parent="Assets" unique_id=1841027218 instance=ExtResource("forest_reeds")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 5)
+
+[node name="forest_rocks" parent="Assets" unique_id=534852582 instance=ExtResource("forest_rocks")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 5)
+
+[node name="forest_shrub" parent="Assets" unique_id=357364564 instance=ExtResource("forest_shrub")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
+
+[node name="forest_stump" parent="Assets" unique_id=1066924256 instance=ExtResource("forest_stump")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 5)
+
+[node name="forest_tile_clearing" parent="Assets" unique_id=863884667 instance=ExtResource("forest_tile_clearing")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.2, 5)
+
+[node name="forest_tile_corner" parent="Assets" unique_id=1880253799 instance=ExtResource("forest_tile_corner")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.2, 10)
+
+[node name="forest_tile_grass" parent="Assets" unique_id=207612335 instance=ExtResource("forest_tile_grass")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.2, 10)
+
+[node name="forest_tile_junction" parent="Assets" unique_id=194732366 instance=ExtResource("forest_tile_junction")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 10)
+
+[node name="forest_tile_slope" parent="Assets" unique_id=1892472777 instance=ExtResource("forest_tile_slope")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.2, 10)
+
+[node name="forest_tile_straight" parent="Assets" unique_id=1751099058 instance=ExtResource("forest_tile_straight")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.2, 10)
+
+[node name="Floor" type="MeshInstance3D" parent="." unique_id=233880709]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.005, 0)
+mesh = SubResource("FloorMesh")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1694369102]
+transform = Transform3D(0.7880108, -0.47162408, 0.39573961, 0, 0.64278764, 0.76604444, -0.6156615, -0.6036513, 0.5065236, 19, 29, 24)
+projection = 1
+current = true
+size = 31.0
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=624065923]
+transform = Transform3D(0.81915206, 0.4262504, -0.38379753, 0, 0.66913056, 0.74314487, 0.57357645, -0.6087487, 0.54811966, 0, 0, 0)
+light_color = Color(1, 0.93, 0.81, 1)
+light_energy = 0.8
+light_angular_distance = 0.8
+shadow_enabled = true
+
+[node name="Fill" type="DirectionalLight3D" parent="." unique_id=970750649]
+transform = Transform3D(-0.76604444, -0.32139382, 0.5566704, 0, 0.8660254, 0.5, -0.64278764, 0.38302222, -0.66341394, 0, 0, 0)
+light_color = Color(0.77, 0.83, 1, 1)
+light_energy = 0.22
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=637346303]
+environment = SubResource("Environment")

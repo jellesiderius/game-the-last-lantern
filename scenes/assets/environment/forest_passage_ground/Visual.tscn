@@ -1,0 +1,12 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://assets/environment/forest_passage_ground/model.glb" id="Model"]
+[ext_resource type="Shader" path="res://shaders/forest_ground.gdshader" id="Shader"]
+[ext_resource type="Texture2D" path="res://assets/environment/forest_materials/atlas.png" id="Atlas"]
+[sub_resource type="ShaderMaterial" id="Surface"]
+shader = ExtResource("Shader")
+shader_parameter/atlas = ExtResource("Atlas")
+[node name="ForestGround" type="Node3D"]
+[node name="Model" parent="." instance=ExtResource("Model")]
+[node name="Ground" parent="Model" index="0"]
+material_override = SubResource("Surface")
+[editable path="Model"]

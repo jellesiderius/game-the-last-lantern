@@ -1,0 +1,28 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_fence/Visual.tscn" id="Wood"]
+[ext_resource type="Script" path="res://scripts/components/dialogue_interactable.gd" id="Interaction"]
+[ext_resource type="Resource" path="res://settings/dialogue/forest_waymarker.tres" id="Conversation"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/EBGaramond.ttf" id="Font"]
+[sub_resource type="BoxShape3D" id="Body"]
+size = Vector3(1.38,0.8,0.15)
+[node name="Waymarker" type="StaticBody3D"]
+[node name="Wood" parent="." instance=ExtResource("Wood")]
+[node name="Shape" type="CollisionShape3D" parent="."]
+position = Vector3(0,0.4,0)
+shape = SubResource("Body")
+[node name="Inscription" type="Label3D" parent="."]
+position = Vector3(0,0.93,0)
+billboard = 1
+text = "↑  Bosuitgang"
+font = ExtResource("Font")
+font_size = 48
+pixel_size = 0.0038
+modulate = Color(1,0.89,0.65,1)
+outline_modulate = Color(0.08,0.12,0.09,1)
+outline_size = 8
+[node name="Conversation" type="Node3D" parent="."]
+position = Vector3(0,0,0.55)
+script = ExtResource("Interaction")
+prompt = "Lezen"
+interaction_radius = 1.9
+conversation = ExtResource("Conversation")

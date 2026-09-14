@@ -22,6 +22,13 @@ GameClock="*res://scripts/core/game_clock.gd"
 InputRouter="*res://scripts/core/input_router.gd"
 AttackTokenManager="*res://scripts/ai/attack_token_manager.gd"
 GameSession="*res://scripts/core/game_session.gd"
+Dialogue="*res://scenes/ui/Dialogue.tscn"
+SceneTransit="*res://scenes/ui/SceneTransit.tscn"
+SaveStore="*res://scripts/saves/save_store.gd"
+GameProgress="*res://scripts/saves/game_progress.gd"
+Checkpoints="*res://scenes/world/checkpoints/CheckpointService.tscn"
+DungeonTravel="*res://scripts/dungeons/dungeon_travel.gd"
+SaveIndicator="*res://scenes/ui/SaveIndicator.tscn"
 
 [display]
 

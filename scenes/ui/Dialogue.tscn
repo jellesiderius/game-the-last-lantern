@@ -1,0 +1,76 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/ui/dialogue_presenter.gd" id="Presenter"]
+[ext_resource type="FontFile" path="res://assets/ui/fonts/EBGaramond.ttf" id="Font"]
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.022, 0.075, 0.070, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.54, 0.43, 0.25, 0.65)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_left = 24
+corner_radius_bottom_right = 24
+shadow_color = Color(0,0,0,0.28)
+shadow_size = 14
+shadow_offset = Vector2(0,5)
+[node name="Dialogue" type="CanvasLayer"]
+layer = 20
+script = ExtResource("Presenter")
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+[node name="Panel" type="PanelContainer" parent="Root"]
+anchor_left = 0.14
+anchor_top = 1.0
+anchor_right = 0.86
+anchor_bottom = 1.0
+offset_top = -280.0
+offset_bottom = -54.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Panel")
+[node name="Margin" type="MarginContainer" parent="Root/Panel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_top = 17
+theme_override_constants/margin_bottom = 14
+[node name="Column" type="VBoxContainer" parent="Root/Panel/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+[node name="Speaker" type="Label" parent="Root/Panel/Margin/Column"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("Font")
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.88,0.70,0.39,1)
+[node name="Text" type="RichTextLabel" parent="Root/Panel/Margin/Column"]
+custom_minimum_size = Vector2(0,115)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 1
+theme_override_fonts/normal_font = ExtResource("Font")
+theme_override_font_sizes/normal_font_size = 28
+theme_override_colors/default_color = Color(0.96,0.92,0.80,1)
+bbcode_enabled = true
+scroll_active = true
+scroll_following = true
+[node name="Next" type="RichTextLabel" parent="Root/Panel/Margin/Column"]
+custom_minimum_size = Vector2(0,26)
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 17
+theme_override_colors/default_color = Color(0.83,0.72,0.48,1)
+bbcode_enabled = true
+fit_content = true
+scroll_active = false

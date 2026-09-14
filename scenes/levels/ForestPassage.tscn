@@ -1,0 +1,397 @@
+[gd_scene format=3 uid="uid://bmw7sgn7kxf60"]
+[ext_resource type="PackedScene" path="res://scenes/world/dungeons/Drempelpoort.tscn" id="ThresholdGate"]
+[ext_resource type="Resource" path="res://settings/dungeons/forgotten_sanctum.tres" id="Dungeon"]
+
+[ext_resource type="Resource" path="res://settings/areas/forest_passage.tres" id="Area"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/barrel/Visual.tscn" id="barrel"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/cottage/Visual.tscn" id="cottage"]
+[ext_resource type="Resource" path="res://settings/transitions/door.tres" id="DoorTravel"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_cliff/Visual.tscn" id="forest_cliff"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_fern/Visual.tscn" id="forest_fern"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_blue/Visual.tscn" id="forest_flowers_blue"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_cream/Visual.tscn" id="forest_flowers_cream"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_gate/Visual.tscn" id="forest_gate"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_hollow_log/Visual.tscn" id="forest_hollow_log"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_oak/Visual.tscn" id="forest_oak"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_passage_ground/Visual.tscn" id="forest_passage_ground"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine/Visual.tscn" id="forest_pine"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine_b/Visual.tscn" id="forest_pine_b"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine_c/Visual.tscn" id="forest_pine_c"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_shrub/Visual.tscn" id="forest_shrub"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="HUD"]
+[ext_resource type="PackedScene" path="res://scenes/assets/props/hand_lantern/Visual.tscn" id="Lantern"]
+[ext_resource type="PackedScene" path="res://scenes/world/checkpoints/Vuurlelie.tscn" id="Lily"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="Player"]
+[ext_resource type="PackedScene" path="res://scenes/components/ScenePortal.tscn" id="Portal"]
+[ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="Sound"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="Spark"]
+[ext_resource type="Script" uid="uid://baahi06eehkq4" path="res://scripts/world/scene_spawn_point.gd" id="Spawn"]
+[ext_resource type="Script" uid="uid://cxu6dbx243h4b" path="res://scripts/world/forest_passage.gd" id="World"]
+
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(26, 1.2, 28)
+
+[sub_resource type="BoxShape3D" id="Side_1Shape"]
+size = Vector3(0.7, 3, 28)
+
+[sub_resource type="BoxShape3D" id="Side1Shape"]
+size = Vector3(0.7, 3, 28)
+
+[sub_resource type="BoxShape3D" id="BackShape"]
+size = Vector3(18, 3, 0.7)
+
+[sub_resource type="BoxShape3D" id="South_1Shape"]
+size = Vector3(6.3, 3, 0.7)
+
+[sub_resource type="BoxShape3D" id="South1Shape"]
+size = Vector3(6.3, 3, 0.7)
+
+[sub_resource type="BoxShape3D" id="CottageShape"]
+size = Vector3(4.1, 2.4, 2.8)
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 1
+background_color = Color(0.025, 0.055, 0.05, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.56, 0.69, 0.63, 1)
+ambient_light_energy = 0.55
+tonemap_mode = 4
+tonemap_exposure = 1.3
+ssao_enabled = true
+ssao_radius = 0.4
+ssao_intensity = 0.7
+glow_enabled = true
+glow_intensity = 0.35
+
+[node name="ForestPassage" type="Node3D" unique_id=2084794674]
+script = ExtResource("World")
+spawn_position = Vector3(0, 0, 8.3)
+camera_min = Vector2(-5, -8)
+camera_max = Vector2(5, 11)
+
+[node name="Assets" type="Node3D" parent="." unique_id=932286610]
+
+[node name="forest_passage_ground1" parent="Assets" unique_id=1650833056 instance=ExtResource("forest_passage_ground")]
+
+[node name="forest_cliff2" parent="Assets" unique_id=153667853 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, 1.2, 0, 1.2, 0, -1.2, 0, -5.2453668e-08, -9.3, 0, -12)
+
+[node name="forest_pine3" parent="Assets" unique_id=1507235680 instance=ExtResource("forest_pine")]
+transform = Transform3D(1.051041, 0, 0, 0, 1.051041, 0, 0, 0, 1.051041, -9.731757, 1, -11.7)
+
+[node name="forest_cliff4" parent="Assets" unique_id=462033600 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, 1.2, 0, 1.2, 0, -1.2, 0, -5.2453668e-08, -9.3, 0, -9)
+
+[node name="forest_pine_c5" parent="Assets" unique_id=1947679354 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(0.95422304, 0, 0, 0, 0.95422304, 0, 0, 0, 0.95422304, -10.380705, 1, -8.7)
+
+[node name="forest_cliff6" parent="Assets" unique_id=1913818977 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, 1.2, 0, 1.2, 0, -1.2, 0, -5.2453668e-08, -9.3, 0, -6)
+
+[node name="forest_pine_b7" parent="Assets" unique_id=465647871 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(0.91452515, 0, 0, 0, 0.91452515, 0, 0, 0, 0.91452515, -9.082032, 1, -5.7)
+
+[node name="forest_cliff8" parent="Assets" unique_id=790143225 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, 1.2, 0, 1.2, 0, -1.2, 0, -5.2453668e-08, -9.3, 0, -3)
+
+[node name="forest_pine_b9" parent="Assets" unique_id=877886269 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(1.0368466, 0, 0, 0, 1.0368466, 0, 0, 0, 1.0368466, -9.105976, 1, -2.7)
+
+[node name="forest_cliff10" parent="Assets" unique_id=1609581710 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, 1.2, 0, 1.2, 0, -1.2, 0, -5.2453668e-08, -9.3, 0, 0)
+
+[node name="forest_pine_b11" parent="Assets" unique_id=200313663 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(1.0817846, 0, 0, 0, 1.0817846, 0, 0, 0, 1.0817846, -9.28762, 1, 0.3)
+
+[node name="forest_cliff12" parent="Assets" unique_id=301063554 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, 1.2, 0, 1.2, 0, -1.2, 0, -5.2453668e-08, -9.3, 0, 3)
+
+[node name="forest_pine_b13" parent="Assets" unique_id=834698557 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(1.0802926, 0, 0, 0, 1.0802926, 0, 0, 0, 1.0802926, -8.946532, 1, 3.3)
+
+[node name="forest_cliff14" parent="Assets" unique_id=1370762972 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, 1.2, 0, 1.2, 0, -1.2, 0, -5.2453668e-08, -9.3, 0, 6)
+
+[node name="forest_pine_b15" parent="Assets" unique_id=1705270719 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(0.972134, 0, 0, 0, 0.972134, 0, 0, 0, 0.972134, -10.115702, 1, 6.3)
+
+[node name="forest_cliff16" parent="Assets" unique_id=191845578 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, 1.2, 0, 1.2, 0, -1.2, 0, -5.2453668e-08, -9.3, 0, 9)
+
+[node name="forest_pine_c17" parent="Assets" unique_id=623745470 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(0.9299407, 0, 0, 0, 0.9299407, 0, 0, 0, 0.9299407, -9.763328, 1, 9.3)
+
+[node name="forest_cliff18" parent="Assets" unique_id=484340784 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, 1.2, 0, 1.2, 0, -1.2, 0, -5.2453668e-08, -9.3, 0, 12)
+
+[node name="forest_pine_c19" parent="Assets" unique_id=34061298 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(0.955066, 0, 0, 0, 0.955066, 0, 0, 0, 0.955066, -9.830864, 1, 12.3)
+
+[node name="forest_cliff20" parent="Assets" unique_id=1860076238 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, -1.2, 0, 1.2, 0, 1.2, 0, -5.2453668e-08, 9.3, 0, -12)
+
+[node name="forest_pine21" parent="Assets" unique_id=1886116012 instance=ExtResource("forest_pine")]
+transform = Transform3D(0.92460525, 0, 0, 0, 0.92460525, 0, 0, 0, 0.92460525, 9.803396, 1, -11.7)
+
+[node name="forest_cliff22" parent="Assets" unique_id=1426903113 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, -1.2, 0, 1.2, 0, 1.2, 0, -5.2453668e-08, 9.3, 0, -9)
+
+[node name="forest_pine_b23" parent="Assets" unique_id=548902053 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(0.9548109, 0, 0, 0, 0.9548109, 0, 0, 0, 0.9548109, 8.555575, 1, -8.7)
+
+[node name="forest_cliff24" parent="Assets" unique_id=62849577 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, -1.2, 0, 1.2, 0, 1.2, 0, -5.2453668e-08, 9.3, 0, -6)
+
+[node name="forest_pine_b25" parent="Assets" unique_id=1448792539 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(1.0980865, 0, 0, 0, 1.0980865, 0, 0, 0, 1.0980865, 9.307352, 1, -5.7)
+
+[node name="forest_cliff26" parent="Assets" unique_id=1693262655 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, -1.2, 0, 1.2, 0, 1.2, 0, -5.2453668e-08, 9.3, 0, -3)
+
+[node name="forest_pine_b27" parent="Assets" unique_id=729021229 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(0.91887885, 0, 0, 0, 0.91887885, 0, 0, 0, 0.91887885, 10.292823, 1, -2.7)
+
+[node name="forest_cliff28" parent="Assets" unique_id=1084876732 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, -1.2, 0, 1.2, 0, 1.2, 0, -5.2453668e-08, 9.3, 0, 0)
+
+[node name="forest_pine_c29" parent="Assets" unique_id=947861328 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(0.9223063, 0, 0, 0, 0.9223063, 0, 0, 0, 0.9223063, 9.873767, 1, 0.3)
+
+[node name="forest_cliff30" parent="Assets" unique_id=636920021 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, -1.2, 0, 1.2, 0, 1.2, 0, -5.2453668e-08, 9.3, 0, 3)
+
+[node name="forest_pine_c31" parent="Assets" unique_id=1268963609 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(0.9728515, 0, 0, 0, 0.9728515, 0, 0, 0, 0.9728515, 9.774835, 1, 3.3)
+
+[node name="forest_cliff32" parent="Assets" unique_id=877974422 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, -1.2, 0, 1.2, 0, 1.2, 0, -5.2453668e-08, 9.3, 0, 6)
+
+[node name="forest_pine33" parent="Assets" unique_id=1371046688 instance=ExtResource("forest_pine")]
+transform = Transform3D(0.99732554, 0, 0, 0, 0.99732554, 0, 0, 0, 0.99732554, 9.994007, 1, 6.3)
+
+[node name="forest_cliff34" parent="Assets" unique_id=1467056869 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, -1.2, 0, 1.2, 0, 1.2, 0, -5.2453668e-08, 9.3, 0, 9)
+
+[node name="forest_pine_c35" parent="Assets" unique_id=1633922091 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(0.9905202, 0, 0, 0, 0.9905202, 0, 0, 0, 0.9905202, 8.887677, 1, 9.3)
+
+[node name="forest_cliff36" parent="Assets" unique_id=1241966857 instance=ExtResource("forest_cliff")]
+transform = Transform3D(-5.2453668e-08, 0, -1.2, 0, 1.2, 0, 1.2, 0, -5.2453668e-08, 9.3, 0, 12)
+
+[node name="forest_pine37" parent="Assets" unique_id=1484329387 instance=ExtResource("forest_pine")]
+transform = Transform3D(0.95626503, 0, 0, 0, 0.95626503, 0, 0, 0, 0.95626503, 9.469478, 1, 12.3)
+
+[node name="forest_pine_b38" parent="Assets" unique_id=2053126142 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, -6, 0, -12.5)
+
+[node name="forest_pine_b39" parent="Assets" unique_id=1497166957 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, -3, 0, -12.5)
+
+[node name="forest_pine_b40" parent="Assets" unique_id=1802099879 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 0, 0, -12.5)
+
+[node name="forest_pine_b41" parent="Assets" unique_id=1894102280 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 3, 0, -12.5)
+
+[node name="forest_pine_b42" parent="Assets" unique_id=555439195 instance=ExtResource("forest_pine_b")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 6, 0, -12.5)
+
+[node name="forest_pine_c43" parent="Assets" unique_id=1243195721 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, -12, 0, 17.64)
+
+[node name="forest_cliff44" parent="Assets" unique_id=1478148991 instance=ExtResource("forest_cliff")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -12, 0, 14.5)
+
+[node name="forest_pine_c45" parent="Assets" unique_id=462421650 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, -9, 0, 17.28)
+
+[node name="forest_cliff46" parent="Assets" unique_id=1131932684 instance=ExtResource("forest_cliff")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -9, 0, 14.5)
+
+[node name="forest_pine_c47" parent="Assets" unique_id=417045544 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, -6, 0, 16.92)
+
+[node name="forest_cliff48" parent="Assets" unique_id=1316577631 instance=ExtResource("forest_cliff")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, -6, 0, 14.5)
+
+[node name="forest_pine_c49" parent="Assets" unique_id=520536994 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, -3, 0, 16.56)
+
+[node name="forest_pine_c50" parent="Assets" unique_id=1537242547 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 3, 0, 16.56)
+
+[node name="forest_pine_c51" parent="Assets" unique_id=749434374 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 6, 0, 16.92)
+
+[node name="forest_cliff52" parent="Assets" unique_id=1914898029 instance=ExtResource("forest_cliff")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 6, 0, 14.5)
+
+[node name="forest_pine_c53" parent="Assets" unique_id=1754662885 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 9, 0, 17.28)
+
+[node name="forest_cliff54" parent="Assets" unique_id=1166538857 instance=ExtResource("forest_cliff")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 9, 0, 14.5)
+
+[node name="forest_pine_c55" parent="Assets" unique_id=125687455 instance=ExtResource("forest_pine_c")]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 12, 0, 17.64)
+
+[node name="forest_cliff56" parent="Assets" unique_id=2081905890 instance=ExtResource("forest_cliff")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 12, 0, 14.5)
+
+[node name="forest_gate57" parent="Assets" unique_id=237598084 instance=ExtResource("forest_gate")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10.4)
+
+[node name="GateLantern" parent="Assets" unique_id=2011152940 instance=ExtResource("Lantern")]
+transform = Transform3D(1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 1.92, 10.4)
+
+[node name="Cottage" parent="Assets" unique_id=1662466425 instance=ExtResource("cottage")]
+transform = Transform3D(-1.35, 0, -1.1802075e-07, 0, 1.35, 0, 1.1802075e-07, 0, -1.35, 0, 0, -7)
+
+[node name="barrel59" parent="Assets" unique_id=1631239467 instance=ExtResource("barrel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 0, -4.9)
+
+[node name="forest_shrub60" parent="Assets" unique_id=1880946624 instance=ExtResource("forest_shrub")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8, 0, -7)
+
+[node name="forest_oak61" parent="Assets" unique_id=975491358 instance=ExtResource("forest_oak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -8)
+
+[node name="forest_hollow_log62" parent="Assets" unique_id=1347821651 instance=ExtResource("forest_hollow_log")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
+
+[node name="forest_fern63" parent="Assets" unique_id=880228311 instance=ExtResource("forest_fern")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 3)
+
+[node name="forest_flowers_blue64" parent="Assets" unique_id=2086023811 instance=ExtResource("forest_flowers_blue")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 5)
+
+[node name="forest_oak65" parent="Assets" unique_id=1295553185 instance=ExtResource("forest_oak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 6)
+
+[node name="forest_flowers_cream66" parent="Assets" unique_id=164949244 instance=ExtResource("forest_flowers_cream")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -3)
+
+[node name="Collision" type="Node3D" parent="." unique_id=1845166811]
+
+[node name="FloorBody" type="StaticBody3D" parent="Collision" unique_id=1167429863]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Collision/FloorBody" unique_id=715734639]
+shape = SubResource("FloorShape")
+
+[node name="Side-1Body" type="StaticBody3D" parent="Collision" unique_id=90509006]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.8, 1, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Collision/Side-1Body" unique_id=86809558]
+shape = SubResource("Side_1Shape")
+
+[node name="Side1Body" type="StaticBody3D" parent="Collision" unique_id=1060684477]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.8, 1, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Collision/Side1Body" unique_id=21870217]
+shape = SubResource("Side1Shape")
+
+[node name="BackBody" type="StaticBody3D" parent="Collision" unique_id=702514059]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -13)
+
+[node name="Shape" type="CollisionShape3D" parent="Collision/BackBody" unique_id=860668015]
+shape = SubResource("BackShape")
+
+[node name="South-1Body" type="StaticBody3D" parent="Collision" unique_id=1722454417]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 1, 13)
+
+[node name="Shape" type="CollisionShape3D" parent="Collision/South-1Body" unique_id=1457757859]
+shape = SubResource("South_1Shape")
+
+[node name="South1Body" type="StaticBody3D" parent="Collision" unique_id=1910932845]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, 1, 13)
+
+[node name="Shape" type="CollisionShape3D" parent="Collision/South1Body" unique_id=433236259]
+shape = SubResource("South1Shape")
+
+[node name="CottageBody" type="StaticBody3D" parent="Collision" unique_id=1658379731]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -7.15)
+
+[node name="Shape" type="CollisionShape3D" parent="Collision/CottageBody" unique_id=199456262]
+shape = SubResource("CottageShape")
+
+[node name="Player" parent="." unique_id=714808412 instance=ExtResource("Player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8.3)
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=1539839426]
+transform = Transform3D(0.7071069, -0.54167527, 0.4545192, 0, 0.64278734, 0.7660447, -0.70710665, -0.54167545, 0.45451936, 0, 1.8, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=2134374211]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
+projection = 1
+current = true
+size = 13.0
+far = 120.0
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=276854262]
+transform = Transform3D(0.8480481, 0.43408445, -0.3039492, 0, 0.57357645, 0.81915206, 0.52991927, -0.69468033, 0.48642042, 0, 0, 0)
+light_color = Color(1, 0.88, 0.68, 1)
+light_energy = 1.05
+shadow_enabled = true
+shadow_bias = 0.03
+shadow_blur = 3.0
+directional_shadow_max_distance = 70.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1540846295]
+environment = SubResource("Environment")
+
+[node name="HUD" parent="." unique_id=246876177 instance=ExtResource("HUD")]
+
+[node name="DebugVolumes" type="MeshInstance3D" parent="." unique_id=1676513412]
+
+[node name="ImpactPool" type="Node3D" parent="." unique_id=648783333]
+
+[node name="Spark0" parent="ImpactPool" unique_id=1013001662 instance=ExtResource("Spark")]
+
+[node name="Spark1" parent="ImpactPool" unique_id=1267333432 instance=ExtResource("Spark")]
+
+[node name="Spark2" parent="ImpactPool" unique_id=1133217088 instance=ExtResource("Spark")]
+
+[node name="Spark3" parent="ImpactPool" unique_id=1612393358 instance=ExtResource("Spark")]
+
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="." unique_id=855991521]
+stream = ExtResource("Sound")
+volume_db = -8.0
+max_distance = 30.0
+
+[node name="HouseDoor" parent="." unique_id=1061995241 instance=ExtResource("Portal")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.5)
+target_scene = "res://scenes/levels/ForestHouse.tscn"
+target_spawn = &"Door"
+settings = ExtResource("DoorTravel")
+trigger_size = Vector3(2.8, 3, 1.2)
+
+[node name="SpawnHouseDoor" type="Marker3D" parent="." unique_id=440600366]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -3.65)
+script = ExtResource("Spawn")
+spawn_id = &"HouseDoor"
+
+[node name="SouthGate" parent="." unique_id=1254638973 instance=ExtResource("Portal")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 11)
+target_scene = "res://scenes/levels/ForestOpening.tscn"
+target_spawn = &"NorthGate"
+trigger_size = Vector3(6, 3, 2)
+
+[node name="SpawnSouthGate" type="Marker3D" parent="." unique_id=1112242238]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 9.6)
+script = ExtResource("Spawn")
+spawn_id = &"SouthGate"
+
+[node name="Vuurlelie2" parent="." unique_id=1776460660 instance=ExtResource("Lily")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, 2.3951783)
+checkpoint_id = &"lily.4638ae34ec0646312d1448b5051a9c3f"
+checkpoint_editor_scene_uid = 3276078542688385763
+checkpoint_editor_scene_path = "res://scenes/levels/ForestPassage.tscn"
+area = ExtResource("Area")
+
+
+[node name="Drempelpoort" parent="." instance=ExtResource("ThresholdGate")]
+position = Vector3(5.5, 0, -5.6)
+dungeon = ExtResource("Dungeon")
+gate_id = &"gate.a15ea8b544f54856b778346f7aa97ea1"
+identity_scene = "res://scenes/levels/ForestPassage.tscn"

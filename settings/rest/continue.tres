@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="RestMenuOption" format=3 uid="uid://bmf1mdiqe6di3"]
+
+[ext_resource type="Script" uid="uid://ekfmtlkpfudr" path="res://scripts/ui/rest_menu_option.gd" id="Script"]
+
+[resource]
+script = ExtResource("Script")
+id = &"continue"
+label = "Verdergaan"

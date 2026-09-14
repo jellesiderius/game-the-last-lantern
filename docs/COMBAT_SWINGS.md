@@ -10,11 +10,15 @@ De combo blijft drie gameplayacties met hun bestaande schadevensters: `attack_1`
 
 ## Botposes en effect
 
-`MeleeSwingStyle` koppelt een linker/rechter botclip aan de helling, effecthoogte en clipfasen. De drie Resources staan in `settings/combat/swings/`. `WeaponDefinition.light_swing_styles` is optioneel, zodat historische wapens hun eigen clips behouden. Een willekeurige stijl wordt eenmaal bij slagstart gekozen en mag niet meteen worden herhaald. Sector en sikkelbreedte blijven beperkt willekeurig variëren. De vastgelegde richting, stijl en waarden veranderen niet tijdens de slag of hitstop.
+`MeleeSwingStyle` koppelt een linker/rechter botclip aan de clipfasen en beschrijft de oorspronkelijke helling en effecthoogte. De drie Resources staan in `settings/combat/swings/`. `WeaponDefinition.light_swing_styles` is optioneel, zodat historische wapens hun eigen clips behouden. Een willekeurige stijl wordt eenmaal bij slagstart gekozen en mag niet meteen worden herhaald. De sectorbreedte kan beperkt variëren. De vastgelegde richting en stijl veranderen niet tijdens de slag of hitstop; het spoor zelf volgt nu de gemeten botpose.
 
 De zes nieuwe Actions zijn `light_{level,rising,falling}_{left,right}`. Voorbereiding, actieve fase en herstel worden afzonderlijk op de gameplayklok geschaald. Arm, hand, zwaard en romp veranderen samen; het effect alleen draaien geldt niet als een andere aanval.
 
-Normaal energiebereik blijft **1,9 m**, volledig geladen **2,4 m**. De effectbasis compenseert horizontale verkorting door kanteling. Shader en physics gebruiken dezelfde basis, straal, hoogte en voorrand, zodat ook een schuine energiebaan dezelfde horizontale straal heeft. Kleine lunge en hurtboxomvang beïnvloeden de afstand tussen objectmiddens waarop een treffer mogelijk is.
+Normaal energiebereik blijft **1,9 m**, volledig geladen **2,4 m**. Sinds de correctie van 14 september volgt de zichtbare energie de werkelijk geëvalueerde zwaardbasis en -punt. De verlenging blijft binnen de voorwaartse sector, met dezelfde horizontale straal en een hoogte afgeleid van de echte lemmethelling. De onderkant blijft boven de grond. Kleine lunge en hurtboxomvang beïnvloeden de afstand tussen objectmiddens waarop een treffer mogelijk is.
+
+`scenes/effects/BladeSweep.tscn` zit in het gedeelde wapen. Het bewaart een korte geschiedenis van basis, punt en energie-eindpunt; de schadecontrole gebruikt dezelfde punten. `blade_sweep.gdshader` geeft die baan een warme amberkleur, een lichte kern en zachte uitloop. De oude brede vlakke waaier is voor energiewapens uitgeschakeld. De naloop duurt 0,075 s, geladen 0,095 s; deze waarden zijn op de effectscene instelbaar. Hij gebruikt `GameClock`, bevriest tijdens hitstop en verdwijnt bij onderbreken. De zes botclips zijn behouden.
+
+Een korte achterwaartse uitschieter in een geïnterpoleerde lichte botpose wordt niet uitvergroot in de energievoorrand: die blijft gedurende de vastgelegde slagrichting doorlopen. De naloop wordt afgerond met convexe interpolatie, zodat stilstaande samples geen overshoot of vouw veroorzaken. Dit corrigeert de sweep; de onderliggende botclips zijn niet opnieuw geanimeerd.
 
 Het fysieke lemmet en de zichtbare energievoorrand worden gesweept. De energiesamples liggen maximaal 7 cm uit elkaar. Beide routes delen attack-id en doelregistratie. Alleen het actieve venster kan schade geven; de vervagende naloop en grondgolf zijn cosmetisch. Wereldgeometrie blokkeert treffers. Een brede treffer herstelt maximaal één magiepunt.
 
@@ -22,7 +26,7 @@ Het fysieke lemmet en de zichtbare energievoorrand worden gesweept. De energiesa
 
 `MovementSettings.charge_duration` is **0,45 s** (was 0,60 s). De volledige bestaande laadclip wordt op deze duur geschaald. De eigen zware release, schade, knockback, impactfeedback en 2,4 m geladen bereik blijven gelijk. De speler mag tijdens laden vertraagd bewegen; volledige charge slaat eenmaal automatisch, vroeg loslaten geeft de gewone zware aanval en dodge/hurt/death onderbreken.
 
-De geladen Sunblade-energiebaan gebruikt 16 graden kanteling en 0,75 m hoogte. De zichtbare voorrand en de schadequeries volgen samen deze lagere, minder steile baan; daarmee blijft de brede slag ook bij zes nabije doelen bruikbaar. Deze waarden staan in de WeaponDefinition, zonder het bereik te vergroten.
+De geladen Sunblade-energiebaan volgt eveneens de echte zwaardpunt. De vroegere vaste 16 graden kanteling en 0,75 m hoogte sturen de zichtbare baan niet meer. Het grotere geladen bereik en de gedeelde doelregistratie blijven behouden.
 
 ## Bron en import
 
@@ -38,3 +42,5 @@ De bewerkbare importinstelling `assets/characters/red_panda/model.glb.import` ge
 - Bronbeelden: `captures/lantern_village/light_<style>_<direction>_<start|end>/`, elk voor, links, rechts, achter en spelcamera. Runtimebeelden: `room_style_*`.
 
 Resultaten en demonstraties staan in `VALIDATION_LANTERN.md`.
+
+Correctie van 14 september: de gerichte native `--energy-replay --fps=60` slaagt met 80 controles. Nieuwe beelden van alle zes lichte slagen, de geladen slag en vier kijkrichtingen staan in `captures/impact_feedback/after_*` (Forward+ Metal, 245 renderframes). Geen brede character-/controllersuites uitgevoerd.

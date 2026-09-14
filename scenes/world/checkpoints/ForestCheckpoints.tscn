@@ -1,0 +1,14 @@
+[gd_scene format=3]
+[ext_resource type="PackedScene" path="res://scenes/world/checkpoints/Vuurlelie.tscn" id="Lily"]
+[ext_resource type="Resource" path="res://settings/areas/forest_opening.tres" id="Area"]
+[ext_resource type="Script" path="res://scripts/world/checkpoint_anchor.gd" id="Anchor"]
+[node name="Checkpoints" type="Node3D"]
+[node name="StumpReturn" type="Marker3D" parent="."]
+position = Vector3(-3,0,7.4)
+script = ExtResource("Anchor")
+checkpoint_id = &"start.forest_stump"
+area = ExtResource("Area")
+[node name="Vuurlelie" parent="." instance=ExtResource("Lily")]
+position = Vector3(-0.55,0,5.1)
+checkpoint_id = &"lily.forest.stump"
+area = ExtResource("Area")

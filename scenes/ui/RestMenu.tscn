@@ -1,0 +1,54 @@
+[gd_scene format=3]
+[ext_resource type="Theme" path="res://settings/ui/lantern_menu.tres" id="Theme"]
+[ext_resource type="Script" path="res://scripts/ui/rest_menu.gd" id="Script"]
+[ext_resource type="Script" path="res://scripts/ui/rest_menu_option.gd" id="Option"]
+[ext_resource type="Resource" path="res://settings/rest/rest.tres" id="Rest"]
+[ext_resource type="Resource" path="res://settings/rest/continue.tres" id="Continue"]
+[node name="RestMenu" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("Theme")
+script = ExtResource("Script")
+options = Array[ExtResource("Option")]([ExtResource("Rest"),ExtResource("Continue")])
+[node name="Dim" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.004,0.025,0.026,0.3)
+[node name="Panel" type="PanelContainer" parent="."]
+offset_right = 430.0
+offset_bottom = 470.0
+[node name="Margin" type="MarginContainer" parent="Panel"]
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_bottom = 26
+[node name="Column" type="VBoxContainer" parent="Panel/Margin"]
+theme_override_constants/separation = 12
+[node name="Title" type="Label" parent="Panel/Margin/Column"]
+theme_override_font_sizes/font_size = 47
+text = "Vuurlelie"
+[node name="Location" type="Label" parent="Panel/Margin/Column"]
+theme_override_font_sizes/font_size = 22
+modulate = Color(0.76,0.83,0.77,1)
+text = "Onbekende locatie"
+autowrap_mode = 2
+[node name="Rule" type="ColorRect" parent="Panel/Margin/Column"]
+custom_minimum_size = Vector2(0,1)
+color = Color(0.79,0.61,0.30,0.55)
+[node name="Space" type="Control" parent="Panel/Margin/Column"]
+custom_minimum_size = Vector2(0,12)
+[node name="Options" type="VBoxContainer" parent="Panel/Margin/Column"]
+theme_override_constants/separation = 9
+[node name="Status" type="Label" parent="Panel/Margin/Column"]
+custom_minimum_size = Vector2(350,78)
+max_lines_visible = 3
+text_overrun_behavior = 3
+theme_override_font_sizes/font_size = 21
+autowrap_mode = 2
+text = ""
