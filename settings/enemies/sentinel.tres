@@ -1,11 +1,15 @@
 [gd_resource type="Resource" script_class="EnemySettings" format=3 uid="uid://dl3nnmwn0koxi"]
 
 [ext_resource type="Script" uid="uid://dybt8h1rf8yj7" path="res://scripts/ai/enemy_settings.gd" id="1"]
-[ext_resource type="Script" uid="uid://brm2bg3fnj0u0" path="res://scripts/ai/enemy_attack_definition.gd" id="2_va7b8"]
+[ext_resource type="Script" uid="uid://brm2bg3fnj0u0" path="res://scripts/ai/enemy_attack_definition.gd" id="Beat"]
 [ext_resource type="Script" uid="uid://bpjanp2li2rw6" path="res://scripts/combat/attack_definition.gd" id="Attack"]
 
 [sub_resource type="Resource" id="Melee"]
-script = ExtResource("Attack")
+script = ExtResource("Beat")
+start_range = 1.05
+hit_range = 1.32
+half_angle = 65.0
+lunge = 0.18
 clip = &"strike"
 windup = 0.6
 active_duration = 0.12

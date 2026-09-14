@@ -14,6 +14,9 @@ var ability_hint_until := 0.0
 var menu_reason := ""
 var hint: Label
 @onready var arena = get_parent()
+@onready var input_hint: RichTextLabel = $Root/InputHint
+@onready var context_prompt: RichTextLabel = $Root/ContextPrompt
+@onready var magic_hint: Label = $Root/Status/MagicHint
 
 
 func _ready() -> void:
@@ -53,38 +56,39 @@ func _process(_delta: float) -> void:
 	magic_meter.position = magic_home
 	if magic_feedback == Color.RED:
 		magic_meter.position.x += sin(GameClock.elapsed * 90) * 3 * feedback
-	$Root/Status/MagicHint.visible = GameClock.elapsed < magic_hint_until
+	magic_hint.visible = GameClock.elapsed < magic_hint_until
 	charge.value = (
 		p.charge_amount
 		if p.state == "charge"
 		else clampf(p.action_time / p.bow.settings.full_draw_duration(), 0, 1)
 	)
 	charge.visible = p.state in ["charge", "bow_draw"]
-	hint.text = ("HEAVY CHARGE" if p.state == "charge" else "")
+	var hint_text := "HEAVY CHARGE" if p.state == "charge" else ""
 	if p.state == "bow_draw":
-		hint.text = (
+		hint_text = (
 			"CHARGED ARROW"
 			if p.bow.charged
 			else ("RELEASE TO FIRE" if p.action_time >= p.bow.settings.minimum_draw else "DRAWING")
 		)
 	elif p.state == "bow_empty":
-		hint.text = "NO MAGIC"
+		hint_text = "NO MAGIC"
+	_set_text(hint, hint_text)
 	state_label.visible = arena.debug_enabled
-	state_label.text = (
-		"STATE  %s\nTIME   %.3f\nHIT    %s\nI-FRAME %s\nSPEED  %.2f m/s\nINPUT  %s\nFPS    %d"
-		% [
-			p.state,
-			p.action_time,
-			p.active_window,
-			p.is_invulnerable(),
-			Vector2(p.velocity.x, p.velocity.z).length(),
-			p.input_device,
-			Engine.get_frames_per_second()
-		]
-	)
-	var dead = p.state == "dead" and p.action_time > .9
 	if arena.debug_enabled:
-		state_label.text += "\n" + AttackTokenManager.debug_status()
+		state_label.text = (
+			"STATE  %s\nTIME   %.3f\nHIT    %s\nI-FRAME %s\nSPEED  %.2f m/s\nINPUT  %s\nFPS    %d\n%s"
+			% [
+				p.state,
+				p.action_time,
+				p.active_window,
+				p.is_invulnerable(),
+				Vector2(p.velocity.x, p.velocity.z).length(),
+				p.input_device,
+				Engine.get_frames_per_second(),
+				AttackTokenManager.debug_status()
+			]
+		)
+	var dead = p.state == "dead" and p.action_time > .9
 	var menu_visible: bool = (
 		(
 			GameClock.paused
@@ -98,14 +102,13 @@ func _process(_delta: float) -> void:
 		pause_panel.open(dead, p.settings.camera_shake, menu_reason)
 	elif not menu_visible and pause_panel.visible:
 		pause_panel.close()
-	$Root/InputHint.visible = (
-		not menu_visible
-		and not Dialogue.active
-		and not SceneTransit.active
-		and not Checkpoints.active
-		and p.state != "entrance"
+	var overlays_allowed: bool = (
+		not menu_visible and not Dialogue.active and not SceneTransit.active and not Checkpoints.active
 	)
-	$Root/InputHint.text = (
+	var interaction: Interactable = p.interaction.target
+	input_hint.visible = overlays_allowed and p.state != "entrance"
+	context_prompt.visible = overlays_allowed and not is_instance_valid(interaction)
+	var input_text := (
 		"%s  Sword    %s  Dodge    %s  Bow    %s  Menu"
 		% [
 			InputRouter.prompt("light"),
@@ -114,31 +117,26 @@ func _process(_delta: float) -> void:
 			InputRouter.prompt("pause")
 		]
 	)
-	var interaction: Interactable = p.interaction.target
-	$Root/ContextPrompt.visible = (
-		not menu_visible
-		and not Dialogue.active
-		and not SceneTransit.active
-		and not Checkpoints.active
-		and not is_instance_valid(interaction)
-	)
-	$Root/ContextPrompt.text = (
+	if p.bow.active() and p.state != "bow_empty" and not menu_visible:
+		input_text = (
+			"%s  Release to shoot    %s  Dodge to cancel"
+			% [InputRouter.prompt("bow_shoot"), InputRouter.prompt("dodge")]
+		)
+	var context_text := (
 		"%s  %s" % [InputRouter.prompt("interact"), interaction.prompt]
 		if is_instance_valid(interaction) and p.state == "locomotion"
 		else ""
 	)
 	if GameClock.elapsed < ability_hint_until:
-		$Root/ContextPrompt.text = "Ability not unlocked · Bow remains selected"
-	if p.bow.active() and p.state != "bow_empty" and not menu_visible:
-		$Root/InputHint.text = (
-			"%s  Release to shoot    %s  Dodge to cancel"
-			% [InputRouter.prompt("bow_shoot"), InputRouter.prompt("dodge")]
-		)
+		context_text = "Ability not unlocked · Bow remains selected"
+	_set_text(input_hint, "[right]" + InputRouter.rich_text(input_text) + "[/right]")
+	_set_text(context_prompt, "[center]" + InputRouter.rich_text(context_text) + "[/center]")
 
-	$Root/InputHint.text = "[right]" + InputRouter.rich_text($Root/InputHint.text) + "[/right]"
-	$Root/ContextPrompt.text = (
-		"[center]" + InputRouter.rich_text($Root/ContextPrompt.text) + "[/center]"
-	)
+
+## Assigning text re-parses BBCode and re-layouts the label, so only write real changes.
+func _set_text(control: Control, value: String) -> void:
+	if control.text != value:
+		control.text = value
 
 
 func _input(event: InputEvent) -> void:
@@ -210,14 +208,14 @@ func _magic_changed(_current: int, _maximum: int, reason: StringName) -> void:
 	magic_feedback_until = GameClock.elapsed + .22
 	magic_feedback = Color(1.7, 1.7, 1.7) if reason == "restored" else Color(.5, .45, .6)
 	magic_hint_until = GameClock.elapsed + (1.1 if reason == "restored" else 0.0)
-	$Root/Status/MagicHint.text = "+1 MAGIC" if reason == "restored" else ""
+	magic_hint.text = "+1 MAGIC" if reason == "restored" else ""
 
 
 func _magic_denied() -> void:
 	magic_feedback_until = GameClock.elapsed + .22
 	magic_feedback = Color.RED
 	magic_hint_until = GameClock.elapsed + 1.5
-	$Root/Status/MagicHint.text = "MELEE TO REFILL"
+	magic_hint.text = "MELEE TO REFILL"
 
 
 func _health_changed(current: float, maximum: float) -> void:

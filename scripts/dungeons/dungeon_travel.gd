@@ -11,7 +11,7 @@ var prepared_absorption: RefCounted
 
 func _physics_process(_delta: float) -> void:
 	if absorption == null:
-		var player := get_tree().get_first_node_in_group("player") as PlayerCharacter
+		var player := GameSession.player
 		if player != null and player.is_node_ready():
 			_prepare_actor(player)
 	if absorption != null and SceneTransit.active:
@@ -51,7 +51,7 @@ func _warm_actor(effect: RefCounted) -> void:
 
 ## SceneTransit waits for this under the loading curtain, before returning control.
 func prepare_arrival() -> void:
-	var player := get_tree().get_first_node_in_group("player") as PlayerCharacter
+	var player := GameSession.player
 	if player == null:
 		return
 	var effect := _prepare_actor(player)
@@ -119,8 +119,9 @@ func enter(
 func return_route(dungeon: DungeonDefinition) -> Dictionary:
 	if dungeon == null:
 		return {}
-	var routes := _routes()
-	if routes.is_empty() or not routes.back() is Dictionary:
+	# Exits poll this every physics tick: read the live stack, never a deep copy.
+	var routes: Variant = GameProgress.data.get("world", {}).get(ROUTES, [])
+	if not routes is Array or routes.is_empty() or not routes.back() is Dictionary:
 		return {}
 	var route: Dictionary = routes.back()
 	if route.get("dungeon") != String(dungeon.id):
@@ -198,6 +199,6 @@ func complete(dungeon: DungeonDefinition) -> bool:
 		GameProgress.data.inventory[item] = int(GameProgress.data.inventory.get(item, 0)) + quantity
 	GameProgress.set_world_flag(dungeon.completion_flag())
 	if GameProgress.active_slot >= 0:
-		GameProgress.save(get_tree().get_first_node_in_group("player") as PlayerCharacter)
+		GameProgress.save(GameSession.player)
 	dungeon_completed.emit(dungeon)
 	return true

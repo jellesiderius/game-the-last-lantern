@@ -39,6 +39,9 @@ var was_paused := false
 var airborne_time := 0.0
 ## Cosmetic landing clock; movement and action input remain immediately available.
 var landing_time := -1.0
+## Lock switches latch from events: a wheel click presses and releases within one frame.
+var pending_lock_switch := 0
+var lock_flick_held := false
 signal landed(impact_speed: float)
 @onready var visual: CharacterVisual = $VisualPivot/CharacterVisual
 @onready var pivot: Node3D = $VisualPivot
@@ -49,9 +52,12 @@ signal landed(impact_speed: float)
 @onready var ranged_loadout: RangedLoadout = $RangedLoadout
 @onready var feedback: CombatFeedback = $CombatFeedback
 @onready var ground_feedback: GroundFeedback = $GroundFeedback
+@onready var target_lock: TargetLock = $TargetLock
 
 
 func _enter_tree() -> void:
+	if is_node_ready():
+		GameSession.player = self
 	definition = GameSession.selected_character
 	if definition and definition.movement:
 		settings = definition.movement.duplicate()
@@ -194,8 +200,14 @@ func finish_rest_action() -> void:
 	_locomotion()
 
 
+func _exit_tree() -> void:
+	if GameSession.player == self:
+		GameSession.player = null
+
+
 func _ready() -> void:
 	add_to_group("player")
+	GameSession.player = self
 	GameProgress.apply_stats(self)
 	input_device = InputRouter.kind
 	visual.weapon.swing_connected.connect(_on_melee_connected)
@@ -206,15 +218,20 @@ func _ready() -> void:
 	set_physics_process(true)
 
 
-func _input(_event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if not use_test_input:
 		input_device = InputRouter.kind
 		if state == "charge":
 			charge_aim_device = input_device
+		if event.is_action_pressed("lock_switch_left"):
+			pending_lock_switch = -1
+		elif event.is_action_pressed("lock_switch_right"):
+			pending_lock_switch = 1
 
 
 func suspend_controls() -> void:
 	pending_inputs.clear()
+	pending_lock_switch = 0
 	light_buffer = -1
 	heavy_buffer = -1
 	dodge_buffer = -1
@@ -291,6 +308,9 @@ func move_direction(stick: Vector2) -> Vector3:
 
 
 func aim_direction(device: String) -> Vector3:
+	var locked := target_lock.flat_direction()
+	if locked != Vector3.ZERO:
+		return locked
 	if device == "mouse":
 		var camera = get_viewport().get_camera_3d()
 		var cursor = get_viewport().get_mouse_position()
@@ -337,6 +357,9 @@ func _physics_process(_delta: float) -> void:
 		for slot in 4:
 			if Input.is_action_just_pressed("ability_" + str(slot + 1)):
 				ranged_loadout.select_slot(slot)
+		if Input.is_action_just_pressed("lock_on"):
+			target_lock.toggle(facing)
+		_capture_lock_switch()
 		if Input.is_action_just_pressed("interact") and state in ["locomotion", "bow_empty"]:
 			interaction.activate()
 			if Checkpoints.active:
@@ -376,7 +399,12 @@ func _physics_process(_delta: float) -> void:
 	match state:
 		"locomotion", "bow_empty", "fall":
 			desired_velocity = input_direction * settings.max_speed
-			if input_strength > 0.001:
+			var lock_direction := target_lock.flat_direction()
+			if lock_direction != Vector3.ZERO and state != "fall":
+				# Locked on: the body keeps facing the target; the stick only strafes.
+				desired_velocity *= settings.lock_on_speed_multiplier
+				_face(lock_direction, delta)
+			elif input_strength > 0.001:
 				_face(input_direction.normalized(), delta)
 		"roll":
 			if previous_time < settings.roll_duration:
@@ -433,6 +461,7 @@ func _physics_process(_delta: float) -> void:
 		delta, state in ["locomotion", "bow_empty", "charge", "bow_aim", "bow_draw"]
 	)
 	interaction.refresh()
+	target_lock.update(delta)
 	_update_animation(delta)
 	visual.show_damage_protection(
 		invulnerability if state != "dead" else 0.0, settings.damage_iframes
@@ -447,6 +476,34 @@ func _physics_process(_delta: float) -> void:
 	feedback.sample(active_window and not previous_active)
 	bow.after_animation()
 	_finish_action()
+
+
+## Right-stick flicks switch targets while locked; they never pan the camera then.
+func _capture_lock_switch() -> void:
+	var look := Input.get_vector(
+		"look_left", "look_right", "look_up", "look_down", settings.stick_deadzone
+	)
+	if look.length() < .35:
+		lock_flick_held = false
+	elif look.length() > .75 and not lock_flick_held and target_lock.is_active():
+		lock_flick_held = true
+		pending_lock_switch = 1 if look.x >= 0.0 else -1
+	if pending_lock_switch != 0:
+		target_lock.switch(pending_lock_switch)
+		pending_lock_switch = 0
+
+
+## Camera framing: a bias toward the locked target, otherwise the right-stick look offset.
+func camera_look_offset() -> Vector3:
+	var locked := target_lock.flat_offset()
+	if locked != Vector3.ZERO:
+		return (locked * .4).limit_length(settings.camera_look_distance)
+	if use_test_input:
+		return Vector3.ZERO
+	var look := Input.get_vector(
+		"look_left", "look_right", "look_up", "look_down", settings.stick_deadzone
+	)
+	return move_direction(look) * settings.camera_look_distance
 
 
 func _capture_requests() -> void:
@@ -767,6 +824,7 @@ func respawn(at := Vector3.ZERO) -> void:
 	health.reset()
 	magic.reset()
 	bow.aim_held = false
+	target_lock.release()
 	visual.reset_visual()
 	_locomotion()
 

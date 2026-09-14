@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/health_last_full.svg" id="health_last_full"]
 [ext_resource type="Texture2D" path="res://assets/ui/health_last_empty.svg" id="health_last_empty"]
 [ext_resource type="PackedScene" path="res://scenes/ui/InteractionPrompt.tscn" id="InteractionPrompt"]
+[ext_resource type="Script" path="res://scripts/ui/lock_marker.gd" id="LockMarker"]
 [sub_resource type="StyleBoxFlat" id="ChargeBack"]
 bg_color = Color(0.12,0.15,0.13,0.6)
 [sub_resource type="StyleBoxFlat" id="ChargeFill"]
@@ -189,3 +190,8 @@ theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.85,0.86,0.8,0.85)
 
 [node name="InteractionPrompt" parent="Root" instance=ExtResource("InteractionPrompt")]
+
+[node name="LockMarker" type="Control" parent="Root"]
+visible = false
+mouse_filter = 2
+script = ExtResource("LockMarker")

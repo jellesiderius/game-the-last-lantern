@@ -45,14 +45,7 @@ func _physics_process(_delta: float) -> void:
 	var delta: float = GameClock.dt
 	if delta <= 0:
 		return
-	var look := (
-		Input.get_vector(
-			"look_left", "look_right", "look_up", "look_down", player.settings.stick_deadzone
-		)
-		if not player.use_test_input
-		else Vector2.ZERO
-	)
-	var look_offset := player.move_direction(look) * player.settings.camera_look_distance
+	var look_offset := player.camera_look_offset()
 	var target = Vector3(
 		clampf(player.position.x * .27 + look_offset.x, -1.2, 1.2),
 		.65,

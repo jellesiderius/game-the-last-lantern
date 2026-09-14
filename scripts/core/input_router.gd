@@ -8,6 +8,46 @@ var controller_id := -1
 var vibration_enabled := true
 var blocked_through_frame := -1
 var last_axes: Dictionary = {}
+const KEYBOARD_PROMPTS := {
+	"light": "LMB",
+	"heavy": "MMB / B",
+	"dodge": "Space",
+	"interact": "E",
+	"lock_on": "F",
+	"bow_aim": "Q / RMB",
+	"bow_shoot": "Q / RMB",
+	"pause": "Esc",
+	"accept": "Enter",
+	"cancel": "Q / RMB",
+	"tabs": "Z / X"
+}
+const PLAYSTATION_PROMPTS := {
+	"light": "□",
+	"heavy": "R2",
+	"dodge": "✕",
+	"interact": "△",
+	"lock_on": "R3",
+	"bow_aim": "L2",
+	"bow_shoot": "○",
+	"pause": "Options",
+	"accept": "✕",
+	"cancel": "○",
+	"tabs": "L1 / R1"
+}
+const XBOX_PROMPTS := {
+	"light": "X",
+	"heavy": "RT",
+	"dodge": "A",
+	"interact": "Y",
+	"lock_on": "RS",
+	"bow_aim": "LT",
+	"bow_shoot": "B",
+	"pause": "Menu",
+	"accept": "A",
+	"cancel": "B",
+	"tabs": "LB / RB"
+}
+const PLAYSTATION_ICONS := {"□": "square", "○": "circle", "✕": "cross", "△": "triangle"}
 
 
 func _ready() -> void:
@@ -88,54 +128,17 @@ func feedback(weak: float, strong: float, duration: float) -> void:
 
 
 func prompt(action: String) -> String:
-	var pc := {
-		"light": "LMB",
-		"heavy": "MMB / B",
-		"dodge": "Space",
-		"interact": "E",
-		"bow_aim": "Q / RMB",
-		"bow_shoot": "Q / RMB",
-		"pause": "Esc",
-		"accept": "Enter",
-		"cancel": "Q / RMB",
-		"tabs": "Z / X"
-	}
-	var ps := {
-		"light": "□",
-		"heavy": "R2",
-		"dodge": "✕",
-		"interact": "△",
-		"bow_aim": "L2",
-		"bow_shoot": "○",
-		"pause": "Options",
-		"accept": "✕",
-		"cancel": "○",
-		"tabs": "L1 / R1"
-	}
-	var xbox := {
-		"light": "X",
-		"heavy": "RT",
-		"dodge": "A",
-		"interact": "Y",
-		"bow_aim": "LT",
-		"bow_shoot": "B",
-		"pause": "Menu",
-		"accept": "A",
-		"cancel": "B",
-		"tabs": "LB / RB"
-	}
-	return (
-		str((xbox if controller_family == "xbox" else ps).get(action, action))
-		if kind == "controller"
-		else str(pc.get(action, action))
-	)
+	var prompts: Dictionary = KEYBOARD_PROMPTS
+	if kind == "controller":
+		prompts = XBOX_PROMPTS if controller_family == "xbox" else PLAYSTATION_PROMPTS
+	return str(prompts.get(action, action))
 
 
 func controls_text() -> String:
 	if kind != "controller":
-		return "WASD / arrows  Move\nLMB / V / J  Sword\nMMB / B / K  Heavy charge\nQ / RMB  Draw bow; release to fire\nSpace  Dodge · E  Interact\n1–4  Ranged slot · R  Restart\nF3  Debug · F4  Camera shake\n\nFull charge releases once automatically."
+		return "WASD / arrows  Move\nLMB / V / J  Sword\nMMB / B / K  Heavy charge\nQ / RMB  Draw bow; release to fire\nSpace  Dodge · E  Interact\nF  Lock on · Z / X or wheel  Switch target\n1–4  Ranged slot · R  Restart\nF3  Debug · F4  Camera shake\n\nFull charge releases once automatically."
 	return (
-		"Left stick  Move / aim · Right stick  Look\n%s  Sword · %s  Dodge\n%s  Hold for heavy · %s then %s  Roll attack\n%s  Aim + %s  Hold to draw; release to fire\n%s  Interact · D-pad  Ranged slot\n%s / touchpad  Menu\n\nFull charge releases once automatically."
+		"Left stick  Move / aim · Right stick  Look\n%s  Sword · %s  Dodge\n%s  Hold for heavy · %s then %s  Roll attack\n%s  Aim + %s  Hold to draw; release to fire\n%s  Interact · D-pad  Ranged slot\n%s  Lock on · flick right stick  Switch target\n%s / touchpad  Menu\n\nFull charge releases once automatically."
 		% [
 			prompt("light"),
 			prompt("dodge"),
@@ -145,6 +148,7 @@ func controls_text() -> String:
 			prompt("bow_aim"),
 			prompt("bow_shoot"),
 			prompt("interact"),
+			prompt("lock_on"),
 			prompt("pause")
 		]
 	)
@@ -153,10 +157,9 @@ func controls_text() -> String:
 func rich_text(text: String) -> String:
 	if kind != "controller" or controller_family != "playstation":
 		return text
-	var icons := {"□": "square", "○": "circle", "✕": "cross", "△": "triangle"}
-	for symbol in icons:
+	for symbol in PLAYSTATION_ICONS:
 		text = text.replace(
-			symbol, "[img=24x24]res://assets/ui/controller/ps_%s.svg[/img]" % icons[symbol]
+			symbol, "[img=24x24]res://assets/ui/controller/ps_%s.svg[/img]" % PLAYSTATION_ICONS[symbol]
 		)
 	for trigger in ["L1", "R1", "L2", "R2"]:
 		text = text.replace(

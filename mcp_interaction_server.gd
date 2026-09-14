@@ -16,6 +16,10 @@ var _key_map: Dictionary
 var _held_keys: Dictionary = {}
 
 func _ready() -> void:
+	# Development tooling only: release exports never open a local control port.
+	if not OS.is_debug_build():
+		set_process(false)
+		return
 	# Ensure MCP server keeps processing even when game is paused
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_init_key_map()

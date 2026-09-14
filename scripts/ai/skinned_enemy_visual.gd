@@ -46,7 +46,8 @@ func present(brain: EnemyBrain, delta: float) -> void:
 	match brain.state:
 		"windup":
 			clip = brain.windup_clip
-			phase = clampf(time / brain.attack.windup, 0.0, 1.0)
+			# A delay hold keeps the raised pose after the animated tell.
+			phase = clampf(time / maxf(brain.tell_duration, .001), 0.0, 1.0)
 			time = phase * animation_player.get_animation(clip).length
 		"strike":
 			clip = brain.attack.clip

@@ -8,6 +8,12 @@ extends Resource
 @export var spacing_cooldown := 1.50
 @export var flank_offset := 0.65
 @export var repeat_penalty := 0.22
+## Visible opponent actions that leave an opening worth pressing instead of circling.
+@export var punish_states := PackedStringArray(
+	["light_attack", "heavy_attack", "roll_attack", "bow_shoot", "bow_recover", "bow_empty", "hurt"]
+)
+## Seconds an observed opening stays actionable after the last sighting.
+@export var opening_memory := 0.35
 
 
 func choose_attack(
@@ -29,12 +35,16 @@ func choose_attack(
 		# approach distance is useful or the opponent visibly commits to a bow.
 		var closing_need := clampf((distance - .8) / .9, 0.0, 1.0)
 		var long_step := clampf((beat.lunge - .24) / .41, 0.0, 1.0)
-		var score := 1.0 - absf(distance - beat.start_range) * .6
+		var score := 1.0 - absf(distance - beat.start_range) * .6 + beat.selection_bias
 		score += closing_need * long_step * .8
 		score -= long_step * .25
 		if ranged or retreating:
 			score += long_step * .35
-		if i == previous:
+		# A finished string also discourages its followups: strings alternate with other beats.
+		var followup_of_previous := (
+			previous >= 0 and previous < beats.size() and i in beats[previous].followups
+		)
+		if i == previous or followup_of_previous:
 			score -= repeat_penalty
 		if i < preferences.size():
 			score += preferences[i]

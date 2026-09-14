@@ -28,6 +28,23 @@ func release(brain: EnemyBrain, preserve_wait := false) -> void:
 		brain.admission_wait_since = -1.0
 
 
+## Armored counters take their turn immediately, even above the attacker limit.
+func claim(brain: EnemyBrain) -> void:
+	var id := brain.get_instance_id()
+	requests.erase(id)
+	leases[id] = {"brain": weakref(brain), "since": GameClock.elapsed}
+	brain.admission_wait_since = -1.0
+
+
+## Seconds the longest queued enemy has waited for a turn.
+func longest_wait() -> float:
+	var longest := 0.0
+	for request in requests.values():
+		if request.brain.get_ref() != null:
+			longest = maxf(longest, GameClock.elapsed - request.since)
+	return longest
+
+
 func owns(brain: EnemyBrain) -> bool:
 	return leases.has(brain.get_instance_id())
 
@@ -47,6 +64,7 @@ func score(brain: EnemyBrain, waiting: float) -> float:
 		)
 		+ settings.recent_hit_weight * clampf(brain.recent_hit / 2.0, 0, 1)
 		+ settings.archetype_weight * brain.settings.archetype_priority
+		+ settings.opening_weight * (1.0 if brain.sees_opening() else 0.0)
 		# Keep age increasing: a capped bonus could starve an actor repeatedly
 		# delayed by other bodies, even after preserving its original request time.
 		+ settings.waiting_weight * maxf(waiting, 0.0)
@@ -66,6 +84,18 @@ func _physics_process(_delta: float) -> void:
 		):
 			leases.erase(id)
 			brain.cancel_attack()
+	# Drop requests from actors that stopped approaching. Cheap: no sight rays here.
+	for id in requests.keys():
+		var waiting: EnemyBrain = requests[id].brain.get_ref()
+		if not is_instance_valid(waiting) or waiting.state not in ["approach", "orbit"]:
+			requests.erase(id)
+	# Scoring casts sight rays; skip it entirely while no turn can be granted.
+	if (
+		leases.size() >= settings.maximum_attackers
+		or GameClock.elapsed < next_grant_at
+		or requests.is_empty()
+	):
+		return
 	var candidates: Array = []
 	for id in requests.keys():
 		var brain: EnemyBrain = requests[id].brain.get_ref()
@@ -83,11 +113,7 @@ func _physics_process(_delta: float) -> void:
 		func(a, b):
 			return a.score > b.score if not is_equal_approx(a.score, b.score) else a.id < b.id
 	)
-	if (
-		leases.size() >= settings.maximum_attackers
-		or GameClock.elapsed < next_grant_at
-		or candidates.is_empty()
-	):
+	if candidates.is_empty():
 		return
 	var winner: Dictionary = candidates[0]
 	requests.erase(winner.id)

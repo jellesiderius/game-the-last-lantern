@@ -20,7 +20,7 @@ func _physics_process(_delta: float) -> void:
 		or Checkpoints.active
 	):
 		return
-	var player := get_tree().get_first_node_in_group("player") as PlayerCharacter
+	var player := GameSession.player
 	if player == null or player.state in ["entrance", "dead", "scene_travel"]:
 		return
 	data.play_seconds += GameClock.dt
@@ -88,4 +88,4 @@ func finish_opening() -> void:
 	data.opening_completed = true
 	# Persist just the completed introduction; its safe stump return point stays unchanged.
 	if active_slot >= 0:
-		save(get_tree().get_first_node_in_group("player") as PlayerCharacter)
+		save(GameSession.player)

@@ -13,6 +13,12 @@ var motion_query := PhysicsTestMotionParameters3D.new()
 var motion_hit := PhysicsTestMotionResult3D.new()
 var route_surface: EnemySurfaceNavigation
 var offered_surface: EnemySurfaceNavigation
+## Candidate steering is the most expensive query set. Re-evaluate it at 30 Hz or on a
+## real heading change; the per-tick navmesh and collider safety check always runs.
+const STEER_INTERVAL := 1.0 / 30.0
+var steer_age := INF
+var steer_toward := Vector3.ZERO
+var steer_heading := Vector3.ZERO
 
 
 func reset() -> void:
@@ -26,6 +32,8 @@ func reset() -> void:
 	recovering_surface = false
 	route_surface = null
 	offered_surface = null
+	steer_age = INF
+	steer_heading = Vector3.ZERO
 
 
 func move(brain: EnemyBrain, goal: Vector3, pace: float, delta: float) -> Vector3:
@@ -82,6 +90,7 @@ func move(brain: EnemyBrain, goal: Vector3, pace: float, delta: float) -> Vector
 		destination = goal
 		repath_left = profile.path_interval * brain.personality.get("reaction", 1.0)
 		repaths += 1
+		steer_age = INF
 	while (
 		path.size() > 1
 		and Vector2(position.x - path[0].x, position.z - path[0].z).length() < .07
@@ -113,10 +122,18 @@ func move(brain: EnemyBrain, goal: Vector3, pace: float, delta: float) -> Vector
 	if offset.length() < .06:
 		speed = 0
 		return Vector3.ZERO
-	var neighbors := _neighbors(brain, profile)
-	var steering := _steer(
-		brain, navigation, offset.normalized(), target_speed, neighbors, offset.length()
-	)
+	var toward := offset.normalized()
+	steer_age += delta
+	if steer_age >= STEER_INTERVAL or toward.dot(steer_toward) < .985:
+		steer_age = 0.0
+		steer_toward = toward
+		steer_heading = (
+			_steer(
+				brain, navigation, toward, target_speed, _neighbors(brain, profile), offset.length()
+			)
+			. normalized()
+		)
+	var steering := steer_heading * target_speed
 	brain._face(steering, delta)
 	var alignment := brain.direction.dot(steering.normalized())
 	# Ordinary bends are arcs: slow down as the turn grows while still moving

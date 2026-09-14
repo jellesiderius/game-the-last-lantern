@@ -4,7 +4,7 @@ var fade := 0.0
 
 
 func _process(delta: float) -> void:
-	var player := get_tree().get_first_node_in_group("player") as PlayerCharacter
+	var player := GameSession.player
 	var target: Interactable = player.interaction.target if player else null
 	var camera := get_viewport().get_camera_3d()
 	var available: bool = (

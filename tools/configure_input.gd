@@ -14,6 +14,9 @@ func _initialize() -> void:
 		"dodge": [KEY_SPACE],
 		"bow_fire": [KEY_Q],
 		"interact": [KEY_E],
+		"lock_on": [KEY_F],
+		"lock_switch_left": [KEY_Z],
+		"lock_switch_right": [KEY_X],
 		"restart": [KEY_R],
 		"pause": [KEY_ESCAPE],
 		"debug": [KEY_F3],
@@ -41,7 +44,9 @@ func _initialize() -> void:
 		["light", MOUSE_BUTTON_LEFT],
 		["heavy", MOUSE_BUTTON_MIDDLE],
 		["bow_fire", MOUSE_BUTTON_RIGHT],
-		["ui_cancel", MOUSE_BUTTON_RIGHT]
+		["ui_cancel", MOUSE_BUTTON_RIGHT],
+		["lock_switch_left", MOUSE_BUTTON_WHEEL_UP],
+		["lock_switch_right", MOUSE_BUTTON_WHEEL_DOWN]
 	]:
 		var event := InputEventMouseButton.new()
 		event.button_index = pair[1]
@@ -51,6 +56,7 @@ func _initialize() -> void:
 		"dodge": [JOY_BUTTON_A],
 		"light": [JOY_BUTTON_X],
 		"interact": [JOY_BUTTON_Y],
+		"lock_on": [JOY_BUTTON_RIGHT_STICK],
 		"bow_shoot": [JOY_BUTTON_B],
 		"pause": [JOY_BUTTON_START, JOY_BUTTON_TOUCHPAD],
 		"ability_1": [JOY_BUTTON_DPAD_UP],

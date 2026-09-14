@@ -35,6 +35,8 @@ Rustpunten, drie onafhankelijke spellen en bewerkbare checkpointinstellingen: [V
 |---|---|---|
 | Bewegen / richting | Linker stick | WASD / pijltjes |
 | Camera-look | Rechter stick | — |
+| Lock-on aan/uit | R3 | F |
+| Ander doel kiezen (links/rechts op scherm) | Rechter stick flick | Z / X of muiswiel |
 | Lichte combo | Vierkant, losse drukken | LMB / V / J |
 | Zwaar laden / loslaten | R2 | MMB / B / K |
 | Rollen | Kruisje | Spatie |
@@ -50,6 +52,8 @@ Rustpunten, drie onafhankelijke spellen en bewerkbare checkpointinstellingen: [V
 | Debug / cameratrilling | Instellingen | F3 / F4 |
 
 Volle boog- en zware charge vuren één keer automatisch. Vasthouden begint geen volgende aanval. Tijdens laden kan de speler vertraagd lopen; een lege boog behoudt normale loopsnelheid. De HUD gebruikt vijf schuine groene levensblokken met tegengestelde puntige uiteinden, en vier gele magiebolletjes eronder. Eén punt per afgevuurde pijl; een geldige meleezwaai herstelt maximaal één punt. Dummies tellen mee. Er staan drie trainingsdoelen oostelijk van het plein. Links/west staat een lange testtrap: 16 treden, 8 m lengte, 2 m breedte en 4 m stijging naar een bordes. De korte trap naar het dorpshuis blijft beschikbaar.
+
+Lock-on (`TargetLock` op de speler) kiest het dichtstbijzijnde zichtbare doel vóór de speler. Wisselen gaat naar het eerstvolgende doel met de klok mee (rechts) of tegen de klok in (links) zoals op het scherm gezien, en loopt rond. Een verslagen doel geeft de lock door aan het dichtstbijzijnde doel; buiten 12 m of 0,8 s zonder zicht vervalt de lock. Tijdens lock blijft het lichaam naar het doel gericht: de stick verplaatst alleen (strafen, op `MovementSettings.lock_on_speed_multiplier` = 80% snelheid). Melee, heavy en boog richten op het doel en de camera leunt ernaartoe. Rollen gaat in de stickrichting. Er zijn nog geen zijwaartse/achterwaartse loopclips; de gewone loopcyclus speelt tijdens strafen. Zie `tests/lock_on_replay.gd` (`--lock-on-replay` in PrototypeRoom).
 
 Het zwaard blijft in rust in de **rechterhand**, met de brede zijden naar links/rechts. De tijdelijke rugsocketvariant is op verzoek teruggedraaid. Er is precies één zwaardinstance. Booggebruik verbergt het zwaard en de lantaarn; daarna komen ze terug.
 

@@ -124,7 +124,7 @@ func change_scene(
 	if not _begin(path):
 		return false
 	var was_paused := GameClock.paused
-	var player := get_tree().get_first_node_in_group("player") as PlayerCharacter
+	var player := GameSession.player
 	if player:
 		player.suspend_controls()
 	GameClock.paused = true

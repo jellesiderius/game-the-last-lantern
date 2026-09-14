@@ -7,3 +7,7 @@ extends Resource
 @export var recent_hit_weight := 1.3
 @export var archetype_weight := 0.5
 @export var waiting_weight := 0.35
+## Extra priority for an enemy that sees the player recovering from an action.
+@export var opening_weight := 1.5
+## Followup strikes yield the turn once another enemy has waited this long.
+@export var chain_wait_limit := 2.5

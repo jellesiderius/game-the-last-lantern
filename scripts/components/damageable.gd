@@ -25,6 +25,7 @@ var brain: EnemyBrain
 
 func _ready() -> void:
 	add_to_group("damageable")
+	add_to_group(TargetLock.GROUP)
 	spawn_position = global_position
 	visual = $TargetVisual
 	flash_material = preload("res://settings/hit_flash.tres").duplicate()
@@ -39,6 +40,7 @@ func _ready() -> void:
 		health.reset()
 		label_text = brain.settings.display_name
 		brain.reset_brain()
+		brain.state_changed.connect(func(_state): _update_label())
 	_update_label()
 	_restore_progress.call_deferred()
 
@@ -47,8 +49,9 @@ func _physics_process(_delta: float) -> void:
 	var delta: float = GameClock.dt
 	if delta <= 0 or Checkpoints.active:
 		return
-	flash = maxf(0, flash - delta)
-	flash_material.set_shader_parameter("flash", flash)
+	if flash > 0:
+		flash = maxf(0, flash - delta)
+		flash_material.set_shader_parameter("flash", flash)
 	if disabled:
 		return
 	if reset_time > 0:
@@ -71,7 +74,6 @@ func _physics_process(_delta: float) -> void:
 	move_and_slide()
 	if brain:
 		visual.present(brain, delta)
-	_update_label()
 
 
 func receive_hit(amount: float, id: int, origin: Vector3, force := 1.0) -> bool:
@@ -118,6 +120,17 @@ func _update_label() -> void:
 	health_label.text = "%s\n%.1f / %.0f" % [tag, health.current, health.maximum]
 	health_label.modulate = (
 		Color("#ffbd8f") if brain and brain.state == "windup" else Color("#f7e8d2")
+	)
+
+
+## Lock-on eligibility: alive, enabled and shown.
+func is_lockable() -> bool:
+	return (
+		not disabled
+		and reset_time <= 0
+		and health.current > 0
+		and visual.visible
+		and is_visible_in_tree()
 	)
 
 

@@ -54,7 +54,7 @@ func _physics_process(delta: float) -> void:
 	_prefetch_cooldown -= delta
 	if prefetch_distance > 0 and _prefetched_path != target_scene and _prefetch_cooldown <= 0:
 		_prefetch_cooldown = .2
-		var player := get_tree().get_first_node_in_group("player") as Node3D
+		var player: Node3D = GameSession.player
 		if (
 			player
 			and (

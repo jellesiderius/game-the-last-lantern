@@ -467,7 +467,11 @@ func run() -> void:
 	# Isolate tell/contact timing; turning into a target has its own movement replay.
 	enemy.brain.direction = Vector3.BACK
 	enemy.disabled = false
-	await step(100)
+	# Default tells may include a random delay hold; wait for the first contact itself.
+	for i in 240:
+		if p.health.current < 5:
+			break
+		await step(1)
 	check("enemy telegraph produces one damage", p.health.current == 4, p.health.current)
 	await reset()
 	p.visual.stowed = true

@@ -26,13 +26,15 @@ func run() -> void:
 	var wrong_admission := false
 	var tells_short := false
 	var windup_times := {}
+	var windup_tells := {}
 	var previous := {}
 	# The arena now contains ten actors. Allow the authored approach/recovery cycle
 	# for every queued actor; the original fixed window covered the three-actor layout.
 	var admission_budget := maxi(1500, enemies.size() * 240)
 	var tell_drain := 0
 	for enemy in enemies:
-		tell_drain = maxi(tell_drain, ceili(enemy.brain.settings.attack.windup * 120) + 2)
+		# Include the longest authored delay hold of any beat.
+		tell_drain = maxi(tell_drain, ceili((enemy.brain.settings.attack.windup + .3) * 120) + 2)
 	for i in admission_budget + tell_drain:
 		if i == admission_budget:
 			var outstanding := enemies.filter(func(enemy): return not turns.has(enemy.name))
@@ -54,13 +56,14 @@ func run() -> void:
 				wrong_admission = true
 			if brain.state == "windup" and previous.get(enemy.name) != "windup":
 				windup_times[enemy.name] = GameClock.elapsed
+				windup_tells[enemy.name] = brain.tell_duration
 			if brain.state == "strike" and previous.get(enemy.name) != "strike":
 				turns[enemy.name] = int(turns.get(enemy.name, 0)) + 1
 				tells_short = (
 					tells_short
 					or (
 						GameClock.elapsed - windup_times.get(enemy.name, 0)
-						< brain.settings.attack.windup - .01
+						< windup_tells.get(enemy.name, brain.settings.attack.windup) - .01
 					)
 				)
 			previous[enemy.name] = brain.state
@@ -111,7 +114,11 @@ func run() -> void:
 		"late dodge behind committed tell avoids hit",
 		p.health.current == 5 and enemy.brain.direction.dot(locked) > .999
 	)
-	await step(10)
+	# A multi-strike turn may chain further tells; recovery follows its last strike.
+	for i in 300:
+		if enemy.brain.state == "recover":
+			break
+		await step(1)
 	check("telegraph hides after strike", not enemy.get_node("Telegraph").visible)
 	# Recovery belongs to the same committed action and cannot be restarted by damage.
 	var recovery_age: float = enemy.brain.state_time

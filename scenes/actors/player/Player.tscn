@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=24 format=3]
 [ext_resource type="Script" path="res://scripts/characters/player_controller.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/assets/characters/crow/Visual.tscn" id="2"]
 [ext_resource type="Resource" path="res://settings/player_movement.tres" id="3"]
@@ -18,6 +18,7 @@
 [ext_resource type="PackedScene" path="res://scenes/effects/HeavyEnergy.tscn" id="HeavyEnergy"]
 [ext_resource type="AudioStream" path="res://assets/audio/heavy_burst.wav" id="HeavyAudio"]
 [ext_resource type="Script" path="res://scripts/components/ground_feedback.gd" id="GroundFeedback"]
+[ext_resource type="Script" path="res://scripts/components/target_lock.gd" id="TargetLock"]
 [sub_resource type="ShaderMaterial" id="AimMaterial"]
 resource_local_to_scene = true
 shader = ExtResource("AimShader")
@@ -94,3 +95,6 @@ max_distance = 30.0
 
 [node name="GroundFeedback" type="Node" parent="."]
 script = ExtResource("GroundFeedback")
+
+[node name="TargetLock" type="Node" parent="."]
+script = ExtResource("TargetLock")

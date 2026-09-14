@@ -159,7 +159,7 @@ func respawn_player() -> bool:
 	if GameProgress.active_slot < 0 or GameProgress.data.is_empty() or SceneTransit.active:
 		return false
 	# Capture live upgrades/inventory/flags. Do NOT call SaveStore.read_slot here.
-	GameProgress.capture_stats(get_tree().get_first_node_in_group("player") as PlayerCharacter)
+	GameProgress.capture_stats(GameSession.player)
 	return _launch(GameProgress.data, GameProgress.active_slot, "death")
 
 

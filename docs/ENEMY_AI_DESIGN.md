@@ -36,6 +36,21 @@ De wacht ademt, verplaatst zijn gewicht, kijkt soms rond en loopt korte routes r
 
 Tijdens een gevecht kiest de wacht een korte slag dichtbij of een uitval om afstand te sluiten. Zichtbaar booggebruik geeft voorkeur aan de uitval met een schuine benadering. Een zichtbare zware laadpose kan na reactietijd een korte verplaatsing uitlokken; dat geeft de aanvalsbeurt vrij. De verplaatsing heeft een eindtijd en cooldown. Hij leest geen knoppen en geen actuele speleractie achter een boom. Zijn eenmaal ingezette zwaai blijft vastliggen, met alleen de reeds toegestane vroege bijrichting.
 
+## Souls-like druk (14 september 2026)
+
+Het basisritme (naderen → één aanval → lang herstel) was te voorspelbaar en liet stun-lock toe. Vier datagestuurde regels maken gevechten gevaarlijker zonder onleesbare aanvallen:
+
+| Regel | Waar ingesteld | Gedrag |
+|---|---|---|
+| Meerdere klappen | `EnemyAttackDefinition.strikes` (min–max), `followups`, `quick_windup` | Eén aanvalsbeurt levert een gerold aantal losse klappen. Elke volgende klap heeft een kortere, maar volledig aangekondigde tell en eigen schadecontact. Alleen als het doel zichtbaar en binnen bereik is; in een groep geeft de vijand zijn beurt pas op als een ander langer dan 2,5 s wacht (`DirectorSettings.chain_wait_limit`). Volgende klappen landen na de 0,6 s damage-i-frames van de speler (`quick_windup` ≥ 0,48 s bij de eikel). |
+| Vertraagde slagen | `EnemyAttackDefinition.delay_range` | Willekeurige extra houding bovenaan de tell. Wie op het eerste signaal rolt, wordt geraakt; wie de slag leest, niet. De animatie blijft op de opgeheven pose staan. |
+| Anti-mash vergelding | `EnemySettings.retaliation_hits`, `retaliation_window` | Na N niet-vastgelegde treffers binnen het venster volgt een gepantserde snelle tegenaanval die de aanvalslimiet van de director overslaat. Doorslaan zonder te ontwijken wordt bestraft. |
+| Openingen straffen | `EnemyTactics.punish_states`, `opening_memory`; `DirectorSettings.opening_weight` | Zichtbaar herstel van de speler (na aanval, schot, lege boog of hurt) laat de vijand direct aandringen in plaats van cirkelen, zonder cooldown en met voorrang bij de director. |
+
+Het contactmoment, bereik en schade van een ingezette slag blijven vaste data. `EnemyBrain.tell_duration` is de geanimeerde tell; `windup_duration` bevat daarnaast de vertraging. Presenters samplen op `tell_duration`.
+
+Standaard staat deze zwaardere combat aan voor elk type: elke `EnemyAttackDefinition` geeft 1–2 klappen met 0–0,18 s vertraging, `EnemySettings` vergeldt na drie treffers en krijgt een standaard `EnemyTactics` (openingen straffen). Zet `strikes = (1, 1)`, `delay_range = (0, 0)`, `retaliation_hits = 0` of een eigen tactiek om een type milder te maken. Eikelwacht: de zware bovenhandse slag blijft één harde klap; nieuwe lichte jabs (`jab_*`, `jab_back_*` in `source.blend`, gemaakt met `tools/acorn_guard/add_light_jabs.py`) geven 2–3 losse klappen van 0,5 schade, afwisselend forehand en backhand; de uitval kan met één jab worden vervolgd. `EnemyAttackDefinition.selection_bias` (jabs 0,12) maakt jabs de gebruikelijke opener dichtbij; de herhaalstraf geldt ook voor de vervolgklappen van de vorige aanval, zodat na een jab-reeks meestal de zware slag volgt (gemeten: 68–81% bij 0,6–0,9 m). Bruiser: vergelding na twee treffers. Sentinel/PracticeEnemy en Bruiser gebruiken nu ook een `EnemyAttackDefinition` met hun oorspronkelijke bereik, hoek en uitval.
+
 ## Variatie die een eigen karakter behoudt
 
 `EnemyVariation` bevat grenzen; elke EnemyBrain bezit een eigen RNG en gesamplede eigenschappen. De gedeelde Resource wordt niet aangepast. `variation_seed=0` leidt de seed af uit het instancepad; een expliciete seed maakt een spawn of replay reproduceerbaar. Nieuwe instances met unieke namen krijgen verschillende profielen. Een reset reproduceert dezelfde identiteit en hetzelfde beginschema.

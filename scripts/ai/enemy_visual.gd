@@ -21,7 +21,7 @@ func present(brain: EnemyBrain, delta: float) -> void:
 	var phase := 0.0
 	match brain.state:
 		"windup":
-			phase = clampf(brain.state_time / brain.settings.attack.windup, 0, 1)
+			phase = clampf(brain.state_time / maxf(brain.tell_duration, .001), 0, 1)
 			rotation.x = .25 * smoothstep(0, 1, phase)
 			rotation.z = sin(phase * 22) * .025
 			$ArmL.rotation.x = -1.3 * smoothstep(0, 1, phase)

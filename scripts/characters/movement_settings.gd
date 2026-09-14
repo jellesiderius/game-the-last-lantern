@@ -31,3 +31,5 @@ extends Resource
 @export var camera_shake := true
 
 @export var camera_look_distance := 1.1
+## Locked-on locomotion strafes around the target at this fraction of max_speed.
+@export_range(0.3, 1.0, 0.05) var lock_on_speed_multiplier := 0.8

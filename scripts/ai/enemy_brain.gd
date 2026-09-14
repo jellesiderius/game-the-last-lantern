@@ -39,6 +39,18 @@ var routine_rng := RandomNumberGenerator.new()
 var personality: Dictionary = {}
 var idle_look_delay := 0.0
 var locomotion := EnemyLocomotion.new()
+## Animated tell of the committed attack; windup_duration adds its random delay hold.
+var tell_duration := 0.0
+var windup_duration := 0.0
+## Strikes delivered after the first in this turn, and strikes still to come.
+var chain_count := 0
+var strikes_left := 0
+## True while pressing a visible player recovery instead of circling.
+var pressing_opening := false
+var hits_in_window := 0
+var hit_window_left := 0.0
+var _sight_frame := -1
+var _sight := false
 var face_travel_direction: bool:
 	get:
 		return settings.movement != null or settings.face_travel_direction
@@ -114,15 +126,32 @@ func target_distance() -> float:
 	)
 
 
+## One sight ray per physics tick, however many decisions ask for it.
 func visible_target() -> bool:
 	if not is_instance_valid(target):
 		return false
-	var ray := PhysicsRayQueryParameters3D.create(
-		actor.global_position + Vector3.UP * .4,
-		target.global_position + Vector3.UP * .4,
-		CombatLayers.WORLD
+	if _sight_frame != Engine.get_physics_frames():
+		_sight_frame = Engine.get_physics_frames()
+		var ray := PhysicsRayQueryParameters3D.create(
+			actor.global_position + Vector3.UP * .4,
+			target.global_position + Vector3.UP * .4,
+			CombatLayers.WORLD
+		)
+		_sight = actor.get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
+	return _sight
+
+
+## True while a visible player action leaves a punishable recovery.
+func sees_opening() -> bool:
+	return (
+		settings.tactics != null
+		and observation.get("visible", false)
+		and observation.get("state", "") in settings.tactics.punish_states
+		and (
+			GameClock.elapsed - float(observation.get("observed_at", -INF))
+			<= settings.tactics.opening_memory
+		)
 	)
-	return actor.get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
 
 
 func can_request_attack() -> bool:
@@ -157,6 +186,7 @@ func grant_attack() -> void:
 			)
 			attack_index = choice.index
 			_record_decision(choice.reason, {"attack": attack.clip, "scores": choice.scores})
+		chain_count = 0
 		_enter("engage")
 	else:
 		AttackTokenManager.release(self)
@@ -164,6 +194,7 @@ func grant_attack() -> void:
 
 func cancel_attack() -> void:
 	var completed := state == "recover"
+	chain_count = 0
 	if state == "recover":
 		previous_attack_index = attack_index
 		if not settings.tactics:
@@ -200,6 +231,13 @@ func reset_brain() -> void:
 	patrol_index = 0
 	idle_look = false
 	turning_in_place = false
+	tell_duration = 0.0
+	windup_duration = 0.0
+	chain_count = 0
+	strikes_left = 0
+	hits_in_window = 0
+	hit_window_left = 0.0
+	_sight_frame = -1
 	cooldown = 0
 	recent_hit = 0
 	stagger_resistance_left = 0
@@ -228,6 +266,9 @@ func on_hit(origin: Vector3) -> float:
 		return 0.0
 	if committed_attack() and not settings.interrupt_committed_attacks:
 		return settings.committed_knockback_multiplier
+	if _should_retaliate():
+		_retaliate()
+		return settings.committed_knockback_multiplier
 	if not settings.stagger_on_hit or state == "stagger" or stagger_resistance_left > 0:
 		return settings.resistant_knockback_multiplier
 	AttackTokenManager.release(self)
@@ -238,6 +279,7 @@ func on_hit(origin: Vector3) -> float:
 
 func _enter(next: String) -> void:
 	state = next
+	pressing_opening = false
 	state_time = 0
 	path_left = 0
 	if next == "windup":
@@ -249,7 +291,7 @@ func _enter(next: String) -> void:
 
 func tick(delta: float) -> Vector3:
 	turning_in_place = false
-	target = get_tree().get_first_node_in_group("player") as PlayerCharacter
+	target = GameSession.player
 	if not operational():
 		if state not in ["idle", "dead"]:
 			suspend()
@@ -261,6 +303,7 @@ func tick(delta: float) -> Vector3:
 	spacing_left = maxf(0, spacing_left - delta)
 	spacing_cooldown = maxf(0, spacing_cooldown - delta)
 	memory = maxf(0, memory - delta)
+	hit_window_left = maxf(0, hit_window_left - delta)
 	perception_left -= delta
 	if perception_left <= 0:
 		perception_left = settings.perception_interval
@@ -335,9 +378,17 @@ func tick(delta: float) -> Vector3:
 				return Vector3.ZERO
 			return _move_to(destination, settings.patrol_speed, delta)
 		"approach", "orbit":
+			# A visible recovery is pressed immediately instead of politely circled.
+			pressing_opening = sees_opening()
+			if pressing_opening:
+				cooldown = 0.0
 			if can_request_attack():
 				AttackTokenManager.request_attack(self)
-			if target_distance() <= settings.engagement_range and visible_target():
+			if (
+				not pressing_opening
+				and target_distance() <= settings.engagement_range
+				and visible_target()
+			):
 				if state != "orbit":
 					_enter("orbit")
 				var radial := -difference.normalized()
@@ -372,15 +423,13 @@ func tick(delta: float) -> Vector3:
 						turning_in_place = true
 						return Vector3.ZERO
 				direction = difference.normalized()
-				attack_id = GameClock.next_attack_id()
-				hit_attempted = false
-				_enter("windup")
+				_begin_windup()
 				return Vector3.ZERO
 			return _move_to(_approach_destination(), settings.move_speed, delta)
 		"windup":
-			if state_time < attack.windup * settings.tracking_fraction:
+			if state_time < tell_duration * settings.tracking_fraction:
 				_face(difference, delta)
-			if state_time >= attack.windup:
+			if state_time >= windup_duration:
 				_enter("strike")
 		"strike":
 			var actual: Vector3 = target.global_position - actor.global_position
@@ -397,7 +446,8 @@ func tick(delta: float) -> Vector3:
 				hit_attempted = true
 				target.receive_hit(attack.damage, attack_id, actor.global_position)
 			if state_time >= attack.active_duration:
-				_enter("recover")
+				if not _chain_followup():
+					_enter("recover")
 				return Vector3.ZERO
 			return direction * lunge_distance / attack.active_duration
 		"recover":
@@ -407,6 +457,95 @@ func tick(delta: float) -> Vector3:
 			if state_time >= settings.stagger_duration:
 				_enter("approach")
 	return Vector3.ZERO
+
+
+func _begin_windup(quick := false) -> void:
+	var beat := attack as EnemyAttackDefinition
+	tell_duration = minf(beat.quick_windup, attack.windup) if quick and beat else attack.windup
+	if beat and not quick:
+		strikes_left = (
+			routine_rng.randi_range(beat.strikes.x, maxi(beat.strikes.x, beat.strikes.y)) - 1
+		)
+	windup_duration = tell_duration
+	if beat and beat.delay_range.y > 0.0:
+		windup_duration += routine_rng.randf_range(beat.delay_range.x, beat.delay_range.y)
+	attack_id = GameClock.next_attack_id()
+	hit_attempted = false
+	_enter("windup")
+
+
+## A multi-strike turn continues with a quick, telegraphed tell; the admission token is kept.
+func _chain_followup() -> bool:
+	var beat := attack as EnemyAttackDefinition
+	if beat == null or strikes_left <= 0:
+		return false
+	# Alone, a guard strings attacks together; in a crowd, others get their turn.
+	if AttackTokenManager.longest_wait() > AttackTokenManager.settings.chain_wait_limit:
+		return false
+	if (
+		not visible_target()
+		or (
+			absf(target.global_position.y - actor.global_position.y)
+			> settings.maximum_attack_height_difference
+		)
+	):
+		return false
+	var options: Array[int] = []
+	for index in beat.followups if not beat.followups.is_empty() else [attack_index]:
+		var next := _beat(index)
+		if next and target_distance() <= next.start_range + .35:
+			options.append(index)
+	if options.is_empty():
+		return false
+	previous_attack_index = attack_index
+	attack_index = options[routine_rng.randi_range(0, options.size() - 1)]
+	strikes_left -= 1
+	chain_count += 1
+	_record_decision("chain_followup", {"attack": attack.clip, "chain": chain_count})
+	_begin_windup(true)
+	return true
+
+
+## Mashing an uncommitted enemy builds toward an armored counter instead of a stun lock.
+func _should_retaliate() -> bool:
+	if settings.retaliation_hits <= 0 or committed_attack() or not operational():
+		return false
+	hits_in_window = hits_in_window + 1 if hit_window_left > 0 else 1
+	hit_window_left = settings.retaliation_window
+	if hits_in_window < settings.retaliation_hits:
+		return false
+	if target_distance() > settings.engagement_range:
+		return false
+	hits_in_window = 0
+	return true
+
+
+func _retaliate() -> void:
+	AttackTokenManager.claim(self)
+	if not settings.attack_variants.is_empty():
+		attack_index = _quickest_attack()
+	chain_count = 0
+	strikes_left = 0
+	stagger_resistance_left = 0
+	_record_decision("retaliate_against_pressure", {"attack": attack.clip})
+	_begin_windup(true)
+
+
+## The beat an attack index names; archetypes without variants repeat their single attack.
+func _beat(index: int) -> EnemyAttackDefinition:
+	if settings.attack_variants.is_empty():
+		return settings.attack as EnemyAttackDefinition
+	if index < 0 or index >= settings.attack_variants.size():
+		return null
+	return settings.attack_variants[index]
+
+
+func _quickest_attack() -> int:
+	var quickest := 0
+	for i in settings.attack_variants.size():
+		if settings.attack_variants[i].windup < settings.attack_variants[quickest].windup:
+			quickest = i
+	return quickest
 
 
 func _face(toward: Vector3, delta: float) -> void:

@@ -21,6 +21,8 @@ func _ready() -> void:
 		add_child(load("res://tests/enemy_surface_replay.gd").new())
 	if "--fall-dust-replay" in OS.get_cmdline_user_args():
 		add_child(load("res://tests/fall_dust_replay.gd").new())
+	if "--lock-on-replay" in OS.get_cmdline_user_args():
+		add_child(load("res://tests/lock_on_replay.gd").new())
 	if "--room-replay" in OS.get_cmdline_user_args():
 		add_child(load("res://tests/room_replay.gd").new())
 	if "--energy-replay" in OS.get_cmdline_user_args():
@@ -33,14 +35,7 @@ func _physics_process(_delta: float) -> void:
 	var delta := GameClock.dt
 	if delta <= 0.0:
 		return
-	var look := (
-		Input.get_vector(
-			"look_left", "look_right", "look_up", "look_down", player.settings.stick_deadzone
-		)
-		if not player.use_test_input
-		else Vector2.ZERO
-	)
-	var offset := player.move_direction(look) * player.settings.camera_look_distance
+	var offset := player.camera_look_offset()
 	var target := Vector3(
 		clampf(player.position.x + offset.x, camera_min.x, camera_max.x),
 		player.position.y + camera_target_height,

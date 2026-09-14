@@ -2,6 +2,8 @@ extends Node
 ## Selection persists across level restart; no character-specific combat logic lives here.
 var characters: Array[CharacterDefinition] = [preload("res://settings/characters/red_panda.tres")]
 var selected_character: CharacterDefinition
+## The live player while it is inside the tree. Cheaper and clearer than a group lookup per tick.
+var player: PlayerCharacter
 
 
 func _init() -> void:

@@ -8,6 +8,7 @@ rig=bpy.data.objects['AcornGuard_Rig']
 poses=[('walk',15),('windup',78),('strike',11),('death',78)]
 if 'run' in bpy.data.actions:poses=[('run',16),('turn',26),('lunge_windup',67),('lunge_strike',13),('lunge_recover',20)]
 if '--idle-only' in sys.argv:poses=[('idle',60),('look_around',95)]
+if '--jabs' in sys.argv:poses=[('jab_windup',48),('jab_strike',17),('jab_back_windup',48),('jab_back_strike',17),('jab_recover',10)]
 for clip,frame in poses:
     rig.animation_data.action=bpy.data.actions[clip]
     rig.animation_data.action_slot=rig.animation_data.action.slots[0]

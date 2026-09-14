@@ -14,7 +14,8 @@ extends Resource
 @export var attack: AttackDefinition
 ## Optional moveset; the brain owns each actor's selected attack.
 @export var attack_variants: Array[EnemyAttackDefinition] = []
-@export var tactics: EnemyTactics
+## Every archetype reads openings by default; assign a tuned or empty policy to change it.
+@export var tactics: EnemyTactics = EnemyTactics.new()
 @export var variation: EnemyVariation
 @export var movement: EnemyMovementSettings = EnemyMovementSettings.new()
 @export var lunge_distance := 0.18
@@ -47,3 +48,7 @@ extends Resource
 @export var post_attack_cooldown := 0.25
 @export var archetype_priority := 1.0
 @export var tint := Color(0.456, 0.110, 0.061)
+@export_group("Souls-like pressure")
+## Uncommitted hits within the window that trigger an armored counterattack; 0 disables it.
+@export_range(0, 8, 1) var retaliation_hits := 3
+@export_range(0.2, 4.0, 0.05, "suffix:s") var retaliation_window := 1.4

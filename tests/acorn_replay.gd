@@ -56,7 +56,13 @@ func run() -> void:
 		"death",
 		"lunge_windup",
 		"lunge_strike",
-		"lunge_recover"
+		"lunge_recover",
+		"jab_windup",
+		"jab_strike",
+		"jab_recover",
+		"jab_back_windup",
+		"jab_back_strike",
+		"jab_back_recover"
 	]:
 		check("imported clip " + clip, visual.animation_player.has_animation(clip))
 	check("per-enemy hit flash material", enemy.flash_material != guards[1].flash_material)
@@ -139,15 +145,25 @@ func run() -> void:
 	await reset(Vector3(0, 0, -2))
 	deploy(enemy, Vector3(0, 0, -2.75))
 	await wait_state(enemy, "windup")
-	check("close opponent selects quicker swing", enemy.brain.attack.clip == &"strike")
+	check(
+		"close opponent selects a close-range beat",
+		enemy.brain.attack.clip in [&"strike", &"jab_strike", &"jab_back_strike"],
+		enemy.brain.attack.clip
+	)
 	await step(35)
 	var locked: Vector3 = enemy.brain.direction
 	p.position = enemy.position - locked * .85
-	await step(45)
-	check(
-		"late dodge behind the swing avoids damage",
-		p.health.current == 5 and enemy.brain.direction.dot(locked) > .999
-	)
+	# Judge the committed strike itself; a later string strike may legitimately retrack.
+	var stayed_locked := true
+	for i in 240:
+		if enemy.brain.state == "windup" and enemy.brain.chain_count == 0:
+			stayed_locked = stayed_locked and enemy.brain.direction.dot(locked) > .999
+		elif enemy.brain.state == "strike":
+			stayed_locked = stayed_locked and enemy.brain.direction.dot(locked) > .999
+		else:
+			break
+		await step(1)
+	check("late dodge behind the swing avoids damage", p.health.current == 5 and stayed_locked)
 	await reset(Vector3(0, 0, -2))
 	deploy(enemy, Vector3(0, 0, -3.0))
 	var attack_id := GameClock.next_attack_id()
@@ -200,6 +216,7 @@ func run() -> void:
 		enemy.health.current
 	)
 	await tactical_checks(enemy)
+	await pressure_checks(enemy)
 	await return_heading_checks(enemy)
 	await idle_routine_checks(enemy)
 	await source_review(enemy)
@@ -290,6 +307,10 @@ func source_review(enemy) -> void:
 		"lunge_windup",
 		"lunge_strike",
 		"lunge_recover",
+		"jab_windup",
+		"jab_strike",
+		"jab_back_windup",
+		"jab_back_strike",
 		"idle"
 	]
 	var durations := [
@@ -300,6 +321,10 @@ func source_review(enemy) -> void:
 		enemy.brain.settings.attack_variants[1].windup,
 		enemy.brain.settings.attack_variants[1].active_duration,
 		enemy.brain.settings.attack_variants[1].recovery,
+		enemy.brain.settings.attack_variants[2].windup,
+		enemy.brain.settings.attack_variants[2].active_duration,
+		enemy.brain.settings.attack_variants[3].windup,
+		enemy.brain.settings.attack_variants[3].active_duration,
 		.5
 	]
 	var frame := 0
@@ -383,6 +408,107 @@ func tactical_checks(enemy) -> void:
 	decision_file.store_string(
 		JSON.stringify({"results": results, "last_decisions": enemy.brain.decision_history}, "\t")
 	)
+
+
+## Souls-like pressure: delayed tells, followup chains, anti-mash counters and punished openings.
+func pressure_checks(enemy) -> void:
+	var brain: EnemyBrain = enemy.brain
+	var original: EnemySettings = brain.settings
+	var tuned: EnemySettings = original.duplicate(true)
+	for beat in tuned.attack_variants:
+		beat.strikes = Vector2i(3, 3)
+		beat.delay_range = Vector2(.2, .2)
+	brain.settings = tuned
+	await reset(Vector3(0, 0, -2))
+	deploy(enemy, Vector3(0, 0, -2.7))
+	p.invulnerability = 100
+	await wait_state(enemy, "windup")
+	check(
+		"delay hold extends the authored tell",
+		is_equal_approx(brain.windup_duration - brain.tell_duration, .2),
+		[brain.tell_duration, brain.windup_duration]
+	)
+	var tell_start := GameClock.elapsed
+	await wait_state(enemy, "strike")
+	check(
+		"delayed strike waits for tell plus hold",
+		GameClock.elapsed - tell_start >= brain.windup_duration - .02,
+		GameClock.elapsed - tell_start
+	)
+	await wait_state(enemy, "windup")
+	check(
+		"strike chains into a telegraphed followup that is never slower",
+		(
+			brain.chain_count == 1
+			and brain.decision_reason == "chain_followup"
+			and brain.tell_duration <= tuned.attack_variants[brain.attack_index].windup
+			and AttackTokenManager.owns(brain)
+			and enemy.get_node("Telegraph").visible
+		),
+		brain.decision_history.back()
+	)
+	await wait_state(enemy, "recover", 1200)
+	check(
+		"a three-strike turn delivers three separate strikes",
+		brain.chain_count == 2,
+		brain.chain_count
+	)
+	# Later strikes must land after the player's damage i-frames, not vanish inside them.
+	for beat in tuned.attack_variants:
+		beat.strikes = Vector2i(2, 2)
+		beat.delay_range = Vector2.ZERO
+	await reset(Vector3(0, 0, -2))
+	deploy(enemy, Vector3(0, 0, -2.7))
+	p.invulnerability = 0
+	var landed := [0, p.health.current]
+	var count_hit := func(current: float, _maximum: float):
+		if current < landed[1]:
+			landed[0] += 1
+		landed[1] = current
+	p.health.changed.connect(count_hit)
+	await wait_state(enemy, "recover", 1200)
+	p.health.changed.disconnect(count_hit)
+	check("a two-strike turn deals two separate hits", landed[0] == 2, landed)
+	brain.settings = original
+	p.invulnerability = 0
+	await reset(Vector3(0, 0, -2))
+	deploy(enemy, Vector3(0, 0, -3.2))
+	brain.cooldown = 5.0
+	await step(20)
+	enemy.receive_hit(.1, GameClock.next_attack_id(), p.position)
+	check("a single hit still staggers", brain.state == "stagger", brain.state)
+	enemy.receive_hit(.1, GameClock.next_attack_id(), p.position)
+	enemy.receive_hit(.1, GameClock.next_attack_id(), p.position)
+	check(
+		"mashing triggers an armored counterattack",
+		(
+			brain.state == "windup"
+			and brain.decision_reason == "retaliate_against_pressure"
+			and AttackTokenManager.owns(brain)
+		),
+		brain.state
+	)
+	var counter_health: float = enemy.health.current
+	enemy.receive_hit(.1, GameClock.next_attack_id(), p.position)
+	check(
+		"counter tell keeps its armor but still takes damage",
+		brain.state == "windup" and enemy.health.current < counter_health
+	)
+	await reset(Vector3(0, 0, -2))
+	deploy(enemy, Vector3(0, 0, -4.4))
+	# Keep the guard circling (no granted turn) so only the opening can end its cooldown.
+	brain.cooldown = 5.0
+	await step(40)
+	await start("light")
+	var saw_opening := false
+	var pressed := false
+	for i in 30:
+		await step(1)
+		if brain.sees_opening():
+			saw_opening = true
+			pressed = pressed or (brain.pressing_opening and brain.cooldown == 0.0)
+	check("visible attack recovery is read as an opening", saw_opening, brain.observation)
+	check("an opening cancels cooldown and presses straight in", pressed)
 
 
 func return_heading_checks(enemy) -> void:

@@ -11,7 +11,7 @@ signal conversation_finished(actor: Node3D)
 func _physics_process(delta: float) -> void:
 	if facing_node.is_empty():
 		return
-	var reader := get_tree().get_first_node_in_group("player") as PlayerCharacter
+	var reader := GameSession.player
 	if reader == null:
 		return
 	var talking: bool = Dialogue.active and Dialogue.source == self

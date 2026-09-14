@@ -14,6 +14,8 @@ windup = 0.68
 active_duration = 0.2
 recovery = 0.8
 enemy_contact_fraction = 0.45
+strikes = Vector2i(1, 1)
+delay_range = Vector2(0, 0.2)
 
 [sub_resource type="Resource" id="LungeSwing"]
 script = ExtResource("Beat")
@@ -27,6 +29,52 @@ windup = 0.76
 active_duration = 0.22
 recovery = 0.9
 enemy_contact_fraction = 0.4
+strikes = Vector2i(1, 2)
+followups = Array[int]([2])
+quick_windup = 0.48
+delay_range = Vector2(0, 0.28)
+
+[sub_resource type="Resource" id="Jab"]
+script = ExtResource("Beat")
+start_range = 0.8
+hit_range = 0.92
+half_angle = 70.0
+lunge = 0.12
+windup_clip = &"jab_windup"
+selection_bias = 0.12
+recovery_clip = &"jab_recover"
+strikes = Vector2i(2, 3)
+followups = Array[int]([3])
+quick_windup = 0.5
+delay_range = Vector2(0, 0.12)
+clip = &"jab_strike"
+windup = 0.48
+active_duration = 0.14
+recovery = 0.5
+damage = 0.5
+knockback = 1.2
+enemy_contact_fraction = 0.5
+
+[sub_resource type="Resource" id="JabBack"]
+script = ExtResource("Beat")
+start_range = 0.8
+hit_range = 0.92
+half_angle = 70.0
+lunge = 0.12
+windup_clip = &"jab_back_windup"
+selection_bias = 0.12
+recovery_clip = &"jab_back_recover"
+strikes = Vector2i(2, 3)
+followups = Array[int]([2])
+quick_windup = 0.5
+delay_range = Vector2(0, 0.12)
+clip = &"jab_back_strike"
+windup = 0.48
+active_duration = 0.14
+recovery = 0.5
+damage = 0.5
+knockback = 1.2
+enemy_contact_fraction = 0.5
 
 [sub_resource type="Resource" id="GroundMovement"]
 script = ExtResource("Movement")
@@ -49,7 +97,7 @@ attack_range = 0.78
 strike_range = 0.98
 strike_half_angle = 60.0
 attack = SubResource("QuickSwing")
-attack_variants = Array[ExtResource("Beat")]([SubResource("QuickSwing"), SubResource("LungeSwing")])
+attack_variants = Array[ExtResource("Beat")]([SubResource("QuickSwing"), SubResource("LungeSwing"), SubResource("Jab"), SubResource("JabBack")])
 tactics = SubResource("GuardTactics")
 variation = SubResource("Individuality")
 movement = SubResource("GroundMovement")
@@ -63,3 +111,5 @@ path_update_interval = 0.08
 alternate_orbit_after_attack = true
 patrol_offsets = PackedVector3Array(0.65, 0, 0.25, -0.45, 0, -0.4, 0, 0, 0)
 post_attack_cooldown = 0.16
+retaliation_hits = 3
+retaliation_window = 1.5
