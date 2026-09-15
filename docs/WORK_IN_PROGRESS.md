@@ -1,4 +1,20 @@
-# Huidige stand — 14 september 2026
+# Huidige stand — 15 september 2026
+
+## Level Builder: 100 m, plaatsen op hoogte en strooiopties
+
+Plateaus en trapeinden lopen nu tot **100 m**, met de bestaande **0,5 m**-stap in de builder, selectievelden, Inspector en setters. Plaatsingsklikken gebruiken de zichtbare gebakken geometrie. Water op een plateau bewaart de aangeklikte hoogte: op 10 m liggen het standaardoppervlak en de bodem op respectievelijk 9,88 en 9,4 m. Oppervlak en bodem worden op dezelfde ondersteunende grond afgeknipt; hogere eilanden en trappen blijven vrij. Assets, paden en patrouilles bewaren eveneens hun aangeklikte hoogte.
+
+**Strooi** heeft **Willekeurige hoek** en **Overlap toestaan**. Overlap laat nieuwe groepen over bestaande assets heen schilderen; Afstand blijft instelbaar en geldt tussen nieuwe objecten binnen dezelfde strooistreek. **Hoogte +** bij Strooi en Plaats verschuift de plaatsingshoogte ten opzichte van het oppervlak, in stappen van 0,5 m. Het penseel toont die verhoging; afstandscontrole en wissen gebruiken dezelfde offset. De opties wijzigen de onderliggende LevelAsset niet.
+
+Gecontroleerd in een geïsoleerde **Godot 4.7.2 Forward+ Metal**-editor: **50 gerichte checks geslaagd, 68 renderframes**, inclusief 100 m, verhoogd waterbeeld én bodemcollision, clipping/eilanden, rivieren/routes, hoogte-offset, draaiing, overlap aan/uit, Undo/Redo en save/reopen. Daarnaast **146 bestaande editorchecks geslaagd, 324 renderframes** na de hoogte-/wateraanpassing. Bewijs: `captures/level_builder/elevation_100m/`. De editor meldde bij afsluiten bestaande shader-resourceleaks; de gerichte run had geen script-/parsefouten. Geen gameplay-/combatsuites uitgevoerd en geen gebruikerslevels aangepast.
+
+## Level Builder: selecteren, verplaatsen en object-scatter
+
+**Selecteer** kiest de authored plateau-, trap-, brug-, water- of padnode via de zichtbare geometrie. Witte omtrekken tonen de hoverselectie, ook op plateaumuren en schuine bruggen. Slepen verplaatst over X/Z op het raster. Aangesloten trappen en de ondersteunde bruguiteinden volgen hun plateau; een apart versleepte trap past weer op een nabije vrije plateaurand. Eén Undo/Redo herstelt de hele verbonden verplaatsing. Escape, gereedschapswissel en focusverlies annuleren; loslaten buiten het viewport rondt af. Props en speler behouden hun gewone selectie; Alt geeft Godots eigen gereedschap voorrang. Water en bruggen reageren nu op transformwijzigingen en verplaatsen selectie op gegenereerde kinderen veilig naar hun authored node vóór vervanging.
+
+**Strooi** staat zichtbaar naast **Plaats** en opent automatisch bij bloem-/begroeiingsassets. Straal, aantal, minimumafstand en het vrijhouden van paden zijn instelbaar. Een geel penseel toont het gebied; bloemen volgen de grond of het plateau en water blijft vrij. Schaal-/draaivariatie volgt de bestaande LevelAsset-instellingen. Shift wist alleen het gekozen type. Een volledige strooi- of wisstreek is één Undo-actie. **Plaats** zet precies één exemplaar op de klikpositie. Alle plaatsingen blijven gewone opgeslagen scene-instances.
+
+Gecontroleerd in een geïsoleerde Godot 4.7.2-editor met **Forward+ Metal**: **145 checks geslaagd, 348 renderframes**, inclusief viewportklik/sleep, gekoppeld undo/redo, verplaatste groepen en bloemen opslaan/heropenen, 30 bloemen per klik, penseelstreken en gericht wissen. Actuele beelden, rapport, log en bronhashes: `captures/level_builder/editing_selection_scatter/`. Geen gameplay-/combatsuites uitgevoerd; bestaande gebruikerslevels zijn behouden. Bediening: [LEVEL_BUILDER.md](LEVEL_BUILDER.md).
 
 ## Level Builder: eigen levels en area-/materiaalsets
 

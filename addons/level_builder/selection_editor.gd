@@ -15,7 +15,12 @@ func refresh() -> void:
 	if selection.size() == 1:
 		var node: Node = selection[0]
 		while node:
-			if node is LevelTerrain or node is LevelTerrace or node is LevelRamp:
+			if (
+				node is LevelTerrain
+				or node is LevelTerrace
+				or node is LevelRamp
+				or node is LevelBridge
+			):
 				target = node
 				break
 			node = node.get_parent()
@@ -26,6 +31,22 @@ func refresh() -> void:
 	title.text = String(target.name)
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(title)
+	if target is LevelBridge:
+		var row := HBoxContainer.new()
+		var caption := Label.new()
+		caption.text = "Booghoogte"
+		caption.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(caption)
+		var height := SpinBox.new()
+		height.max_value = LevelTerrain.MAX_HEIGHT
+		height.step = LevelTerrain.HEIGHT_STEP
+		height.suffix = "m"
+		height.value = target.arch_height
+		height.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		height.value_changed.connect(set_arch_height)
+		row.add_child(height)
+		add_child(row)
+		return
 	if target is LevelTerrace:
 		var row := HBoxContainer.new()
 		var caption := Label.new()
@@ -73,6 +94,16 @@ func refresh() -> void:
 			EditorInterface.edit_resource(style)
 	)
 	add_child(custom)
+
+
+func set_arch_height(value: float) -> void:
+	if not is_instance_valid(target) or not target is LevelBridge:
+		return
+	var undo := plugin.get_undo_redo()
+	undo.create_action("Brugboog", UndoRedo.MERGE_ENDS, target)
+	undo.add_do_property(target, "arch_height", value)
+	undo.add_undo_property(target, "arch_height", target.arch_height)
+	undo.commit_action()
 
 
 func set_height(value: float) -> void:

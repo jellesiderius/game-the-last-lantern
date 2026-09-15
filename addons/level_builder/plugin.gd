@@ -1,17 +1,30 @@
 @tool
 extends EditorPlugin
 ## Thin editor UI over saved scenes and Resources. No runtime generator/autoload.
-enum Tool { SELECT, PLACE, PLATEAU, STAIRS, PATH, PATROL, BRIDGE, WATER }
-const TOOL_NAMES := ["Selecteer", "Plaats", "Plateau", "Trap", "Pad", "Patrouille", "Brug", "Water"]
+enum Tool { SELECT, PLACE, PLATEAU, STAIRS, PATH, PATROL, BRIDGE, WATER, SCATTER, BOUNDARY }
+const TOOL_NAMES := [
+	"Selecteer",
+	"Plaats",
+	"Plateau",
+	"Trap",
+	"Pad",
+	"Patrouille",
+	"Brug",
+	"Water",
+	"Strooi",
+	"Afkadering"
+]
 const TOOL_HINTS := [
-	"Selecteer en versleep met Godots eigen gereedschap. Hoogte en maat staan in de Inspector.",
-	"Klik om te plaatsen. Begroeiing strooit bij slepen. Shift+slepen wist.",
+	"Klik op een plateau, trap, brug, water of pad om het te selecteren; sleep om het op het raster te verplaatsen. Trappen en bruggen aan een plateau gaan mee. Alt+klik = gewone Godot-selectie.",
+	"Klik om één object te plaatsen. Kies Strooi voor groepen bloemen, bomen of andere props.",
 	"Kies een Hoogte en sleep een rechthoek. Ctrl houdt de hoogte van de grond eronder. Rechthoeken tegen elkaar vormen één plateau; hogere plateaus mogen op lagere.",
 	"Beweeg over de rand van een plateau en klik. Muis óp het plateau = trap erin, op de muur of ervoor = trap naar buiten. Rood = past niet.",
 	"Klik punten voor een pad. Esc rondt af.",
 	"Klik punten voor een patrouilleroute. Esc rondt af.",
 	"Klik een plateaurand (of de grond) als begin en daarna het tweede punt. Omhoog of omlaag mag; de brug volgt de plateaus. Rood = te steil of door een plateau. Esc annuleert.",
-	"Vierkant: sleep een rechthoek. Pad: klik punten voor een rivier, Esc rondt af. De grond zakt vanzelf in met zachte oevers; schuim en kringen komen vanzelf."
+	"Vierkant: sleep een rechthoek. Pad: klik punten voor een rivier, Esc rondt af. De grond zakt vanzelf in met zachte oevers; schuim en kringen komen vanzelf.",
+	"Kies een prop en klik of sleep om te strooien. Straal bepaalt het gebied; Aantal en Afstand bepalen de dichtheid. Shift+slepen wist alleen dit type. Eén streek = één Undo.",
+	"Kies een prop. Sleep een rechte lijn, of klik hoekpunten en druk Enter om af te ronden. Esc annuleert. Doorgang blokkeren sluit ook de openingen tussen de props."
 ]
 const PREPARATION = preload("res://addons/level_builder/asset_preparation.gd")
 const FACTORY = preload("res://addons/level_builder/level_factory.gd")
@@ -38,11 +51,27 @@ var selected_name := Label.new()
 var palette = preload("res://addons/level_builder/asset_palette.gd").new()
 var radius := SpinBox.new()
 var amount := SpinBox.new()
+var scatter_spacing := SpinBox.new()
+var scatter_paths := CheckBox.new()
+var scatter_random_yaw := CheckBox.new()
+var scatter_overlap := CheckBox.new()
+var placement_height := SpinBox.new()
+var boundary_spacing := SpinBox.new()
+var boundary_random_yaw := CheckBox.new()
+var boundary_collision := CheckBox.new()
+var boundary_height := SpinBox.new()
+var boundary_width := SpinBox.new()
+var boundary_finish := Button.new()
+var boundary_points := PackedVector3Array()
+var boundary_hover: Variant = null
+var boundary_press := Vector2.ZERO
+var boundary_drag := false
 var snap := SpinBox.new()
 var plateau_height := SpinBox.new()
 var stair_width := SpinBox.new()
 var stair_steps := CheckBox.new()
 var bridge_width := SpinBox.new()
+var bridge_arch := SpinBox.new()
 var bridge_rails := CheckBox.new()
 var bridge_start := {}
 var water_shape := OptionButton.new()
@@ -70,12 +99,22 @@ var id_claims := {}
 var maintenance_time := 0.0
 var last_paint := Vector3.INF
 var stroke_nodes: Array[Node3D] = []
+var erased_nodes: Array[Dictionary] = []
 var painting := false
 var erasing := false
+var scatter_rng := RandomNumberGenerator.new()
 var active_curve: Path3D
 var drag_start: Variant = null
 ## A click without dragging sets the first corner of a rectangle; the next click finishes it.
 var corner_pending := false
+## Select tool: the node being dragged, with every node that moves along with it.
+var move_node: Node3D
+var move_items: Array[Dictionary] = []
+var move_start := Vector2.ZERO
+var move_height := 0.0
+var move_last := Vector2.ZERO
+var move_mouse_start := Vector2.ZERO
+var move_dragging := false
 var drag_end: Variant = null
 var preview: MeshInstance3D
 
@@ -140,7 +179,18 @@ func _enter_tree() -> void:
 	var buttons := HFlowContainer.new()
 	body.add_child(buttons)
 	var group := ButtonGroup.new()
-	for i in [Tool.SELECT, Tool.PLACE, Tool.PLATEAU, Tool.STAIRS, Tool.BRIDGE, Tool.WATER, Tool.PATH, Tool.PATROL]:
+	for i in [
+		Tool.SELECT,
+		Tool.PLACE,
+		Tool.SCATTER,
+		Tool.BOUNDARY,
+		Tool.PLATEAU,
+		Tool.STAIRS,
+		Tool.BRIDGE,
+		Tool.WATER,
+		Tool.PATH,
+		Tool.PATROL
+	]:
 		var button := Button.new()
 		button.text = TOOL_NAMES[i]
 		button.toggle_mode = true
@@ -153,28 +203,76 @@ func _enter_tree() -> void:
 	_spin(plateau_height, .5, LevelTerrain.MAX_HEIGHT, .5, 1, "m hoog")
 	_spin(stair_width, .5, 12, .5, 2, "m breed")
 	_spin(bridge_width, 1, 6, .5, 2, "m breed")
+	_spin(bridge_arch, 0, 100, .5, 0, "m")
+	bridge_arch.tooltip_text = "Extra hoogte in het midden van de brug. 0 houdt de brug recht."
 	_spin(water_width, .5, 20, .5, 3, "m breed")
 	_spin(water_depth, .2, 3, .1, .6, "m diep")
 	water_shape.add_item("Vierkant")
 	water_shape.add_item("Pad")
 	water_shape.item_selected.connect(func(_index): _set_tool(tool))
 	_spin(radius, .25, 12, .25, 2, "m penseel")
-	_spin(amount, 1, 40, 1, 6, "per stempel")
+	_spin(amount, 1, 120, 1, 12, "per stempel")
+	_spin(scatter_spacing, .1, 10, .1, .7, "m vrijhouden")
+	scatter_paths.text = "Paden vrijhouden"
+	scatter_paths.button_pressed = true
+	scatter_random_yaw.text = "Willekeurige hoek"
+	scatter_random_yaw.button_pressed = true
+	scatter_overlap.text = "Overlap toestaan"
+	scatter_overlap.tooltip_text = "Strooi over bestaande assets heen. Afstand blijft gelden tussen de objecten van de nieuwe strooistreek."
+	_spin(placement_height, -100, 100, .5, 0, "m")
+	_spin(boundary_spacing, .25, 20, .25, 2, "m tussen props")
+	_spin(boundary_height, .5, 100, .5, 4, "m")
+	_spin(boundary_width, .1, 8, .1, .6, "m")
+	boundary_random_yaw.text = "Willekeurige hoek"
+	boundary_random_yaw.button_pressed = true
+	boundary_collision.text = "Doorgang blokkeren"
+	boundary_collision.button_pressed = true
+	boundary_collision.tooltip_text = "Doorlopende onzichtbare botsing, ook tussen de stammen. De eigen botsing van de prop blijft behouden."
+	boundary_finish.text = "Lijn afronden (Enter)"
+	boundary_finish.pressed.connect(_finish_boundary)
+	placement_height.tooltip_text = "Hoogte ten opzichte van het aangeklikte oppervlak. 0 plaatst op de grond; 2 plaatst 2 m erboven."
 	stair_steps.text = "Treden (uit = helling)"
 	stair_steps.button_pressed = true
 	bridge_rails.text = "Leuningen"
 	bridge_rails.button_pressed = true
-	_option("Raster", snap, [Tool.PLACE, Tool.PLATEAU, Tool.STAIRS, Tool.BRIDGE, Tool.WATER, Tool.PATH, Tool.PATROL], body)
+	_option(
+		"Raster",
+		snap,
+		[
+			Tool.SELECT,
+			Tool.PLACE,
+			Tool.BOUNDARY,
+			Tool.PLATEAU,
+			Tool.STAIRS,
+			Tool.BRIDGE,
+			Tool.WATER,
+			Tool.PATH,
+			Tool.PATROL
+		],
+		body
+	)
 	_option("Hoogte", plateau_height, [Tool.PLATEAU], body)
 	_option("Trapbreedte", stair_width, [Tool.STAIRS], body)
 	_option("", stair_steps, [Tool.STAIRS], body)
 	_option("Brugbreedte", bridge_width, [Tool.BRIDGE], body)
+	_option("Booghoogte", bridge_arch, [Tool.BRIDGE], body)
 	_option("", bridge_rails, [Tool.BRIDGE], body)
 	_option("Vorm", water_shape, [Tool.WATER], body)
 	_option("Breedte", water_width, [Tool.WATER], body)
 	_option("Diepte", water_depth, [Tool.WATER], body)
-	_option("Penseel", radius, [Tool.PLACE], body)
-	_option("Aantal", amount, [Tool.PLACE], body)
+	_option("Straal", radius, [Tool.SCATTER], body)
+	_option("Aantal", amount, [Tool.SCATTER], body)
+	_option("Afstand", scatter_spacing, [Tool.SCATTER], body)
+	_option("Hoogte +", placement_height, [Tool.SCATTER, Tool.PLACE, Tool.BOUNDARY], body)
+	_option("", scatter_random_yaw, [Tool.SCATTER], body)
+	_option("", scatter_overlap, [Tool.SCATTER], body)
+	_option("", scatter_paths, [Tool.SCATTER], body)
+	_option("Afstand", boundary_spacing, [Tool.BOUNDARY], body)
+	_option("", boundary_random_yaw, [Tool.BOUNDARY], body)
+	_option("", boundary_collision, [Tool.BOUNDARY], body)
+	_option("Blokhoogte", boundary_height, [Tool.BOUNDARY], body)
+	_option("Blokbreedte", boundary_width, [Tool.BOUNDARY], body)
+	_option("", boundary_finish, [Tool.BOUNDARY], body)
 	body.add_child(HSeparator.new())
 	selection_editor.plugin = self
 	body.add_child(selection_editor)
@@ -216,11 +314,16 @@ func _enter_tree() -> void:
 	set_input_event_forwarding_always_enabled()
 	_refresh_sets()
 	_set_tool(Tool.SELECT)
-	if "--level-builder-editor-checks" in OS.get_cmdline_user_args():
+	if (
+		"--level-builder-editor-checks" in OS.get_cmdline_user_args()
+		or "--level-builder-elevation-checks" in OS.get_cmdline_user_args()
+		or "--level-builder-boundary-checks" in OS.get_cmdline_user_args()
+	):
 		_run_editor_checks.call_deferred()
 
 
 func _exit_tree() -> void:
+	_cancel_move()
 	_commit_stroke()
 	_clear_preview()
 	remove_inspector_plugin(inspector)
@@ -253,7 +356,9 @@ func _process(delta: float) -> void:
 		EditorInterface.mark_scene_as_unsaved()
 
 
-func _spin(spin: SpinBox, low: float, high: float, step: float, value: float, suffix: String) -> void:
+func _spin(
+	spin: SpinBox, low: float, high: float, step: float, value: float, suffix: String
+) -> void:
 	spin.min_value = low
 	spin.max_value = high
 	spin.step = step
@@ -274,14 +379,20 @@ func _option(title: String, control: Control, tools: Array, parent: Node) -> voi
 
 
 func _set_tool(next: int) -> void:
+	_cancel_move()
 	_commit_stroke()
 	_clear_preview()
 	drag_start = null
 	corner_pending = false
+	move_node = null
+	move_items.clear()
 	last_paint = Vector3.INF
 	tool = next
 	active_curve = null
 	bridge_start = {}
+	boundary_points.clear()
+	boundary_hover = null
+	boundary_drag = false
 	if tool in [Tool.PATH, Tool.PATROL, Tool.WATER]:
 		var selected := EditorInterface.get_selection().get_selected_nodes()
 		if selected.size() == 1 and _curve_matches_tool(selected[0]):
@@ -294,17 +405,29 @@ func _set_tool(next: int) -> void:
 
 
 func _curve_matches_tool(node: Variant) -> bool:
-	return is_instance_valid(node) and (
-		(tool == Tool.PATH and node is LevelPath)
-		or (tool == Tool.PATROL and node is EnemyPatrol)
-		or (tool == Tool.WATER and node is LevelWater and node.shape == LevelWater.Shape.PATH)
+	return (
+		is_instance_valid(node)
+		and (
+			(tool == Tool.PATH and node is LevelPath)
+			or (tool == Tool.PATROL and node is EnemyPatrol)
+			or (tool == Tool.WATER and node is LevelWater and node.shape == LevelWater.Shape.PATH)
+		)
 	)
 
 
 func _asset_selected(index: int) -> void:
 	active_asset = shown_assets[index]
 	selected_name.text = active_asset.display_name
-	_set_tool(Tool.PLACE)
+	scatter_spacing.value = active_asset.spacing
+	scatter_random_yaw.button_pressed = active_asset.random_yaw
+	var scatter := (
+		(active_asset.scatter_allowed or tool == Tool.SCATTER)
+		and active_asset.category not in ["Enemies", "Gameplay"]
+	)
+	if tool == Tool.BOUNDARY and active_asset.category not in ["Enemies", "Gameplay"]:
+		_note(TOOL_HINTS[tool])
+	else:
+		_set_tool(Tool.SCATTER if scatter else Tool.PLACE)
 	tools_dock.make_visible()
 
 
@@ -320,6 +443,10 @@ func _scene_changed(root: Node) -> void:
 func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		if tool == Tool.SELECT:
+			if is_instance_valid(move_node):
+				_cancel_move()
+				_note("Verplaatsen geannuleerd.")
+				return EditorPlugin.AFTER_GUI_INPUT_STOP
 			return EditorPlugin.AFTER_GUI_INPUT_PASS
 		if corner_pending:
 			corner_pending = false
@@ -334,8 +461,14 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		_set_tool(Tool.SELECT)
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
-	if tool == Tool.SELECT or (event is InputEventWithModifiers and event.alt_pressed):
+	if event is InputEventWithModifiers and event.alt_pressed:
+		_cancel_move()
+		_clear_preview()
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
+	if tool == Tool.SELECT:
+		return _select_input(camera, event)
+	if tool == Tool.BOUNDARY:
+		return _boundary_input(camera, event)
 	if tool == Tool.BRIDGE:
 		# Like stairs: hover shows the anchor (and the bridge once a start is set).
 		var bridge_ground := _terrain()
@@ -347,7 +480,9 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
 				_bridge_click(_bridge_anchor_from_view(bridge_ground, camera, event.position))
-				_update_bridge_preview(_bridge_anchor_from_view(bridge_ground, camera, event.position))
+				_update_bridge_preview(
+					_bridge_anchor_from_view(bridge_ground, camera, event.position)
+				)
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	if tool == Tool.STAIRS:
@@ -365,7 +500,7 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		var at: Variant = _hit(camera, event.position)
+		var at: Variant = _hit(camera, event.position, tool != Tool.SCATTER)
 		if event.pressed:
 			if at == null:
 				return EditorPlugin.AFTER_GUI_INPUT_STOP
@@ -376,9 +511,9 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 				_finish_rectangle(event.is_command_or_control_pressed())
 				return EditorPlugin.AFTER_GUI_INPUT_STOP
 			match tool:
-				Tool.PLACE:
+				Tool.PLACE, Tool.SCATTER:
 					painting = true
-					erasing = event.shift_pressed
+					erasing = tool == Tool.SCATTER and event.shift_pressed
 					if erasing:
 						_erase(at)
 					else:
@@ -419,8 +554,14 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 			else:
 				_update_plateau_preview(event.is_command_or_control_pressed())
 		return EditorPlugin.AFTER_GUI_INPUT_PASS
+	if event is InputEventMouseMotion and tool == Tool.SCATTER:
+		var brush_at: Variant = _hit(camera, event.position, false)
+		if brush_at != null:
+			_scatter_preview(brush_at, event.shift_pressed)
+		else:
+			_clear_preview()
 	if event is InputEventMouseMotion and (painting or drag_start != null):
-		var at: Variant = _hit(camera, event.position)
+		var at: Variant = _hit(camera, event.position, tool != Tool.SCATTER)
 		if at == null:
 			return EditorPlugin.AFTER_GUI_INPUT_STOP
 		if drag_start != null:
@@ -429,13 +570,119 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 				_update_water_preview()
 			else:
 				_update_plateau_preview(event.is_command_or_control_pressed())
-		elif at.distance_to(last_paint) >= radius.value * .5:
-			if erasing:
-				_erase(at)
-			elif active_asset and active_asset.scatter_allowed:
-				_stamp(at)
+		elif tool == Tool.SCATTER and at.distance_to(last_paint) >= radius.value * .5:
+			var start := last_paint
+			var step := maxf(.15, radius.value * .5)
+			var steps := mini(32, floori(start.distance_to(at) / step))
+			for i in range(1, steps + 1):
+				var point := start.move_toward(at, i * step)
+				if erasing:
+					_erase(point)
+				else:
+					_stamp(point)
 		return EditorPlugin.AFTER_GUI_INPUT_STOP
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
+
+
+func _boundary_input(camera: Camera3D, event: InputEvent) -> int:
+	if event is InputEventKey and event.pressed and event.keycode in [KEY_ENTER, KEY_KP_ENTER]:
+		_finish_boundary()
+		return EditorPlugin.AFTER_GUI_INPUT_STOP
+	if event is InputEventMouseMotion:
+		boundary_hover = _hit(camera, event.position)
+		_update_boundary_preview()
+		return EditorPlugin.AFTER_GUI_INPUT_PASS
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		var at: Variant = _hit(camera, event.position)
+		if at == null:
+			boundary_drag = false
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		if event.pressed:
+			boundary_drag = boundary_points.is_empty()
+			boundary_press = event.position
+			if boundary_points.is_empty() or boundary_points[-1].distance_to(at) > .05:
+				boundary_points.append(at)
+			boundary_hover = at
+			if event.double_click:
+				_finish_boundary()
+		elif (
+			boundary_drag
+			and event.position.distance_to(boundary_press) >= 4 * EditorInterface.get_editor_scale()
+		):
+			if boundary_points[-1].distance_to(at) > .05:
+				boundary_points.append(at)
+			_finish_boundary()
+		else:
+			boundary_drag = false
+		_update_boundary_preview()
+		return EditorPlugin.AFTER_GUI_INPUT_STOP
+	return EditorPlugin.AFTER_GUI_INPUT_PASS
+
+
+func _update_boundary_preview() -> void:
+	var ground := _terrain()
+	if ground == null or boundary_points.is_empty():
+		_clear_preview()
+		return
+	var points := boundary_points.duplicate()
+	if boundary_hover != null and points[-1].distance_to(boundary_hover) > .05:
+		points.append(boundary_hover)
+	var lines := PackedVector3Array()
+	for i in points.size() - 1:
+		var a := ground.to_local(points[i])
+		var b := ground.to_local(points[i + 1])
+		lines.append_array(PackedVector3Array([a, b]))
+		if boundary_collision.button_pressed:
+			var up := Vector3.UP * boundary_height.value
+			lines.append_array(PackedVector3Array([a, a + up, a + up, b + up, b + up, b]))
+	if not lines.is_empty():
+		_draw_preview(lines, Color(.4, .9, .65), ground)
+
+
+func _finish_boundary() -> LevelBoundary:
+	var ground := _terrain()
+	var root := EditorInterface.get_edited_scene_root()
+	if ground == null or root == null:
+		_note("Maak eerst een level met Terrain via Nieuw level.")
+		return null
+	if active_asset == null or active_asset.category in ["Enemies", "Gameplay"]:
+		_note("Kies een prop zoals bomen, struiken, rotsen of een hek.")
+		return null
+	if boundary_points.size() < 2:
+		_note("Klik minstens twee punten of sleep een lijn. Esc annuleert.")
+		return null
+	var boundary := LevelBoundary.new()
+	boundary.name = "Afkadering"
+	boundary.asset = active_asset
+	boundary.spacing = boundary_spacing.value
+	boundary.random_yaw = boundary_random_yaw.button_pressed
+	boundary.random_seed = scatter_rng.randi()
+	boundary.height_offset = placement_height.value
+	boundary.block_movement = boundary_collision.button_pressed
+	boundary.barrier_height = boundary_height.value
+	boundary.barrier_width = boundary_width.value
+	boundary.curve = Curve3D.new()
+	boundary.curve.resource_local_to_scene = true
+	boundary.curve.bake_interval = .25
+	for point in boundary_points:
+		boundary.curve.add_point(ground.to_local(point))
+	var undo := get_undo_redo()
+	undo.create_action("Plaats afkadering", UndoRedo.MERGE_DISABLE, root)
+	undo.add_do_method(ground, "add_child", boundary, true)
+	undo.add_do_property(boundary, "owner", root)
+	undo.add_do_method(boundary, "bake")
+	undo.add_undo_method(ground, "remove_child", boundary)
+	undo.add_do_reference(boundary)
+	undo.commit_action()
+	boundary_points.clear()
+	boundary_hover = null
+	boundary_drag = false
+	_clear_preview()
+	_select(boundary)
+	_note(
+		"Afkadering geplaatst. Selecteer om te verplaatsen; Alt gebruikt Godots curvegrepen. Afstand en botsing blijven in de Inspector instelbaar."
+	)
+	return boundary
 
 
 func _stamp(at: Vector3) -> void:
@@ -447,31 +694,56 @@ func _stamp(at: Vector3) -> void:
 		return
 	var ground := _terrain()
 	last_paint = at
-	var count := int(amount.value) if active_asset.scatter_allowed else 1
-	for i in count:
+	var scattering := tool == Tool.SCATTER
+	if scattering and active_asset.category in ["Enemies", "Gameplay"]:
+		_note(
+			"Kies een prop of begroeiing om te strooien. Actors en interacties plaats je met Plaats."
+		)
+		return
+	var count := int(amount.value) if scattering else 1
+	var placed := 0
+	var regions: Array[Dictionary] = []
+	if ground:
+		regions = ground.outlines()
+	for i in count * (12 if scattering else 1):
+		if placed >= count:
+			break
 		var point := at
-		if active_asset.scatter_allowed:
-			var angle := randf() * TAU
-			var distance := sqrt(randf()) * radius.value
+		if scattering:
+			var angle := scatter_rng.randf() * TAU
+			var distance := sqrt(scatter_rng.randf()) * radius.value
 			point += Vector3(cos(angle), 0, sin(angle)) * distance
 			if ground:
 				var local := ground.to_local(point)
 				if absf(local.x) > ground.size.x / 2 or absf(local.z) > ground.size.y / 2:
 					continue
-				local.y = _height_at(ground, Vector2(local.x, local.z))
-				point = ground.to_global(local)
-				if _on_path(ground, local):
+				var in_water := false
+				local.y = 0
+				for region in regions:
+					if Geometry2D.is_point_in_polygon(Vector2(local.x, local.z), region.polygon):
+						in_water = region.has("water")
+						local.y = LevelTerrain.region_height(region, Vector2(local.x, local.z))
+						break
+				if in_water:
 					continue
+				point = ground.to_global(local)
+				if scatter_paths.button_pressed and _on_path(ground, local):
+					continue
+			point.y += placement_height.value
 			var blocked := false
 			for other in _parent_for(active_asset).get_children():
+				if scatter_overlap.button_pressed and not stroke_nodes.has(other):
+					continue
 				if (
 					other is Node3D
-					and other.global_position.distance_to(point) < active_asset.spacing
+					and other.global_position.distance_to(point) < scatter_spacing.value
 				):
 					blocked = true
 					break
 			if blocked:
 				continue
+		else:
+			point.y += placement_height.value
 		var node := active_asset.scene.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node3D
 		if node == null:
 			continue
@@ -480,15 +752,62 @@ func _stamp(at: Vector3) -> void:
 		node.owner = root
 		node.global_position = point
 		node.set_meta("level_asset_id", active_asset.id)
-		if active_asset.random_yaw:
-			node.rotation.y = randf() * TAU
+		if scatter_random_yaw.button_pressed if scattering else active_asset.random_yaw:
+			node.rotation.y = scatter_rng.randf() * TAU
 		node.scale *= randf_range(active_asset.scale_range.x, active_asset.scale_range.y)
 		if CHECKS.has_property(node, &"persistent_id"):
 			node.set("respawn_rule", 1)
 		CHECKS.ensure_enemy_ids(root, id_claims)
 		stroke_nodes.append(node)
+		placed += 1
+	if scattering:
+		_note(
+			(
+				"%d objecten gestrooid. %s"
+				% [
+					placed,
+					(
+						"Maak Straal groter of Afstand kleiner voor meer."
+						if placed < count
+						else "Sleep verder; Shift wist dit type."
+					)
+				]
+			)
+		)
 	if not painting:
 		_commit_stroke()
+
+
+## A brush outline on the terrain, kept out of saved scenes.
+func _scatter_preview(at: Vector3, erase: bool) -> void:
+	var ground := _terrain()
+	if ground == null:
+		return
+	var center := ground.to_local(at)
+	var polygon := PackedVector2Array()
+	for i in 64:
+		var angle := TAU * i / 64
+		var world := at + Vector3(cos(angle), 0, sin(angle)) * radius.value
+		var local := ground.to_local(world)
+		polygon.append(Vector2(local.x, local.z))
+	var lines := PackedVector3Array()
+	_append_outline(lines, polygon, ground)
+	var height_shift := ground.global_basis.inverse() * Vector3.UP * placement_height.value
+	for i in lines.size():
+		lines[i] += height_shift
+	lines.append_array(PackedVector3Array([center, center + height_shift]))
+	center += height_shift
+	lines.append_array(
+		PackedVector3Array(
+			[
+				center + Vector3(-.2, 0, 0),
+				center + Vector3(.2, 0, 0),
+				center + Vector3(0, 0, -.2),
+				center + Vector3(0, 0, .2)
+			]
+		)
+	)
+	_draw_preview(lines, Color(1, .35, .3) if erase else Color(1, .85, .3), ground)
 
 
 ## Surface height at a terrain-local X/Z point, ramps included.
@@ -502,6 +821,7 @@ func _height_at(ground: LevelTerrain, point: Vector2) -> float:
 
 func _erase(at: Vector3) -> void:
 	last_paint = at
+	at += Vector3.UP * placement_height.value
 	var root := EditorInterface.get_edited_scene_root()
 	if root == null:
 		return
@@ -520,14 +840,15 @@ func _erase(at: Vector3) -> void:
 				doomed.append(node)
 	if doomed.is_empty():
 		return
-	var undo := get_undo_redo()
-	undo.create_action("Wis assets")
 	for node in doomed:
-		undo.add_do_method(node.get_parent(), "remove_child", node)
-		undo.add_undo_method(node.get_parent(), "add_child", node, true)
-		undo.add_undo_property(node, "owner", node.owner)
-		undo.add_undo_reference(node)
-	undo.commit_action()
+		var selection := EditorInterface.get_selection()
+		for selected in selection.get_selected_nodes():
+			if selected == node or node.is_ancestor_of(selected):
+				selection.remove_node(selected)
+		erased_nodes.append({"node": node, "parent": node.get_parent(), "owner": node.owner})
+		node.get_parent().remove_child(node)
+	if not painting:
+		_commit_stroke()
 
 
 ## Grid-snapped X/Z rectangle between two terrain-local points, clamped to the ground.
@@ -651,7 +972,9 @@ func _stairs_plan_from_view(ground: LevelTerrain, camera: Camera3D, mouse: Vecto
 	var origin := ground.to_local(camera.project_ray_origin(mouse))
 	var direction := ground.global_basis.inverse() * camera.project_ray_normal(mouse)
 	var on_top: Variant = Plane(Vector3.UP, best.top).intersects_ray(origin, direction)
-	var inset: bool = on_top != null and (Vector2(on_top.x, on_top.z) - best.a).dot(best.outward) < 0
+	var inset: bool = (
+		on_top != null and (Vector2(on_top.x, on_top.z) - best.a).dot(best.outward) < 0
+	)
 	return _plan_with_fallback(ground, context, best, best_along, inset)
 
 
@@ -698,7 +1021,9 @@ func _plan_on_edge(
 ) -> Dictionary:
 	var width := minf(stair_width.value, edge.length)
 	var grid := snap.value if snap.value > 0 else .5
-	along = clampf(snappedf(along - width / 2, grid) + width / 2, width / 2, edge.length - width / 2)
+	along = clampf(
+		snappedf(along - width / 2, grid) + width / 2, width / 2, edge.length - width / 2
+	)
 	var point: Vector2 = edge.a + edge.tangent * along
 	var bottom := LevelTerrain.height_under(point + edge.outward * .05, context.plateaus)
 	var slope := STAIR_SLOPE if stair_steps.button_pressed else RAMP_SLOPE
@@ -838,21 +1163,26 @@ func _bridge_plan(ground: LevelTerrain, start: Dictionary, end: Dictionary) -> D
 	var a: Vector2 = start.point
 	var b: Vector2 = end.point
 	var plan := {
-		"a": a, "b": b, "ha": float(start.height), "hb": float(end.height), "width": bridge_width.value
+		"a": a,
+		"b": b,
+		"ha": float(start.height),
+		"hb": float(end.height),
+		"width": bridge_width.value,
+		"arch_height": bridge_arch.value
 	}
 	var run := a.distance_to(b)
 	if run < 1.0:
 		plan.error = "Kies een tweede punt verder weg."
 		return plan
-	if absf(plan.hb - plan.ha) / run > LevelTerrain.BRIDGE_SLOPE:
-		plan.error = "Te steil voor een brug. Kies punten verder uit elkaar of gebruik een trap."
+	if (absf(plan.hb - plan.ha) + PI * plan.arch_height) / run > LevelTerrain.BRIDGE_SLOPE:
+		plan.error = "Te steil voor een brug. Verlaag Booghoogte of kies punten verder uit elkaar."
 		return plan
 	var plateaus: Array[Dictionary] = _stair_context(ground).plateaus
 	var across := (b - a).normalized().orthogonal() * (bridge_width.value / 2 - .05)
 	for i in range(1, 10):
 		var t := i / 10.0
 		var center := a.lerp(b, t)
-		var deck := lerpf(plan.ha, plan.hb, t)
+		var deck := LevelBridge.span_height(plan.ha, plan.hb, t, plan.arch_height)
 		for sample in [center - across, center, center + across]:
 			if absf(sample.x) > ground.size.x / 2 or absf(sample.y) > ground.size.y / 2:
 				plan.error = "De brug valt buiten de grond."
@@ -904,6 +1234,7 @@ func _build_bridge(plan: Dictionary) -> LevelBridge:
 	bridge.name = "Brug"
 	bridge.width = plan.width
 	bridge.railings = bridge_rails.button_pressed
+	bridge.arch_height = plan.get("arch_height", 0.0)
 	bridge.curve = Curve3D.new()
 	bridge.curve.resource_local_to_scene = true
 	bridge.curve.add_point(Vector3(plan.a.x, plan.ha, plan.a.y))
@@ -935,9 +1266,12 @@ func _update_bridge_preview(anchor: Dictionary) -> void:
 			var b3 := Vector3(plan.b.x, plan.hb, plan.b.y)
 			var side: Vector2 = (plan.b - plan.a).normalized().orthogonal() * float(plan.width) / 2
 			var s := Vector3(side.x, 0, side.y)
-			lines.append_array(
-				PackedVector3Array([a3 - s, b3 - s, a3 + s, b3 + s, a3 - s, a3 + s, b3 - s, b3 + s])
-			)
+			var deck := LevelBridge.make_deck_line(a3, b3, plan.arch_height)
+			for i in deck.size() - 1:
+				lines.append_array(
+					PackedVector3Array([deck[i] - s, deck[i + 1] - s, deck[i] + s, deck[i + 1] + s])
+				)
+			lines.append_array(PackedVector3Array([a3 - s, a3 + s, b3 - s, b3 + s]))
 			if plan.has("error"):
 				color = Color(1, .3, .25)
 				_note(plan.error)
@@ -984,6 +1318,7 @@ func _create_water_area(start: Vector3, end: Vector3) -> LevelWater:
 	water.name = "Water"
 	water.shape = LevelWater.Shape.AREA
 	water.depth = water_depth.value
+	water.position.y = ground.snap_height(ground.to_local(start).y)
 	water.curve = Curve3D.new()
 	water.curve.resource_local_to_scene = true
 	for corner in [
@@ -1024,6 +1359,497 @@ func _update_water_preview() -> void:
 		lines.append(Vector3(p.x, a.y, p.y))
 		lines.append(Vector3(q.x, a.y, q.y))
 	_draw_preview(lines, Color(.35, .8, 1.0), ground)
+
+
+## Release outside the 3D viewport still completes the single transaction.
+func _input(event: InputEvent) -> void:
+	if (
+		event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and not event.pressed
+	):
+		if is_instance_valid(move_node):
+			_finish_pending_move.call_deferred()
+		if painting:
+			_commit_stroke.call_deferred()
+	elif (
+		is_instance_valid(move_node)
+		and event is InputEventKey
+		and event.pressed
+		and event.keycode == KEY_ESCAPE
+	):
+		_cancel_move()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_cancel_move()
+		if painting:
+			_commit_stroke()
+
+
+func _finish_pending_move() -> void:
+	if is_instance_valid(move_node):
+		_end_move(move_node.get_parent() as LevelTerrain)
+
+
+func _select_input(camera: Camera3D, event: InputEvent) -> int:
+	var ground := _terrain()
+	if ground == null:
+		return EditorPlugin.AFTER_GUI_INPUT_PASS
+	if event is InputEventKey and event.pressed:
+		# Delete and editor shortcuts retain their normal meaning, never a half-drag.
+		_cancel_move()
+		_clear_preview()
+		return EditorPlugin.AFTER_GUI_INPUT_PASS
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			if event.shift_pressed or event.is_command_or_control_pressed():
+				return EditorPlugin.AFTER_GUI_INPUT_PASS
+			var picked := _selection_pick(ground, camera, event.position)
+			if picked.is_empty():
+				_clear_preview()
+				return EditorPlugin.AFTER_GUI_INPUT_PASS
+			_select(picked.node)
+			_begin_move(ground, picked.node, picked.point, picked.height)
+			move_mouse_start = event.position
+			_update_pick_preview(ground, picked)
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		if is_instance_valid(move_node):
+			_end_move(ground)
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		return EditorPlugin.AFTER_GUI_INPUT_PASS
+	if event is InputEventMouseMotion:
+		if is_instance_valid(move_node):
+			if not move_node.is_inside_tree():
+				_cancel_move()
+				return EditorPlugin.AFTER_GUI_INPUT_PASS
+			move_dragging = (
+				move_dragging
+				or (
+					event.position.distance_to(move_mouse_start)
+					>= 4 * EditorInterface.get_editor_scale()
+				)
+			)
+			if move_dragging:
+				var origin := ground.to_local(camera.project_ray_origin(event.position))
+				var direction := (
+					ground.global_basis.inverse() * camera.project_ray_normal(event.position)
+				)
+				var grab: Variant = Plane(Vector3.UP, move_height).intersects_ray(origin, direction)
+				if grab != null:
+					_update_move(ground, Vector2(grab.x, grab.z))
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		# Camera navigation and native marquee selection must not leave an outline behind.
+		if event.button_mask != 0 or event.shift_pressed or event.is_command_or_control_pressed():
+			_clear_preview()
+		else:
+			_update_pick_preview(ground, _selection_pick(ground, camera, event.position))
+	return EditorPlugin.AFTER_GUI_INPUT_PASS
+
+
+func _selection_pick(ground: LevelTerrain, camera: Camera3D, mouse: Vector2) -> Dictionary:
+	var picked := _pick_authoring(ground, camera, mouse)
+	if not picked.is_empty() and _asset_in_front(camera, mouse, picked.distance):
+		return {}
+	return picked
+
+
+## Intersect the visible mesh, including walls, curved slopes and sloping bridge rails.
+## Mesh caches its triangle BVH until its geometry changes.
+func _mesh_hit(mesh: MeshInstance3D, origin: Vector3, direction: Vector3) -> Dictionary:
+	if mesh == null or mesh.mesh == null or not mesh.is_visible_in_tree():
+		return {}
+	var inverse := mesh.global_transform.affine_inverse()
+	var local_origin := inverse * origin
+	var local_direction := inverse.basis * direction
+	if mesh.mesh.get_aabb().intersects_ray(local_origin, local_direction) == null:
+		return {}
+	var triangles := mesh.mesh.generate_triangle_mesh()
+	if triangles == null:
+		return {}
+	var hit := triangles.intersect_ray(local_origin, local_direction)
+	if not hit.is_empty():
+		hit.position = mesh.global_transform * hit.position
+		hit.normal = (inverse.basis.transposed() * hit.normal).normalized()
+	return hit
+
+
+## Returns a terrain-local grab point and a WORLD-space ray distance.
+func _pick_authoring(ground: LevelTerrain, camera: Camera3D, mouse: Vector2) -> Dictionary:
+	var origin := camera.project_ray_origin(mouse)
+	var direction := camera.project_ray_normal(mouse)
+	var best := {}
+	var nearest := INF
+	var surface := ground.get_node_or_null("Baked/Surface") as MeshInstance3D
+	var hit := _mesh_hit(surface, origin, direction)
+	if not hit.is_empty():
+		nearest = origin.distance_to(hit.position)
+		var local := ground.to_local(hit.position)
+		var normal: Vector3 = ground.global_basis.transposed() * hit.normal
+		var point := Vector2(local.x, local.z)
+		# Just inside a wall/cap lies the authored region that owns that face.
+		if absf(normal.y) < .7:
+			point -= Vector2(normal.x, normal.z).normalized() * .06
+		var node := _region_node_at(ground, point, normal.y > .7)
+		if node:
+			best = {
+				"node": node,
+				"point": Vector2(local.x, local.z),
+				"height": local.y,
+				"distance": nearest
+			}
+	for child in ground.get_children():
+		if (
+			not (child is LevelBridge or child is LevelWater or child is LevelBoundary)
+			or not child.is_visible_in_tree()
+		):
+			continue
+		for mesh in child.find_children("*", "MeshInstance3D", true, false):
+			var child_hit := _mesh_hit(mesh, origin, direction)
+			if child_hit.is_empty():
+				continue
+			var distance := origin.distance_to(child_hit.position)
+			if distance >= nearest:
+				continue
+			nearest = distance
+			var local := ground.to_local(child_hit.position)
+			best = {
+				"node": child,
+				"point": Vector2(local.x, local.z),
+				"height": local.y,
+				"distance": nearest
+			}
+	return best
+
+
+## Outlines are exclusive. Paint on a top surface is selectable before its plateau.
+func _region_node_at(ground: LevelTerrain, point: Vector2, include_paths := true) -> Node3D:
+	var top: Node3D
+	for region in ground.outlines():
+		if Geometry2D.is_point_in_polygon(point, region.polygon):
+			top = ground.get_node_or_null(NodePath(String(region.name))) as Node3D
+			break
+	if top is LevelWater or not include_paths:
+		return top
+	for child in ground.get_children():
+		if not child is LevelPath or child.curve == null:
+			continue
+		var points := _path_points(child)
+		for i in maxi(1, points.size() - 1):
+			if points.is_empty():
+				break
+			var closest := Geometry2D.get_closest_point_to_segment(
+				point, points[i], points[mini(i + 1, points.size() - 1)]
+			)
+			if point.distance_to(closest) <= child.width / 2:
+				return child
+	return top
+
+
+func _path_points(path: LevelPath) -> PackedVector2Array:
+	var result := PackedVector2Array()
+	if path.curve:
+		for p in path.curve.get_baked_points():
+			var point: Vector3 = path.transform * p
+			result.append(Vector2(point.x, point.z))
+	return result
+
+
+## All visible scene meshes participate, including Player and manually nested assets.
+## A broad-phase box only narrows candidates; empty space around a mesh is still clickable.
+func _asset_in_front(camera: Camera3D, mouse: Vector2, distance: float) -> bool:
+	var root := EditorInterface.get_edited_scene_root()
+	if root == null:
+		return false
+	var origin := camera.project_ray_origin(mouse)
+	var direction := camera.project_ray_normal(mouse)
+	var ground := _terrain()
+	for id in RenderingServer.instances_cull_ray(
+		origin, origin + direction * distance, camera.get_world_3d().scenario
+	):
+		var mesh := instance_from_id(id) as MeshInstance3D
+		if mesh == null or mesh == preview or not root.is_ancestor_of(mesh):
+			continue
+		if ground and ground.is_ancestor_of(mesh):
+			continue
+		var hit := _mesh_hit(mesh, origin, direction)
+		if not hit.is_empty() and origin.distance_to(hit.position) < distance - .01:
+			return true
+	return false
+
+
+func _move_state(node: Path3D) -> Dictionary:
+	var state := {
+		"transform": node.transform, "curve": node.curve.duplicate() if node.curve else null
+	}
+	if node is LevelRamp:
+		state.merge(
+			{
+				"anchor_end": node.anchor_end,
+				"follow_ground": node.follow_ground,
+				"fit_length": node.fit_length,
+				"width": node.width
+			}
+		)
+	return state
+
+
+func _apply_move_states(items: Array[Dictionary], ground: LevelTerrain) -> void:
+	for item in items:
+		if not is_instance_valid(item.node):
+			continue
+		for property in item.state:
+			var value: Variant = item.state[property]
+			item.node.set(property, value.duplicate() if value is Curve3D else value)
+	if is_instance_valid(ground) and ground.is_inside_tree():
+		ground.bake()
+	selection_editor.refresh()
+
+
+func _begin_move(ground: LevelTerrain, node: Node3D, point: Vector2, height: float) -> void:
+	_cancel_move()
+	if ground.dirty:
+		ground.bake()
+	move_node = node
+	move_start = point
+	move_height = height
+	move_last = Vector2.ZERO
+	move_dragging = false
+	move_items = [{"node": node, "state": _move_state(node), "translate": true}]
+	# Baking may refit any ground-following connector. Snapshot them too, so undo
+	# also restores a foot that acquired a new height as the plateau passed it.
+	for child in ground.get_children():
+		if child == node or not (child is LevelRamp or child is LevelBridge):
+			continue
+		var item := {"node": child, "state": _move_state(child), "translate": false, "ends": []}
+		if node is LevelTerrace and child.curve and child.curve.point_count == 2:
+			if child is LevelRamp:
+				item.translate = _supporting_plateau(ground, child, child.anchor_end) == node
+			else:
+				for i in 2:
+					if _supporting_plateau(ground, child, i) == node:
+						item.ends.append(i)
+		move_items.append(item)
+
+
+## Sample toward the supporting side of the endpoint, just as height following does.
+## Inset stairs attach at their LOW end but rest inside the plateau toward the high end.
+func _supporting_plateau(ground: LevelTerrain, connector: Path3D, index: int) -> LevelTerrace:
+	index = clampi(index, 0, 1)
+	var a: Vector3 = connector.transform * connector.curve.get_point_position(index)
+	var b: Vector3 = connector.transform * connector.curve.get_point_position(1 - index)
+	var direction := Vector2(a.x - b.x, a.z - b.z).normalized()
+	if connector is LevelRamp and index == 0:
+		direction = -direction
+	var point := Vector2(a.x, a.z) + direction * .05
+	var best: LevelTerrace
+	var highest := -INF
+	for child in ground.get_children():
+		if not child is LevelTerrace or child.curve == null:
+			continue
+		var polygon := PackedVector2Array()
+		for i in child.curve.point_count:
+			var corner: Vector3 = child.transform * child.curve.get_point_position(i)
+			polygon.append(Vector2(corner.x, corner.z))
+		var height := ground.snap_height(child.height + child.position.y)
+		if height > highest and Geometry2D.is_point_in_polygon(point, polygon):
+			highest = height
+			best = child
+	# A manually raised connector floating over a plateau is not attached to it.
+	var support_height := maxf(a.y, b.y) if connector is LevelRamp and index == 0 else a.y
+	return best if absf(support_height - highest) < .1 else null
+
+
+func _update_move(ground: LevelTerrain, point: Vector2) -> void:
+	var delta := point - move_start
+	if snap.value > 0:
+		delta = (delta / snap.value).round() * snap.value
+	if delta == move_last:
+		return
+	move_last = delta
+	for item in move_items:
+		var node := item.node as Path3D
+		if not is_instance_valid(node):
+			continue
+		if item.translate:
+			node.position = item.state.transform.origin + Vector3(delta.x, 0, delta.y)
+		elif not item.get("ends", []).is_empty():
+			var curve := (item.state.curve as Curve3D).duplicate() as Curve3D
+			var shift := node.transform.basis.inverse() * Vector3(delta.x, 0, delta.y)
+			for i in item.ends:
+				curve.set_point_position(i, curve.get_point_position(i) + shift)
+			node.curve = curve
+	_update_pick_preview(ground, {"node": move_node})
+
+
+func _cancel_move() -> void:
+	if move_items.is_empty():
+		move_node = null
+		return
+	var ground: LevelTerrain = (
+		move_node.get_parent() as LevelTerrain if is_instance_valid(move_node) else null
+	)
+	var before: Array[Dictionary] = []
+	for item in move_items:
+		before.append({"node": item.node, "state": item.state})
+	move_node = null
+	move_items.clear()
+	_apply_move_states(before, ground)
+	_clear_preview()
+
+
+func _end_move(ground: LevelTerrain) -> void:
+	if not is_instance_valid(move_node) or ground == null:
+		_cancel_move()
+		return
+	if move_last == Vector2.ZERO:
+		_cancel_move()
+		return
+	var node := move_node
+	if node is LevelRamp and node.curve and node.curve.point_count == 2:
+		var plan := _snap_stairs_plan(ground, node)
+		if not plan.is_empty():
+			var curve := Curve3D.new()
+			curve.resource_local_to_scene = true
+			# Preserve the node transform; only the fitted curve changes in its local space.
+			var inverse := node.transform.affine_inverse()
+			curve.add_point(inverse * Vector3(plan.low.x, plan.bottom, plan.low.y))
+			curve.add_point(inverse * Vector3(plan.high.x, plan.top, plan.high.y))
+			node.curve = curve
+			node.anchor_end = 0 if plan.inset else 1
+			node.follow_ground = true
+			node.fit_length = true
+	if not ground.bake():
+		var reason := ground.last_error
+		_cancel_move()
+		_note("Verplaatsen geannuleerd: " + reason)
+		return
+	var before: Array[Dictionary] = []
+	var after: Array[Dictionary] = []
+	var carried := 0
+	for item in move_items:
+		before.append({"node": item.node, "state": item.state})
+		after.append({"node": item.node, "state": _move_state(item.node)})
+		if item.node != node and (item.translate or not item.get("ends", []).is_empty()):
+			carried += 1
+	var undo := get_undo_redo()
+	undo.create_action("Verplaats " + String(node.name), UndoRedo.MERGE_DISABLE, ground)
+	undo.add_do_method(self, "_apply_move_states", after, ground)
+	undo.add_undo_method(self, "_apply_move_states", before, ground)
+	undo.commit_action(false)
+	move_node = null
+	move_items.clear()
+	_update_pick_preview(ground, {"node": node})
+	_note(
+		(
+			"%s verplaatst%s."
+			% [node.name, " (met %d aangesloten onderdelen)" % carried if carried > 0 else ""]
+		)
+	)
+
+
+## Plan without this flight, so its own notch cannot block the destination edge.
+func _snap_stairs_plan(ground: LevelTerrain, stairs: LevelRamp) -> Dictionary:
+	var anchor_index := clampi(stairs.anchor_end, 0, 1)
+	var anchor: Vector3 = stairs.transform * stairs.curve.get_point_position(anchor_index)
+	var curve := stairs.curve
+	var width := stair_width.value
+	var steps := stair_steps.button_pressed
+	stairs.curve = null
+	stair_width.set_value_no_signal(stairs.width)
+	stair_steps.set_pressed_no_signal(stairs.stairs)
+	var plan := _stairs_plan(ground, Vector2(anchor.x, anchor.z), anchor_index == 0)
+	stairs.curve = curve
+	stair_width.set_value_no_signal(width)
+	stair_steps.set_pressed_no_signal(steps)
+	if plan.is_empty() or plan.has("error") or not is_equal_approx(plan.width, stairs.width):
+		return {}
+	return plan
+
+
+func _update_pick_preview(ground: LevelTerrain, picked: Dictionary) -> void:
+	if picked.is_empty() or not is_instance_valid(picked.node):
+		_clear_preview()
+		return
+	var node: Node3D = picked.node
+	var lines := PackedVector3Array()
+	if node is LevelBoundary:
+		var points: PackedVector3Array = node.ground_line()
+		for i in points.size() - 1:
+			lines.append_array(PackedVector3Array([points[i], points[i + 1]]))
+		if node.block_movement and points.size() >= 2:
+			var up: Vector3 = Vector3.UP * node.barrier_height
+			for i in points.size() - 1:
+				lines.append_array(PackedVector3Array([points[i] + up, points[i + 1] + up]))
+			for point in [points[0], points[-1]]:
+				lines.append_array(PackedVector3Array([point, point + up]))
+	elif node is LevelBridge:
+		var deck: Array[Vector3] = node.deck_line()
+		if deck.size() >= 4:
+			var side: Vector3 = (
+				Vector3(-(deck[2] - deck[1]).z, 0, (deck[2] - deck[1]).x).normalized()
+				* node.width
+				/ 2
+			)
+			for i in deck.size() - 1:
+				for sign in [-1.0, 1.0]:
+					lines.append(
+						(
+							node.transform
+							* (deck[i] + side * sign + Vector3.UP * LevelBridge.DECK_LIFT)
+						)
+					)
+					lines.append(
+						(
+							node.transform
+							* (deck[i + 1] + side * sign + Vector3.UP * LevelBridge.DECK_LIFT)
+						)
+					)
+			for i in [0, deck.size() - 1]:
+				lines.append(node.transform * (deck[i] - side + Vector3.UP * LevelBridge.DECK_LIFT))
+				lines.append(node.transform * (deck[i] + side + Vector3.UP * LevelBridge.DECK_LIFT))
+	elif node is LevelPath:
+		var points := _path_points(node)
+		if points.size() >= 2:
+			for polygon in Geometry2D.offset_polyline(
+				points, node.width / 2, Geometry2D.JOIN_ROUND, Geometry2D.END_ROUND
+			):
+				_append_outline(lines, polygon, ground)
+	else:
+		for region in ground.outlines():
+			if region.name == node.name:
+				_append_outline(lines, region.polygon, ground, region)
+	if lines.is_empty():
+		_clear_preview()
+		return
+	_draw_preview(lines, Color.WHITE, ground)
+
+
+func _append_outline(
+	lines: PackedVector3Array, polygon: PackedVector2Array, ground: LevelTerrain, region := {}
+) -> void:
+	var surfaces: Array[Dictionary] = []
+	if region.is_empty():
+		surfaces = ground.outlines()
+	for i in polygon.size():
+		var p := polygon[i]
+		var q := polygon[(i + 1) % polygon.size()]
+		# Sample long edges too, so a path outline follows the terrain under it.
+		var steps := maxi(1, ceili(p.distance_to(q) / .25))
+		for step in steps:
+			for point in [p.lerp(q, float(step) / steps), p.lerp(q, float(step + 1) / steps)]:
+				var height := 0.0
+				if region.is_empty():
+					for surface in surfaces:
+						if Geometry2D.is_point_in_polygon(point, surface.polygon):
+							height = maxf(height, LevelTerrain.region_height(surface, point))
+				else:
+					height = LevelTerrain.region_height(region, point)
+				if region.has("water"):
+					var water := ground.get_node(NodePath(String(region.name))) as LevelWater
+					height = water.elevation() - water.surface_drop
+				lines.append(Vector3(point.x, height, point.y))
 
 
 func _select(node: Node) -> void:
@@ -1079,7 +1905,10 @@ func _update_stairs_preview(plan: Dictionary) -> void:
 		var y := lerpf(plan.bottom, plan.top, t)
 		lines.append_array(
 			PackedVector3Array(
-				[Vector3(center.x - side.x, y, center.y - side.y), Vector3(center.x + side.x, y, center.y + side.y)]
+				[
+					Vector3(center.x - side.x, y, center.y - side.y),
+					Vector3(center.x + side.x, y, center.y + side.y)
+				]
 			)
 		)
 	for offset in [-side, side]:
@@ -1141,6 +1970,7 @@ func _add_curve_point(at: Vector3) -> void:
 			river.shape = LevelWater.Shape.PATH
 			river.width = water_width.value
 			river.depth = water_depth.value
+			river.position.y = ground.snap_height(ground.to_local(at).y)
 			active_curve = river
 		else:
 			active_curve = LevelPath.new() if tool == Tool.PATH else EnemyPatrol.new()
@@ -1148,7 +1978,9 @@ func _add_curve_point(at: Vector3) -> void:
 		active_curve.curve = Curve3D.new()
 		active_curve.curve.resource_local_to_scene = true
 		active_curve.curve.bake_interval = .3
-		var parent: Node = ground if tool in [Tool.PATH, Tool.WATER] else root.get_node_or_null("Routes")
+		var parent: Node = (
+			ground if tool in [Tool.PATH, Tool.WATER] else root.get_node_or_null("Routes")
+		)
 		if parent == null:
 			parent = root
 		undo.create_action("Nieuwe levelcurve")
@@ -1170,7 +2002,14 @@ func _add_curve_point(at: Vector3) -> void:
 
 
 func _run_editor_checks() -> void:
-	var checks = load("res://tests/level_builder_editor_checks.gd").new()
+	var script := (
+		"res://tests/level_builder_elevation_checks.gd"
+		if "--level-builder-elevation-checks" in OS.get_cmdline_user_args()
+		else "res://tests/level_builder_editor_checks.gd"
+	)
+	if "--level-builder-boundary-checks" in OS.get_cmdline_user_args():
+		script = "res://tests/level_builder_boundary_checks.gd"
+	var checks = load(script).new()
 	await checks.run(self)
 
 
@@ -1332,6 +2171,24 @@ func _hit(camera: Camera3D, mouse: Vector2, grid := true) -> Variant:
 	var origin := camera.project_ray_origin(mouse)
 	var direction := camera.project_ray_normal(mouse)
 	var ground := _terrain()
+	if ground and not ground.dirty:
+		# Use the actual baked surface, including stair treads and water/bridge height.
+		var hit := _mesh_hit(ground.get_node_or_null("Baked/Surface"), origin, direction)
+		var distance: float = origin.distance_to(hit.position) if not hit.is_empty() else INF
+		for child in ground.get_children():
+			if not (child is LevelBridge or child is LevelWater):
+				continue
+			for mesh in child.find_children("*", "MeshInstance3D", true, false):
+				var candidate := _mesh_hit(mesh, origin, direction)
+				if not candidate.is_empty() and origin.distance_to(candidate.position) < distance:
+					hit = candidate
+					distance = origin.distance_to(candidate.position)
+		if not hit.is_empty():
+			var point := ground.to_local(hit.position)
+			if grid and snap.value > 0:
+				point.x = snappedf(point.x, snap.value)
+				point.z = snappedf(point.z, snap.value)
+			return ground.to_global(point)
 	var transform := ground.global_transform if ground else Transform3D.IDENTITY
 	var local_origin: Vector3 = transform.affine_inverse() * origin
 	var local_direction: Vector3 = transform.basis.inverse() * direction
@@ -1395,7 +2252,7 @@ func _on_path(ground: LevelTerrain, point: Vector3) -> bool:
 			var closest: Vector3 = node.curve.get_closest_point(local)
 			if (
 				Vector2(local.x, local.z).distance_to(Vector2(closest.x, closest.z))
-				< node.width / 2 + active_asset.spacing
+				< node.width / 2 + scatter_spacing.value
 			):
 				return true
 	return false
@@ -1403,10 +2260,23 @@ func _on_path(ground: LevelTerrain, point: Vector3) -> bool:
 
 func _commit_stroke() -> void:
 	painting = false
+	if not erased_nodes.is_empty():
+		var erase_undo := get_undo_redo()
+		erase_undo.create_action(
+			"Wis gestrooide assets", UndoRedo.MERGE_DISABLE, EditorInterface.get_edited_scene_root()
+		)
+		for item in erased_nodes:
+			erase_undo.add_do_method(item.parent, "remove_child", item.node)
+			erase_undo.add_undo_method(item.parent, "add_child", item.node, true)
+			erase_undo.add_undo_property(item.node, "owner", item.owner)
+			erase_undo.add_undo_reference(item.node)
+		erase_undo.commit_action(false)
+		erased_nodes.clear()
+		EditorInterface.mark_scene_as_unsaved()
 	if stroke_nodes.is_empty():
 		return
 	var undo := get_undo_redo()
-	undo.create_action("Plaats levelassets")
+	undo.create_action("Strooi levelassets" if tool == Tool.SCATTER else "Plaats levelassets")
 	for node in stroke_nodes:
 		if not is_instance_valid(node) or node.get_parent() == null:
 			continue

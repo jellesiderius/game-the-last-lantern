@@ -17,13 +17,14 @@
 [ext_resource type="Resource" path="res://settings/level_assets/forest_fence.tres" id="15_deq11"]
 [ext_resource type="Resource" path="res://settings/level_assets/forest_gate.tres" id="16_1x6on"]
 [ext_resource type="Script" uid="uid://jkrhkjknksnh" path="res://scripts/world/authoring/area_set.gd" id="17_3py03"]
+[ext_resource type="Resource" uid="uid://c5c35tdcy347j" path="res://settings/level_assets/forest_butterfly.tres" id="17_fm7al"]
 [ext_resource type="Resource" uid="uid://du63ld8j81wfi" path="res://settings/surface_styles/forest.tres" id="style_forest"]
 
 [resource]
 script = ExtResource("17_3py03")
 id = &"forest"
 display_name = "Bos"
-assets = Array[ExtResource("1_nj8kp")]([ExtResource("2_nj8kp"), ExtResource("3_w6t1y"), ExtResource("4_fm7al"), ExtResource("5_us0o8"), ExtResource("6_5gns4"), ExtResource("7_2ww7j"), ExtResource("8_ut7y1"), ExtResource("9_pbnhv"), ExtResource("10_b1h3k"), ExtResource("11_4rlq8"), ExtResource("12_m54hp"), ExtResource("13_rk5vm"), ExtResource("14_7fck0"), ExtResource("15_deq11"), ExtResource("16_1x6on")])
+assets = Array[ExtResource("1_nj8kp")]([ExtResource("2_nj8kp"), ExtResource("3_w6t1y"), ExtResource("4_fm7al"), ExtResource("5_us0o8"), ExtResource("6_5gns4"), ExtResource("7_2ww7j"), ExtResource("8_ut7y1"), ExtResource("9_pbnhv"), ExtResource("10_b1h3k"), ExtResource("11_4rlq8"), ExtResource("12_m54hp"), ExtResource("13_rk5vm"), ExtResource("14_7fck0"), ExtResource("15_deq11"), ExtResource("16_1x6on"), ExtResource("17_fm7al")])
 default_surface = ExtResource("style_forest")
 background_color = Color(0.36, 0.55, 0.62, 1)
 ambient_color = Color(0.55, 0.65, 0.86, 1)

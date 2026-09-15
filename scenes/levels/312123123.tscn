@@ -1,0 +1,2018 @@
+[gd_scene format=3 uid="uid://dbg4icahrfgn8"]
+
+[ext_resource type="Script" uid="uid://dahr67yknirj2" path="res://scripts/world/authoring/authored_level.gd" id="1_4q1gq"]
+[ext_resource type="Resource" uid="uid://boaouv54ujg3h" path="res://settings/areas/312123123.tres" id="2_xm8ml"]
+[ext_resource type="Resource" path="res://settings/area_sets/cave.tres" id="3_cd4bc"]
+[ext_resource type="Script" uid="uid://clqcgbow6xpru" path="res://scripts/world/authoring/level_terrain.gd" id="4_ublbl"]
+[ext_resource type="Script" uid="uid://cxwe78k8exu1i" path="res://scripts/world/authoring/level_terrace.gd" id="5_0f4o7"]
+[ext_resource type="Resource" uid="uid://crgc4a6hhi8ej" path="res://settings/surface_styles/city.tres" id="5_4q1gq"]
+[ext_resource type="ArrayMesh" uid="uid://dyq17xvm430i7" path="res://scenes/levels/312123123.terrain/Terrain.res" id="5_yacgg"]
+[ext_resource type="Shape3D" uid="uid://kdxjg5x2sunn" path="res://scenes/levels/312123123.terrain/Terrain_collision.res" id="6_xecaf"]
+[ext_resource type="Script" uid="uid://gp1iqi0vqmvb" path="res://scripts/world/authoring/level_ramp.gd" id="6_ye2pv"]
+[ext_resource type="Script" uid="uid://baahi06eehkq4" path="res://scripts/world/scene_spawn_point.gd" id="7_vu2pc"]
+[ext_resource type="Script" uid="uid://dnfqek7ev0jgq" path="res://scripts/world/checkpoint_anchor.gd" id="8_yhxxh"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="9_nr1dp"]
+[ext_resource type="Script" uid="uid://d1j1mr4q6x608" path="res://scripts/world/authoring/level_bridge.gd" id="9_u4vsg"]
+[ext_resource type="Script" uid="uid://dv1vsvw46rlum" path="res://scripts/world/authoring/level_water.gd" id="9_xecaf"]
+[ext_resource type="Script" uid="uid://x01chox7kq21" path="res://scripts/world/authoring/level_path.gd" id="10_vu2pc"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npcs/enemy/PlacedAcornGuard.tscn" id="11_cd4bc"]
+[ext_resource type="PackedScene" path="res://scenes/world/checkpoints/Vuurlelie.tscn" id="11_xm8ml"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_mushrooms/Asset.tscn" id="13_nr1dp"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="13_r1eut"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_reeds/Asset.tscn" id="14_fuvom"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="15_7uwde"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_flowers_cream/Asset.tscn" id="15_nr1dp"]
+[ext_resource type="Script" uid="uid://cer530ft6qsx3" path="res://scripts/world/authoring/level_encounter.gd" id="15_yhxxh"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_rocks/Asset.tscn" id="16_lys7k"]
+[ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="16_uc7vq"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine_b/Asset.tscn" id="17_j2du5"]
+
+[sub_resource type="Curve3D" id="Curve3D_cd4bc"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -5, 0, -6, 0, 0, 0, 0, 0, 0, 6, 0, -6, 0, 0, 0, 0, 0, 0, 6, 0, 3, 0, 0, 0, 0, 0, 0, -5, 0, 3),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_ey0pq"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 4, 0, 10.423151, 0, 0, 0, 0, 0, 0, 4, 10, -2.910182),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_4q1gq"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -5, 0, 2, 0, 0, 0, 0, 0, 0, -2, 0, 2, 0, 0, 0, 0, 0, 0, -2, 0, 6, 0, 0, 0, 0, 0, 0, -5, 0, 6),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_xecaf"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -4, 10, 2, 0, 0, 0, 0, 0, 0, -4, 10, -2.9101791),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_yacgg"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -5, 0, 6, 0, 0, 0, 0, 0, 0, -2, 0, 6, 0, 0, 0, 0, 0, 0, -2, 0, 9, 0, 0, 0, 0, 0, 0, -5, 0, 9.292909),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_cy6hj"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -4, 9, 6, 0, 0, 0, 0, 0, 0, -4, 10, 4.6666665),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_nr1dp"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 2, 0, -7, 0, 0, 0, 0, 0, 0, 4, 0, -7, 0, 0, 0, 0, 0, 0, 4, 0, -5, 0, 0, 0, 0, 0, 0, 2, 0, -5),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_fuvom"]
+resource_local_to_scene = true
+bake_interval = 0.3
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 3, 10, -8, 0, 0, 0, 0, 0, 0, 3, 10, -6, 0, 0, 0, 0, 0, 0, -3, 10, -9),
+"tilts": PackedFloat32Array(0, 0, 0)
+}
+point_count = 3
+
+[sub_resource type="Curve3D" id="Curve3D_lys7k"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 1, 0, -11, 0, 0, 0, 0, 0, 0, 4, 0, -11, 0, 0, 0, 0, 0, 0, 4, 0, -6, 0, 0, 0, 0, 0, 0, 1, 0, -6),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_j2du5"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 7, 0, -11, 0, 0, 0, 0, 0, 0, 9, 0, -11, 0, 0, 0, 0, 0, 0, 9, 0, -4, 0, 0, 0, 0, 0, 0, 7, 0, -4),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_r1eut"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 7, 15, -6, 0, 0, 0, 0, 0, 0, -2, 10, -9),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_x0m4b"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -5, 0, -11, 0, 0, 0, 0, 0, 0, -4, 0, -11, 0, 0, 0, 0, 0, 0, -4, 0, -7, 0, 0, 0, 0, 0, 0, -5, 0, -7),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_3oa6v"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 7, 15, -10, 0, 0, 0, 0, 0, 0, -4, 15, -10),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_7uwde"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 9, 0, -11, 0, 0, 0, 0, 0, 0, 10, 0, -11, 0, 0, 0, 0, 0, 0, 10, 0, -8, 0, 0, 0, 0, 0, 0, 9, 0, -8),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_uc7vq"]
+size = Vector3(0.5, 24, 25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ey0pq"]
+size = Vector3(0.5, 24, 25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3oa6v"]
+size = Vector3(25, 24, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cy6hj"]
+size = Vector3(25, 24, 0.5)
+
+[sub_resource type="Curve3D" id="Curve3D_uc7vq"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -4, 15, -8, 0, 0, 0, 0, 0, 0, 9, 20, -9),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Environment" id="Environment_57gid"]
+background_mode = 1
+background_color = Color(0.08627451, 0.11372549, 0.14901961, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.60784316, 0.6627451, 0.72156864, 1)
+ambient_light_energy = 0.55
+reflected_light_source = 2
+tonemap_mode = 3
+ssao_enabled = true
+ssao_radius = 0.4
+ssao_intensity = 0.7
+glow_enabled = true
+glow_intensity = 0.35
+fog_enabled = true
+fog_light_color = Color(0.21960784, 0.30980393, 0.28235295, 1)
+fog_density = 0.001
+
+[sub_resource type="ParticleProcessMaterial" id="Process"]
+emission_shape = 1
+emission_sphere_radius = 0.025
+direction = Vector3(0, 1, 0)
+spread = 140.0
+initial_velocity_min = 0.8
+initial_velocity_max = 2.0
+gravity = Vector3(0, -3, 0)
+scale_min = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+shading_mode = 0
+albedo_color = Color(1, 0.2, 0.4, 1)
+
+[sub_resource type="SphereMesh" id="SparkMesh"]
+material = SubResource("Material")
+radius = 0.024
+height = 0.048
+radial_segments = 8
+rings = 4
+
+[node name="312123123" type="Node3D" unique_id=2012109659]
+script = ExtResource("1_4q1gq")
+area = ExtResource("2_xm8ml")
+area_set = ExtResource("3_cd4bc")
+spawn_position = Vector3(0, 0, 6)
+camera_min = Vector2(-7, -7)
+camera_max = Vector2(7, 7)
+
+[node name="Terrain" type="Node3D" parent="." unique_id=784551013]
+script = ExtResource("4_ublbl")
+surface_style = ExtResource("5_4q1gq")
+area_set = ExtResource("3_cd4bc")
+baked_signature = "ef69cbc331e0f8a4a7bd93dbe8fc690aa5d0a21e2bbcd8e993be63932a9a9c7f"
+
+[node name="Plateau" type="Path3D" parent="Terrain" unique_id=882212968]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.910182)
+curve = SubResource("Curve3D_cd4bc")
+script = ExtResource("5_0f4o7")
+height = 10.0
+
+[node name="Trap" type="Path3D" parent="Terrain" unique_id=689063894]
+curve = SubResource("Curve3D_ey0pq")
+script = ExtResource("6_ye2pv")
+stairs = true
+fit_length = true
+width = 2.0
+end_height = 10.0
+
+[node name="Plateau2" type="Path3D" parent="Terrain" unique_id=1315352163]
+curve = SubResource("Curve3D_4q1gq")
+script = ExtResource("5_0f4o7")
+height = 10.0
+
+[node name="Brug" type="Path3D" parent="Terrain" unique_id=1020754924]
+curve = SubResource("Curve3D_xecaf")
+script = ExtResource("9_u4vsg")
+
+[node name="Plateau3" type="Path3D" parent="Terrain" unique_id=312162358]
+curve = SubResource("Curve3D_yacgg")
+script = ExtResource("5_0f4o7")
+height = 9.0
+
+[node name="Trap2" type="Path3D" parent="Terrain" unique_id=1717466037]
+curve = SubResource("Curve3D_cy6hj")
+script = ExtResource("6_ye2pv")
+stairs = true
+anchor_end = 0
+fit_length = true
+width = 2.0
+start_height = 9.0
+end_height = 10.0
+
+[node name="Water" type="Path3D" parent="Terrain" unique_id=609101420]
+curve = SubResource("Curve3D_nr1dp")
+script = ExtResource("9_xecaf")
+
+[node name="Pad" type="Path3D" parent="Terrain" unique_id=143257038]
+curve = SubResource("Curve3D_fuvom")
+script = ExtResource("10_vu2pc")
+
+[node name="Water2" type="Path3D" parent="Terrain" unique_id=440370323]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
+curve = SubResource("Curve3D_lys7k")
+script = ExtResource("9_xecaf")
+
+[node name="Plateau4" type="Path3D" parent="Terrain" unique_id=662343556]
+curve = SubResource("Curve3D_j2du5")
+script = ExtResource("5_0f4o7")
+height = 15.0
+
+[node name="Brug2" type="Path3D" parent="Terrain" unique_id=46137168]
+curve = SubResource("Curve3D_r1eut")
+script = ExtResource("9_u4vsg")
+
+[node name="Plateau5" type="Path3D" parent="Terrain" unique_id=1638394780]
+curve = SubResource("Curve3D_x0m4b")
+script = ExtResource("5_0f4o7")
+height = 15.0
+
+[node name="Brug3" type="Path3D" parent="Terrain" unique_id=66819799]
+curve = SubResource("Curve3D_3oa6v")
+script = ExtResource("9_u4vsg")
+
+[node name="Plateau6" type="Path3D" parent="Terrain" unique_id=513949190]
+curve = SubResource("Curve3D_7uwde")
+script = ExtResource("5_0f4o7")
+height = 20.0
+
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=1458957378]
+metadata/level_builder_generated = true
+
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=1012936236]
+mesh = ExtResource("5_yacgg")
+
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=663172731]
+collision_mask = 0
+
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=150972052]
+shape = ExtResource("6_xecaf")
+
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1886467677]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.25, 11, 0)
+shape = SubResource("BoxShape3D_uc7vq")
+
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1020468552]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.25, 11, 0)
+shape = SubResource("BoxShape3D_ey0pq")
+
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=602788738]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11, -12.25)
+shape = SubResource("BoxShape3D_3oa6v")
+
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=371455260]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11, 12.25)
+shape = SubResource("BoxShape3D_cy6hj")
+
+[node name="Brug4" type="Path3D" parent="Terrain" unique_id=41453526]
+curve = SubResource("Curve3D_uc7vq")
+script = ExtResource("9_u4vsg")
+
+[node name="Props" type="Node3D" parent="." unique_id=1134285745]
+
+[node name="Mushrooms" parent="Props" unique_id=1282478396 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.11478407, 0, 1.0702641, 0, 1.0764017, 0, -1.0702641, 0, 0.11478407, -1.8019996, 10, -5.7661405)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms2" parent="Props" unique_id=408114773 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.32682908, 0, -0.9384162, 0, 0.9937013, 0, 0.9384162, 0, 0.32682908, -3.71804, 10, -4.494171)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms3" parent="Props" unique_id=1718593260 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.7091197, 0, -0.7604232, 0, 1.0397568, 0, 0.7604232, 0, -0.7091197, -2.6570084, 10, -6.030413)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms4" parent="Props" unique_id=1000485639 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.052628122, 0, 1.081185, 0, 1.0824652, 0, -1.081185, 0, 0.052628122, -3.7279544, 10, -6.578771)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms5" parent="Props" unique_id=561566494 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.8736545, 0, -0.41465256, 0, 0.967062, 0, 0.41465256, 0, 0.8736545, -2.9992714, 10, -4.0764256)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms6" parent="Props" unique_id=1964137292 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.46722856, 0, 0.88690853, 0, 1.0024517, 0, -0.88690853, 0, 0.46722856, -1.1175344, 10, -5.566057)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms7" parent="Props" unique_id=1262515301 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.5824837, 0, -0.7892965, 0, 0.98095685, 0, 0.7892965, 0, 0.5824837, -1.6014855, 10, -4.291563)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms8" parent="Props" unique_id=329053122 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.04136773, 0, -1.0461388, 0, 1.0469564, 0, 1.0461388, 0, 0.04136773, -3.5473301, 10, -5.324721)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms9" parent="Props" unique_id=1386534714 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.89975286, 0, -0.12113815, 0, 0.90787095, 0, 0.12113815, 0, -0.89975286, -1.9693899, 10, -3.4983)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms10" parent="Props" unique_id=1302049676 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.75966364, 0, -0.70560986, 0, 1.0368096, 0, 0.70560986, 0, -0.75966364, -0.7151766, 10, -4.692151)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms11" parent="Props" unique_id=1250836723 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.56198776, 0, -0.8132857, 0, 0.9885666, 0, 0.8132857, 0, -0.56198776, -4.345923, 10, -5.8182936)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms12" parent="Props" unique_id=301043820 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.20713076, 0, 0.9033799, 0, 0.9268217, 0, -0.9033799, 0, -0.20713076, -2.692727, 10, -5.207658)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms13" parent="Props" unique_id=919271089 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.045730393, 0, -0.92587936, 0, 0.92700803, 0, 0.92587936, 0, -0.045730393, 0.016842097, 10, -3.5918994)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms14" parent="Props" unique_id=1616817617 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.9556891, 0, -0.062234107, 0, 0.9577133, 0, 0.062234107, 0, -0.9556891, 1.0852681, 10, -4.246737)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms15" parent="Props" unique_id=1143325344 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.8726459, 0, 0.48147917, 0, 0.996661, 0, -0.48147917, 0, -0.8726459, 0.17938143, 10, -5.2228456)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms16" parent="Props" unique_id=1501866120 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.5746826, 0, 0.6938839, 0, 0.9009633, 0, -0.6938839, 0, 0.5746826, 0.11462432, 10, -4.3766165)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms17" parent="Props" unique_id=1936601644 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.5978192, 0, -0.7462984, 0, 0.95621604, 0, 0.7462984, 0, -0.5978192, -1.906666, 10, -5.0410933)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms18" parent="Props" unique_id=798805490 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.20732735, 0, -0.9973537, 0, 1.0186751, 0, 0.9973537, 0, 0.20732735, -0.8985786, 10, -3.8604074)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms19" parent="Props" unique_id=697519564 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.6047597, 0, -0.85026586, 0, 1.0434014, 0, 0.85026586, 0, 0.6047597, -2.8645167, 10, -6.748069)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms20" parent="Props" unique_id=848304570 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.89408815, 0, 0.4556539, 0, 1.0035009, 0, -0.4556539, 0, 0.89408815, -4.3794146, 10, -3.5886776)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms21" parent="Props" unique_id=1163173719 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.55059934, 0, 0.8129462, 0, 0.981856, 0, -0.8129462, 0, -0.55059934, -2.8295465, 10, -3.1689992)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms22" parent="Props" unique_id=151904503 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(-0.9327089, 0, 0.5520641, 0, 1.0838454, 0, -0.5520641, 0, -0.9327089, -3.6843917, 10, -3.0749214)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms23" parent="Props" unique_id=1754468013 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.00013665376, 0, -1.0535197, 0, 1.0535197, 0, 1.0535197, 0, 0.00013665376, -5.0453997, 0, -4.7776146)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Mushrooms24" parent="Props" unique_id=402465274 instance=ExtResource("13_nr1dp")]
+transform = Transform3D(0.076596275, 0, -1.028851, 0, 1.0316983, 0, 1.028851, 0, 0.076596275, -4.919141, 10, -5.3060594)
+metadata/level_asset_id = &"forest_mushrooms"
+
+[node name="Reeds" parent="Props" unique_id=1830935907 instance=ExtResource("14_fuvom")]
+transform = Transform3D(0.90097606, 0, 0.29063582, 0, 0.9466927, 0, -0.29063582, 0, 0.90097606, -2.3341813, 10, -4.4239383)
+metadata/level_asset_id = &"forest_reeds"
+
+[node name="FlowersCream" parent="Props" unique_id=1520998503 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.25052884, 0, 0.916519, 0, 0.95014304, 0, -0.916519, 0, 0.25052884, 7.0209455, 0, 9.644316)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream2" parent="Props" unique_id=1566406319 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6568653, 0, -0.80595696, 0, 1.0397301, 0, 0.80595696, 0, 0.6568653, 7.601804, 0, 4.025695)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream3" parent="Props" unique_id=1505533932 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.4206327, 0, 0.9366083, 0, 1.0267264, 0, -0.9366083, 0, -0.4206327, 6.9184513, 0, 4.9535103)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream4" parent="Props" unique_id=1083856985 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.99814755, 0, 0.090153456, 0, 1.0022106, 0, -0.090153456, 0, -0.99814755, 5.1465592, 0, 5.41329)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream5" parent="Props" unique_id=609199606 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9261294, 0, 0.20228378, 0, 0.9479633, 0, -0.20228378, 0, -0.9261294, 9.160285, 0, 9.807482)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream6" parent="Props" unique_id=1902519182 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.95101213, 0, 0.46721888, 0, 1.0595837, 0, -0.46721888, 0, -0.95101213, 11.78272, 0, 9.119898)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream7" parent="Props" unique_id=795854660 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.53462774, 0, -0.94102556, 0, 1.082292, 0, 0.94102556, 0, -0.53462774, 5.695374, 0, 9.39206)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream8" parent="Props" unique_id=1633022510 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.95968384, 0, 0.32497585, 0, 1.0132139, 0, -0.32497585, 0, -0.95968384, 9.226063, 0, 8.50934)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream9" parent="Props" unique_id=1630583963 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.70033526, 0, 0.7397573, 0, 1.0186807, 0, -0.7397573, 0, -0.70033526, 5.92867, 0, 8.135661)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream10" parent="Props" unique_id=144435934 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.19252752, 0, 0.8843253, 0, 0.9050404, 0, -0.8843253, 0, -0.19252752, 11.939392, 0, 10.03661)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream11" parent="Props" unique_id=186825960 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9733669, 0, -0.12801073, 0, 0.9817484, 0, 0.12801073, 0, -0.9733669, 6.0765376, 0, 6.4330416)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream12" parent="Props" unique_id=487991653 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.29110235, 0, -0.9021121, 0, 0.9479171, 0, 0.9021121, 0, 0.29110235, 7.7307787, 0, 7.5050874)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream13" parent="Props" unique_id=646314937 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9021699, 0, -0.1638936, 0, 0.916936, 0, 0.1638936, 0, -0.9021699, 9.756708, 0, 4.6011906)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream14" parent="Props" unique_id=558268803 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.28268218, 0, 1.0493563, 0, 1.0867649, 0, -1.0493563, 0, 0.28268218, 10.508381, 0, 7.357254)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream15" parent="Props" unique_id=1832318700 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.90990794, 0, -0.3438146, 0, 0.9726978, 0, 0.3438146, 0, 0.90990794, 11.549634, 0, 8.310732)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream16" parent="Props" unique_id=817367420 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.0256747, 0, 0.9747693, 0, 0.9751074, 0, -0.9747693, 0, 0.0256747, 10.733162, 0, 9.771677)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream17" parent="Props" unique_id=409229533 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9382044, 0, 0.3195181, 0, 0.9911202, 0, -0.3195181, 0, 0.9382044, 10.673787, 0, 1.1176238)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream18" parent="Props" unique_id=1849161660 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.6795937, 0, 0.83020717, 0, 1.0728893, 0, -0.83020717, 0, -0.6795937, 9.303486, 0, 2.3673382)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream19" parent="Props" unique_id=1638902690 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9042167, 0, 0.19247067, 0, 0.9244743, 0, -0.19247067, 0, -0.9042167, 7.568235, 0, 2.2755423)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream20" parent="Props" unique_id=1131329341 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.63214785, 0, -0.8819965, 0, 1.08514, 0, 0.8819965, 0, 0.63214785, 11.3384, 0, 1.7693982)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream21" parent="Props" unique_id=952471764 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.46625486, 0, -0.81843764, 0, 0.9419309, 0, 0.81843764, 0, 0.46625486, 7.783695, 0, 8.505742)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream22" parent="Props" unique_id=2015934899 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.5703999, 0, 0.7602339, 0, 0.95042706, 0, -0.7602339, 0, -0.5703999, 10.948593, 0, 9.038348)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream23" parent="Props" unique_id=1921281676 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7811825, 0, -0.6693528, 0, 1.028727, 0, 0.6693528, 0, 0.7811825, 9.166607, 0, 5.2170873)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream24" parent="Props" unique_id=1258207807 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.92551655, 0, 0.040474, 0, 0.92640114, 0, -0.040474, 0, 0.92551655, 10.981988, 0, 3.5147507)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream25" parent="Props" unique_id=196429814 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.62782335, 0, -0.7448694, 0, 0.9741625, 0, 0.7448694, 0, -0.62782335, 9.965993, 0, 3.2493508)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream26" parent="Props" unique_id=237245622 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.44055435, 0, -0.9418204, 0, 1.0397662, 0, 0.9418204, 0, 0.44055435, 9.637107, 0, 7.7760177)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream27" parent="Props" unique_id=846302464 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.45549417, 0, -0.951744, 0, 1.0551263, 0, 0.951744, 0, 0.45549417, 11.803472, 0, 6.1599007)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream28" parent="Props" unique_id=348335317 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.27565724, 0, -0.93973595, 0, 0.9793317, 0, 0.93973595, 0, -0.27565724, 10.433682, 0, 8.106177)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream29" parent="Props" unique_id=236575473 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7412994, 0, -0.6303904, 0, 0.9730965, 0, 0.6303904, 0, 0.7412994, 9.636518, 0, 6.187839)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream30" parent="Props" unique_id=458714355 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.30460736, 0, -1.0015408, 0, 1.0468379, 0, 1.0015408, 0, -0.30460736, 10.865637, 0, 4.592517)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream31" parent="Props" unique_id=574601771 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9767568, 0, 0.23987885, 0, 1.0057812, 0, -0.23987885, 0, -0.9767568, 8.802462, 0, 1.7946754)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream32" parent="Props" unique_id=1226500958 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0435544, 0, 0.25160304, 0, 1.073457, 0, -0.25160304, 0, 1.0435544, 11.697893, 0, 7.148615)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream33" parent="Props" unique_id=170031010 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0293772, 0, 0.07459351, 0, 1.0320764, 0, -0.07459351, 0, -1.0293772, 7.161535, 0, 2.8966582)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream34" parent="Props" unique_id=994265081 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7943545, 0, -0.49560967, 0, 0.9362842, 0, 0.49560967, 0, 0.7943545, 9.399338, 0, 6.9608335)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream35" parent="Props" unique_id=851702312 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.48550564, 0, -0.91315883, 0, 1.0342025, 0, 0.91315883, 0, -0.48550564, 9.226553, 0, 3.6757746)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream36" parent="Props" unique_id=2033456839 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.59350145, 0, 0.7503672, 0, 0.95671046, 0, -0.7503672, 0, 0.59350145, 7.723128, 0, 5.4643154)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream37" parent="Props" unique_id=1841474600 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9931738, 0, -0.28307715, 0, 1.0327278, 0, 0.28307715, 0, -0.9931738, 8.629185, 0, 6.125305)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream38" parent="Props" unique_id=1648352867 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.92184365, 0, 0.35772276, 0, 0.9888181, 0, -0.35772276, 0, 0.92184365, 11.661447, 0, 5.418574)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream39" parent="Props" unique_id=1960360946 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0596218, 0, 0.15792897, 0, 1.0713263, 0, -0.15792897, 0, 1.0596218, 10.832994, 0, 6.030842)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream40" parent="Props" unique_id=1540603100 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.97017366, 0, 0.07959162, 0, 0.973433, 0, -0.07959162, 0, -0.97017366, 8.354509, 0, 3.3653104)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream41" parent="Props" unique_id=315025394 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.95379996, 0, 0.31076473, 0, 1.0031496, 0, -0.31076473, 0, -0.95379996, 7.5988016, 0, 6.4028187)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream42" parent="Props" unique_id=553542233 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9941032, 0, -0.29806176, 0, 1.0378256, 0, 0.29806176, 0, -0.9941032, 8.4624405, 0, 4.6841917)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream43" parent="Props" unique_id=2085333360 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7878646, 0, -0.6665161, 0, 1.031976, 0, 0.6665161, 0, 0.7878646, 10.01586, 0, 8.680944)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream44" parent="Props" unique_id=1493776382 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.8083651, 0, -0.49592957, 0, 0.9483672, 0, 0.49592957, 0, 0.8083651, 11.49466, 0, 4.245899)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream45" parent="Props" unique_id=878223194 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0350008, 0, 0.319336, 0, 1.0831445, 0, -0.319336, 0, 1.0350008, 6.969034, 0, 6.875577)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream46" parent="Props" unique_id=1500932334 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7180546, 0, 0.6881881, 0, 0.99458796, 0, -0.6881881, 0, 0.7180546, 11.880017, 0, 3.3761253)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream47" parent="Props" unique_id=815527192 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.90975374, 0, 0.35506067, 0, 0.97658587, 0, -0.35506067, 0, -0.90975374, 10.043304, 0, 1.5218503)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream48" parent="Props" unique_id=2006041041 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.25026923, 0, 1.0134068, 0, 1.0438524, 0, -1.0134068, 0, -0.25026923, 10.733986, 0, 2.7830992)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream49" parent="Props" unique_id=1364330592 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.73071444, 0, -0.61678034, 0, 0.9562226, 0, 0.61678034, 0, 0.73071444, 9.359985, 0, 1.0760856)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream50" parent="Props" unique_id=157030010 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.96135294, 0, -0.119191684, 0, 0.9687137, 0, 0.119191684, 0, 0.96135294, 6.7459793, 0, 3.7306092)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream51" parent="Props" unique_id=383772295 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.98243177, 0, 0.26921815, 0, 1.0186514, 0, -0.26921815, 0, 0.98243177, 10.313163, 0, 5.3293567)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream52" parent="Props" unique_id=1465426918 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6955608, 0, 0.7063447, 0, 0.9913262, 0, -0.7063447, 0, 0.6955608, 6.905745, 0, 5.867136)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream53" parent="Props" unique_id=351289373 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.5547159, 0, 0.75994605, 0, 0.9408654, 0, -0.75994605, 0, 0.5547159, 10.393255, 0, 6.6498623)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream54" parent="Props" unique_id=1019751008 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.43804917, 0, 0.9210931, 0, 1.0199507, 0, -0.9210931, 0, -0.43804917, 11.422008, 0, 0.6181717)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream55" parent="Props" unique_id=1824376758 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.13861151, 0, 0.9056125, 0, 0.916159, 0, -0.9056125, 0, -0.13861151, 8.757905, 0, 7.8985834)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream56" parent="Props" unique_id=580827618 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9739448, 0, -0.24972045, 0, 1.0054495, 0, 0.24972045, 0, 0.9739448, 11.932216, 0, 1.3867304)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream57" parent="Props" unique_id=1535216494 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.86062473, 0, 0.45713907, 0, 0.9745004, 0, -0.45713907, 0, 0.86062473, 10.120296, 0, 0.61189175)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream58" parent="Props" unique_id=1956738814 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9472309, 0, 0.50085485, 0, 1.0714952, 0, -0.50085485, 0, 0.9472309, 11.062134, 0, -0.15278292)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream59" parent="Props" unique_id=184494772 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.6337839, 0, 0.83859885, 0, 1.0511565, 0, -0.83859885, 0, -0.6337839, 10.122338, 0, -0.80481005)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream60" parent="Props" unique_id=1732344365 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6050168, 0, -0.8281137, 0, 1.0255816, 0, 0.8281137, 0, 0.6050168, 8.192847, 0, 2.6244855)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream61" parent="Props" unique_id=1803410324 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7016885, 0, -0.8010327, 0, 1.0649039, 0, 0.8010327, 0, 0.7016885, 8.364787, 0, 1.223794)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream62" parent="Props" unique_id=1778557281 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.061088, 0, 0.25600365, 0, 1.0915335, 0, -0.25600365, 0, -1.061088, 8.833498, 0, 0.06358266)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream63" parent="Props" unique_id=1902244096 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9409949, 0, -0.3224014, 0, 0.9946929, 0, 0.3224014, 0, -0.9409949, 10.23648, 0, 3.9032161)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream64" parent="Props" unique_id=1143973398 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6776286, 0, 0.605783, 0, 0.9089299, 0, -0.605783, 0, 0.6776286, 8.030007, 0, 0.516907)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream65" parent="Props" unique_id=1927090773 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.8316991, 0, -0.44913283, 0, 0.9452215, 0, 0.44913283, 0, 0.8316991, 11.982428, 0, -0.63859415)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream66" parent="Props" unique_id=1948938433 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.67805374, 0, -0.7440993, 0, 1.0066979, 0, 0.7440993, 0, -0.67805374, 10.842801, 0, -0.83269024)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream67" parent="Props" unique_id=1069922529 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.22433499, 0, -1.0208036, 0, 1.0451633, 0, 1.0208036, 0, 0.22433499, 11.445821, 0, 2.6374564)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream68" parent="Props" unique_id=762259792 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.42507535, 0, 0.9022836, 0, 0.99739903, 0, -0.9022836, 0, 0.42507535, 10.213245, 0, -0.09243846)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream69" parent="Props" unique_id=1289905501 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.087993436, 0, -0.9335525, 0, 0.9376903, 0, 0.9335525, 0, 0.087993436, 11.970656, 0, 0.1542151)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream70" parent="Props" unique_id=211254544 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.59334236, 0, 0.68785363, 0, 0.908404, 0, -0.68785363, 0, -0.59334236, 7.697776, 15, -4.072091)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream71" parent="Props" unique_id=1889472866 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.8230683, 0, 0.4849744, 0, 0.9553228, 0, -0.4849744, 0, -0.8230683, 7.9621887, 15, -4.9180474)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream72" parent="Props" unique_id=671013398 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.90290356, 0, 0.022566553, 0, 0.90318555, 0, -0.022566553, 0, 0.90290356, 8.700272, 15, -7.061013)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream73" parent="Props" unique_id=1614048517 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6928595, 0, -0.60511833, 0, 0.9199035, 0, 0.60511833, 0, 0.6928595, 8.310983, 15, -5.02167)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream74" parent="Props" unique_id=171411545 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.69731987, 0, 0.76530945, 0, 1.0353519, 0, -0.76530945, 0, -0.69731987, 9.360508, 0, -6.1786594)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream75" parent="Props" unique_id=1180958154 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9952239, 0, 0.11708319, 0, 1.0020874, 0, -0.11708319, 0, 0.9952239, 6.509467, 0, -5.3352733)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream76" parent="Props" unique_id=1234314101 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.5255716, 0, -0.75492775, 0, 0.91985947, 0, 0.75492775, 0, 0.5255716, 7.3880196, 15, -5.7218957)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream77" parent="Props" unique_id=468451648 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.5719599, 0, -0.8343948, 0, 1.0116091, 0, 0.8343948, 0, -0.5719599, 8.409588, 15, -4.301588)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream78" parent="Props" unique_id=511163691 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.96959764, 0, -0.20956413, 0, 0.9919863, 0, 0.20956413, 0, 0.96959764, 9.586596, 0, -6.9444985)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream79" parent="Props" unique_id=965092868 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.8939391, 0, -0.14781718, 0, 0.9060778, 0, 0.14781718, 0, 0.8939391, 8.60459, 0, -3.9100533)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream80" parent="Props" unique_id=1542567659 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9154223, 0, 0.4821998, 0, 1.0346568, 0, -0.4821998, 0, 0.9154223, 9.312751, 0, -4.613887)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream81" parent="Props" unique_id=1865090697 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.87732214, 0, 0.34563535, 0, 0.94295174, 0, -0.34563535, 0, -0.87732214, 9.116303, 0, -6.343658)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream82" parent="Props" unique_id=878248430 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9168105, 0, -0.13512243, 0, 0.9267144, 0, 0.13512243, 0, 0.9168105, 8.679118, 15, -5.244928)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream83" parent="Props" unique_id=1292300174 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.67030317, 0, 0.8522077, 0, 1.0842345, 0, -0.8522077, 0, 0.67030317, 7.6622767, 15, -4.7585106)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream84" parent="Props" unique_id=2003819074 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0672791, 0, -0.20163262, 0, 1.0861585, 0, 0.20163262, 0, -1.0672791, 7.928947, 0, -3.979529)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream85" parent="Props" unique_id=418687106 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.49410617, 0, -0.94418144, 0, 1.0656545, 0, 0.94418144, 0, -0.49410617, 8.193718, 15, -5.633249)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream86" parent="Props" unique_id=333414298 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.12551615, 0, -0.9036802, 0, 0.9123553, 0, 0.9036802, 0, 0.12551615, 9.224834, 0, -3.7484207)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream87" parent="Props" unique_id=843262836 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.8427908, 0, 0.69202054, 0, 1.0904993, 0, -0.69202054, 0, 0.8427908, 8.884833, 15, -6.7620277)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream88" parent="Props" unique_id=499217652 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9951032, 0, 0.27585724, 0, 1.0326314, 0, -0.27585724, 0, -0.9951032, 8.839543, 15, -4.4696183)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream89" parent="Props" unique_id=1463226901 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.005939771, 0, -0.99827546, 0, 0.9982931, 0, 0.99827546, 0, -0.005939771, 6.484338, 0, -5.6064205)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream90" parent="Props" unique_id=2074770409 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.07243686, 0, -0.9684033, 0, 0.9711087, 0, 0.9684033, 0, 0.07243686, 8.062023, 15, -7.2696137)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream91" parent="Props" unique_id=1496348257 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.71386176, 0, -0.82767653, 0, 1.0929991, 0, 0.82767653, 0, -0.71386176, 8.730242, 15, -7.315812)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream92" parent="Props" unique_id=285952591 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.22566825, 0, -0.99164355, 0, 1.0169971, 0, 0.99164355, 0, 0.22566825, 7.925246, 15, -6.754286)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream93" parent="Props" unique_id=1426453007 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9434233, 0, -0.42138776, 0, 1.0332546, 0, 0.42138776, 0, -0.9434233, 6.9197693, 0, -4.9850693)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream94" parent="Props" unique_id=2116697063 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.5383613, 0, 0.95651793, 0, 1.0976154, 0, -0.95651793, 0, 0.5383613, 8.504715, 15, -4.1165013)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream95" parent="Props" unique_id=1047434465 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.14937787, 0, 1.0254071, 0, 1.0362303, 0, -1.0254071, 0, -0.14937787, 6.9298964, 0, -6.1551604)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream96" parent="Props" unique_id=2003357068 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9443826, 0, 0.05438681, 0, 0.9459474, 0, -0.05438681, 0, -0.9443826, 9.549826, 0, -5.699093)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream97" parent="Props" unique_id=238497484 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.81531256, 0, 0.4359325, 0, 0.9245387, 0, -0.4359325, 0, -0.81531256, 8.869168, 15, -6.491596)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream98" parent="Props" unique_id=1051462681 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.23434371, 0, 0.99457985, 0, 1.0218151, 0, -0.99457985, 0, 0.23434371, 10.243021, 0, -5.5576067)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream99" parent="Props" unique_id=209500879 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9386502, 0, -0.41172868, 0, 1.0249803, 0, 0.41172868, 0, 0.9386502, 7.706808, 15, -4.5340276)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream100" parent="Props" unique_id=1771902920 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.69149554, 0, -0.73720115, 0, 1.0107579, 0, 0.73720115, 0, 0.69149554, 9.40486, 0, -4.8508644)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream101" parent="Props" unique_id=1284160787 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0308683, 0, 0.122510485, 0, 1.0381225, 0, -0.122510485, 0, -1.0308683, 6.7530217, 0, -5.501576)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream102" parent="Props" unique_id=629605015 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0311145, 0, -0.27188233, 0, 1.0663569, 0, 0.27188233, 0, -1.0311145, 8.38367, 15, -6.534151)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream103" parent="Props" unique_id=260643945 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.74208605, 0, -0.70338714, 0, 1.0224701, 0, 0.70338714, 0, -0.74208605, 9.529906, 0, -4.388282)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream104" parent="Props" unique_id=2098815705 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.8303142, 0, -0.59242785, 0, 1.0199963, 0, 0.59242785, 0, -0.8303142, 7.3240595, 15, -4.9568605)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream105" parent="Props" unique_id=1602011287 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6899077, 0, 0.66771865, 0, 0.960115, 0, -0.66771865, 0, 0.6899077, 6.967303, 0, -6.399056)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream106" parent="Props" unique_id=694253972 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.8265074, 0, -0.6259834, 0, 1.0368074, 0, 0.6259834, 0, -0.8265074, 8.345428, 15, -7.263795)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream107" parent="Props" unique_id=883789861 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.41002223, 0, -0.9625705, 0, 1.0462601, 0, 0.9625705, 0, 0.41002223, 7.7444005, 0, -3.742937)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream108" parent="Props" unique_id=651614964 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.007926989, 0, -1.0112376, 0, 1.0112686, 0, 1.0112376, 0, 0.007926989, 10.186909, 0, -6.081438)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream109" parent="Props" unique_id=1688103788 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.16990556, 0, -1.0794426, 0, 1.0927324, 0, 1.0794426, 0, 0.16990556, 7.020507, 15, -6.715561)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream110" parent="Props" unique_id=2006759589 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.011250973, 0, -1.0488608, 0, 1.0489211, 0, 1.0488608, 0, -0.011250973, 10.110221, 0, -5.1263037)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream111" parent="Props" unique_id=1882347330 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.289777, 0, -0.91391444, 0, 0.9587546, 0, 0.91391444, 0, -0.289777, 8.929218, 0, -3.898924)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream112" parent="Props" unique_id=1492695688 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.16239707, 0, 0.9258587, 0, 0.93999314, 0, -0.9258587, 0, -0.16239707, 7.380039, 15, -4.400713)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream113" parent="Props" unique_id=1145123161 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7911966, 0, -0.54701424, 0, 0.9618818, 0, 0.54701424, 0, 0.7911966, 7.817537, 15, -7.158046)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream114" parent="Props" unique_id=277925427 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.07964363, 0, -0.9895003, 0, 0.9927003, 0, 0.9895003, 0, 0.07964363, 9.206236, 0, -7.204039)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream115" parent="Props" unique_id=1282846984 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.93608105, 0, -0.32522902, 0, 0.9909701, 0, 0.32522902, 0, 0.93608105, 7.455288, 15, -6.79527)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream116" parent="Props" unique_id=1863041237 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.80175626, 0, 0.42564604, 0, 0.9077377, 0, -0.42564604, 0, 0.80175626, 6.8153567, 0, -4.418878)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream117" parent="Props" unique_id=1021335772 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.99725807, 0, -0.3363815, 0, 1.052462, 0, 0.3363815, 0, -0.99725807, 9.455695, 0, -3.9268818)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream118" parent="Props" unique_id=1541217735 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.54957736, 0, -0.8528195, 0, 1.0145621, 0, 0.8528195, 0, -0.54957736, 7.592368, 15, -5.540753)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream119" parent="Props" unique_id=694582305 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.31927112, 0, -0.94209236, 0, 0.9947221, 0, 0.94209236, 0, -0.31927112, 10.360404, 0, -5.7634687)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream120" parent="Props" unique_id=1996195204 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.30747616, 0, 0.89664924, 0, 0.9479037, 0, -0.89664924, 0, -0.30747616, 9.562859, 0, -5.9702053)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream121" parent="Props" unique_id=1112088308 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.49813533, 0, 0.9023262, 0, 1.0306946, 0, -0.9023262, 0, 0.49813533, 8.611118, 15, -4.4415445)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream122" parent="Props" unique_id=1211594638 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6879496, 0, -0.7680181, 0, 1.0310802, 0, 0.7680181, 0, 0.6879496, 7.344385, 15, -5.470491)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream123" parent="Props" unique_id=1533529289 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6723218, 0, -0.6815903, 0, 0.95738286, 0, 0.6815903, 0, 0.6723218, 9.886179, 0, -6.1578975)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream124" parent="Props" unique_id=346854670 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9421478, 0, 0.49833438, 0, 1.0658234, 0, -0.49833438, 0, 0.9421478, 8.207759, 0, -3.580266)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream125" parent="Props" unique_id=1607337771 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0146484, 0, 0.21708718, 0, 1.0376118, 0, -0.21708718, 0, 1.0146484, 8.776208, 15, -5.7003393)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream126" parent="Props" unique_id=1108513794 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.5690505, 0, 0.7431297, 0, 0.93598086, 0, -0.7431297, 0, -0.5690505, 8.176934, 15, -6.952754)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream127" parent="Props" unique_id=1558110409 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.11380463, 0, -0.91074526, 0, 0.9178281, 0, 0.91074526, 0, -0.11380463, 7.9364834, 15, -8.235761)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream128" parent="Props" unique_id=678378134 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.07102263, 0, 0.9136159, 0, 0.9163723, 0, -0.9136159, 0, -0.07102263, 9.846183, 0, -6.7155447)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream129" parent="Props" unique_id=1223521668 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.84524727, 0, 0.4287776, 0, 0.9477833, 0, -0.4287776, 0, 0.84524727, 9.7375965, 0, -6.427104)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream130" parent="Props" unique_id=1923090961 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.41135845, 0, -0.9005765, 0, 0.9900776, 0, 0.9005765, 0, -0.41135845, 8.204927, 15, -4.7472777)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream131" parent="Props" unique_id=568098097 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.5262353, 0, -0.77886295, 0, 0.93997395, 0, 0.77886295, 0, 0.5262353, 8.550984, 15, -7.9378767)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream132" parent="Props" unique_id=729593917 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.2711776, 0, -1.0405059, 0, 1.0752627, 0, 1.0405059, 0, -0.2711776, 10.345745, 0, -6.5448217)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream133" parent="Props" unique_id=802902029 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6123913, 0, 0.83007216, 0, 1.0315245, 0, -0.83007216, 0, 0.6123913, 9.1489725, 20, -8.073578)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream134" parent="Props" unique_id=1695826041 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.76301485, 0, -0.6541725, 0, 1.0050539, 0, 0.6541725, 0, -0.76301485, 7.405522, 15, -7.4443135)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream135" parent="Props" unique_id=108570979 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.37196463, 0, -0.8441061, 0, 0.92242765, 0, 0.8441061, 0, 0.37196463, 7.411438, 15, -6.359801)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream136" parent="Props" unique_id=14469786 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9205458, 0, -0.27222374, 0, 0.9599533, 0, 0.27222374, 0, -0.9205458, 7.830314, 15, -6.0907354)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream137" parent="Props" unique_id=810948093 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.4012615, 0, 0.9596941, 0, 1.0402036, 0, -0.9596941, 0, 0.4012615, 7.7343907, 15, -6.3327813)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream138" parent="Props" unique_id=2011185504 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.50077885, 0, -0.9170218, 0, 1.0448486, 0, 0.9170218, 0, 0.50077885, 7.88225, 15, -5.4046335)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream139" parent="Props" unique_id=1420983909 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0289019, 0, 0.2562275, 0, 1.0603262, 0, -0.2562275, 0, 1.0289019, 10.380113, 0, -6.345975)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream140" parent="Props" unique_id=1002431897 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.8054452, 0, 0.6451404, 0, 1.0319632, 0, -0.6451404, 0, -0.8054452, 7.7045608, 15, -7.4052954)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream141" parent="Props" unique_id=1780248628 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9157422, 0, -0.28363857, 0, 0.9586629, 0, 0.28363857, 0, -0.9157422, 6.736778, 0, -6.0978723)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream142" parent="Props" unique_id=109358665 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.8052294, 0, 0.4905979, 0, 0.9429108, 0, -0.4905979, 0, 0.8052294, 7.8186603, 15, -6.5478187)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream143" parent="Props" unique_id=1719399431 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.88085616, 0, 0.6441434, 0, 1.0912508, 0, -0.6441434, 0, -0.88085616, 10.242853, 0, -6.854047)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream144" parent="Props" unique_id=933686215 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.01359194, 0, 0.93689483, 0, 0.9369934, 0, -0.93689483, 0, 0.01359194, 8.6024685, 15, -4.9189215)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream145" parent="Props" unique_id=395372083 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.22943728, 0, 0.9841325, 0, 1.0105238, 0, -0.9841325, 0, -0.22943728, 9.379509, 0, -6.860768)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream146" parent="Props" unique_id=1151802058 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9823962, 0, -0.0793581, 0, 0.98559624, 0, 0.0793581, 0, -0.9823962, 7.804404, 15, -5.8448663)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream147" parent="Props" unique_id=1628693449 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.67492664, 0, -0.78123194, 0, 1.0323998, 0, 0.78123194, 0, 0.67492664, 8.425266, 15, -5.8091207)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream148" parent="Props" unique_id=62092902 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.1152684, 0, 0.9509655, 0, 0.95792603, 0, -0.9509655, 0, -0.1152684, 10.451578, 0, -6.150368)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream149" parent="Props" unique_id=1617701577 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.977057, 0, -0.32576945, 0, 1.029935, 0, 0.32576945, 0, -0.977057, 7.717782, 15, -8.163677)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream150" parent="Props" unique_id=1093835453 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.3193127, 0, 0.97695714, 0, 1.027816, 0, -0.97695714, 0, -0.3193127, 8.922169, 15, -7.069897)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream151" parent="Props" unique_id=880135064 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.87057894, 0, 0.46895385, 0, 0.98885053, 0, -0.46895385, 0, -0.87057894, 9.114009, 0, -7.579862)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream152" parent="Props" unique_id=438383992 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.16227287, 0, -1.0208827, 0, 1.0336992, 0, 1.0208827, 0, -0.16227287, 7.197091, 15, -6.4212565)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream153" parent="Props" unique_id=2098306287 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9348599, 0, 0.5743916, 0, 1.0972186, 0, -0.5743916, 0, -0.9348599, 7.348362, 15, -7.1226187)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream154" parent="Props" unique_id=1361271879 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.8027852, 0, 0.7019631, 0, 1.0664035, 0, -0.7019631, 0, -0.8027852, 9.509565, 20, -8.042887)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream155" parent="Props" unique_id=1787385739 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.8491175, 0, -0.5228076, 0, 0.9971602, 0, 0.5228076, 0, 0.8491175, 8.583743, 15, -6.544377)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream156" parent="Props" unique_id=1665964077 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.77704394, 0, 0.73372793, 0, 1.068716, 0, -0.73372793, 0, 0.77704394, 7.0186415, 15, -7.220978)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream157" parent="Props" unique_id=726691494 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.11881991, 0, 1.0121058, 0, 1.0190566, 0, -1.0121058, 0, -0.11881991, 9.648553, 0, -7.8364077)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream158" parent="Props" unique_id=1003843770 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0451306, 0, -0.15750691, 0, 1.0569326, 0, 0.15750691, 0, 1.0451306, 8.144791, 15, -7.7034364)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream159" parent="Props" unique_id=681545965 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0304073, 0, -0.29842743, 0, 1.0727526, 0, 0.29842743, 0, -1.0304073, 9.14169, 0, -5.7294917)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream160" parent="Props" unique_id=89727365 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.97229856, 0, 0.05677699, 0, 0.9739549, 0, -0.05677699, 0, 0.97229856, 10.0273905, 0, -6.9021316)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream161" parent="Props" unique_id=939439539 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.87924016, 0, -0.20577659, 0, 0.90299904, 0, 0.20577659, 0, -0.87924016, 10.526777, 0, -6.820089)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream162" parent="Props" unique_id=652713717 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.6145826, 0, 0.8217382, 0, 1.026141, 0, -0.8217382, 0, -0.6145826, 10.141719, 0, -7.384071)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream163" parent="Props" unique_id=636897999 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.16487542, 0, -0.9927842, 0, 1.0063819, 0, 0.9927842, 0, -0.16487542, 9.683622, 0, -7.461301)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream164" parent="Props" unique_id=71239005 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.8939823, 0, 0.22029123, 0, 0.9207239, 0, -0.22029123, 0, -0.8939823, 8.511152, 15, -5.1311607)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream165" parent="Props" unique_id=1944584433 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.67002183, 0, 0.6997986, 0, 0.9688381, 0, -0.6997986, 0, 0.67002183, 7.11514, 15, -5.814855)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream166" parent="Props" unique_id=2031581837 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.90430063, 0, -0.5691853, 0, 1.0685184, 0, 0.5691853, 0, -0.90430063, 10.127584, 0, -5.83564)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream167" parent="Props" unique_id=245781201 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0673496, 0, -0.039131813, 0, 1.0680666, 0, 0.039131813, 0, 1.0673496, 8.261973, 15, -4.511932)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream168" parent="Props" unique_id=656248734 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0191385, 0, -0.18267953, 0, 1.0353816, 0, 0.18267953, 0, -1.0191385, 9.693251, 0, -7.2332983)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream169" parent="Props" unique_id=698342167 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.95591265, 0, 0.282644, 0, 0.9968233, 0, -0.282644, 0, 0.95591265, 7.1893873, 15, -6.072619)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream170" parent="Props" unique_id=1871830885 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.4290337, 0, 0.9847594, 0, 1.0741606, 0, -0.9847594, 0, 0.4290337, 10.245278, 0, -5.277865)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream171" parent="Props" unique_id=1442898814 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.7177588, 0, -0.6730477, 0, 0.98395675, 0, 0.6730477, 0, -0.7177588, 7.525324, 15, -6.0703893)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream172" parent="Props" unique_id=574738570 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.7565132, 0, -0.5016318, 0, 0.9077151, 0, 0.5016318, 0, -0.7565132, 8.800387, 15, -8.067767)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream173" parent="Props" unique_id=812458806 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0475737, 0, 0.12618636, 0, 1.0551462, 0, -0.12618636, 0, 1.0475737, 6.676073, 0, -6.702588)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream174" parent="Props" unique_id=1771603978 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0119296, 0, -0.08067516, 0, 1.0151404, 0, 0.08067516, 0, 1.0119296, 9.382696, 0, -7.5004015)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream175" parent="Props" unique_id=379307641 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.99469256, 0, -0.20306277, 0, 1.0152082, 0, 0.20306277, 0, -0.99469256, 7.900378, 15, -8.028927)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream176" parent="Props" unique_id=286918224 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.639167, 0, 0.84466815, 0, 1.0592444, 0, -0.84466815, 0, 0.639167, 9.994444, 0, -7.7168307)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream177" parent="Props" unique_id=1063516997 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.42805582, 0, -0.83332294, 0, 0.9368345, 0, 0.83332294, 0, -0.42805582, 8.902418, 15, -4.889388)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream178" parent="Props" unique_id=924752667 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.18727797, 0, -0.9750421, 0, 0.9928646, 0, 0.9750421, 0, -0.18727797, 7.178918, 15, -7.741828)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream179" parent="Props" unique_id=1349460537 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9714539, 0, 0.22113304, 0, 0.99630445, 0, -0.22113304, 0, -0.9714539, 9.004384, 0, -4.5122557)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream180" parent="Props" unique_id=1526014050 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.44332856, 0, -0.83712, 0, 0.94726455, 0, 0.83712, 0, 0.44332856, 8.372056, 15, -8.380055)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream181" parent="Props" unique_id=598759496 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.07495652, 0, 0.99203795, 0, 0.9948657, 0, -0.99203795, 0, -0.07495652, 9.695336, 20, -9.074681)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream182" parent="Props" unique_id=1606267137 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.74209785, 0, 0.60661954, 0, 0.95848656, 0, -0.60661954, 0, 0.74209785, 9.0901165, 20, -8.419183)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream183" parent="Props" unique_id=313834065 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6238991, 0, 0.6503912, 0, 0.90125406, 0, -0.6503912, 0, 0.6238991, 8.724727, 15, -8.597106)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream184" parent="Props" unique_id=1701528101 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.8851656, 0, 0.2601692, 0, 0.9226083, 0, -0.2601692, 0, 0.8851656, 8.819204, 15, -6.2403936)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream185" parent="Props" unique_id=1630672192 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.43004575, 0, -0.8543747, 0, 0.95650166, 0, 0.8543747, 0, 0.43004575, 9.254766, 0, -7.898685)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream186" parent="Props" unique_id=1610426797 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.97993916, 0, 0.4037, 0, 1.059837, 0, -0.4037, 0, -0.97993916, 7.9035764, 15, -9.008728)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream187" parent="Props" unique_id=1281449846 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0172917, 0, 0.19487102, 0, 1.035788, 0, -0.19487102, 0, -1.0172917, 7.7468762, 15, -8.58954)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream188" parent="Props" unique_id=988028390 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0671281, 0, -0.19923797, 0, 1.0855681, 0, 0.19923797, 0, 1.0671281, 10.531764, 0, -7.0723805)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream189" parent="Props" unique_id=1291458624 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7169871, 0, 0.76742816, 0, 1.0502459, 0, -0.76742816, 0, 0.7169871, 10.048711, 0, -6.6455083)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream190" parent="Props" unique_id=900760283 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.54393107, 0, 0.9213828, 0, 1.0699567, 0, -0.9213828, 0, 0.54393107, 7.7327566, 15, -7.621679)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream191" parent="Props" unique_id=2021749849 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.87991804, 0, 0.5074693, 0, 1.0157661, 0, -0.5074693, 0, 0.87991804, 7.9965672, 15, -8.778705)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream192" parent="Props" unique_id=820567445 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.95570844, 0, 0.46050555, 0, 1.0608695, 0, -0.46050555, 0, 0.95570844, 9.195115, 20, -8.886918)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream193" parent="Props" unique_id=48113892 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.97730863, 0, -0.22307108, 0, 1.0024434, 0, 0.22307108, 0, 0.97730863, 7.994448, 15, -8.563725)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream194" parent="Props" unique_id=608710741 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.65967697, 0, -0.6931232, 0, 0.9568665, 0, 0.6931232, 0, -0.65967697, 8.70697, 15, -7.653565)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream195" parent="Props" unique_id=1687395564 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.78739583, 0, 0.5671828, 0, 0.97040635, 0, -0.5671828, 0, -0.78739583, 9.614254, 0, -6.668802)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream196" parent="Props" unique_id=2125951661 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.78323203, 0, 0.60258305, 0, 0.9882099, 0, -0.60258305, 0, -0.78323203, 7.4666033, 15, -9.043997)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream197" parent="Props" unique_id=894134564 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.271408, 0, 0.93391544, 0, 0.9725535, 0, -0.93391544, 0, 0.271408, 8.570615, 15, -6.2699375)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream198" parent="Props" unique_id=1613191491 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6963931, 0, -0.82803816, 0, 1.0819476, 0, 0.82803816, 0, 0.6963931, 6.6709023, 0, -7.415356)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream199" parent="Props" unique_id=1564238711 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.15330547, 0, -1.0596429, 0, 1.0706754, 0, 1.0596429, 0, -0.15330547, 10.455137, 0, -7.8918796)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream200" parent="Props" unique_id=117465642 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.69422126, 0, -0.64400256, 0, 0.9469332, 0, 0.64400256, 0, -0.69422126, 6.9963026, 0, -8.1307)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream201" parent="Props" unique_id=136254806 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0311462, 0, -0.012322644, 0, 1.0312198, 0, 0.012322644, 0, -1.0311462, 9.763335, 20, -8.687437)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream202" parent="Props" unique_id=1851833890 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.7837202, 0, -0.64591825, 0, 1.0155923, 0, 0.64591825, 0, -0.7837202, 9.597799, 20, -8.443253)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream203" parent="Props" unique_id=1399639097 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.11104525, 0, 1.0716807, 0, 1.0774184, 0, -1.0716807, 0, 0.11104525, 9.042019, 0, -6.8137116)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream204" parent="Props" unique_id=431993977 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.0048004454, 0, -0.96995914, 0, 0.969971, 0, 0.96995914, 0, -0.0048004454, 7.831146, 15, -7.815747)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream205" parent="Props" unique_id=1682340695 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0279683, 0, -0.07459604, 0, 1.0306714, 0, 0.07459604, 0, 1.0279683, 7.4076366, 15, -7.992066)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream206" parent="Props" unique_id=1769089965 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.96207863, 0, 0.038960595, 0, 0.9628672, 0, -0.038960595, 0, 0.96207863, 8.330567, 15, -7.5821753)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream207" parent="Props" unique_id=320676391 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.4185552, 0, -0.9454238, 0, 1.0339316, 0, 0.9454238, 0, -0.4185552, 8.453903, 15, -8.738709)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream208" parent="Props" unique_id=1896016637 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.91096216, 0, -0.14981729, 0, 0.9231995, 0, 0.14981729, 0, 0.91096216, 9.160299, 0, -6.040771)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream209" parent="Props" unique_id=1219937431 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.009148269, 0, 0.99224746, 0, 0.99228966, 0, -0.99224746, 0, 0.009148269, 6.98586, 0, -7.0450683)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream210" parent="Props" unique_id=1631698959 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9314553, 0, -0.54380727, 0, 1.0785803, 0, 0.54380727, 0, -0.9314553, 8.1426325, 15, -9.348003)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream211" parent="Props" unique_id=1742613005 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.93523806, 0, 0.14507838, 0, 0.94642377, 0, -0.14507838, 0, -0.93523806, 9.854356, 20, -8.117224)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream212" parent="Props" unique_id=91262369 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.41580296, 0, -0.8751632, 0, 0.9689183, 0, 0.8751632, 0, -0.41580296, 8.539191, 15, -7.186546)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream213" parent="Props" unique_id=909711202 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.777654, 0, -0.67152125, 0, 1.027466, 0, 0.67152125, 0, -0.777654, 10.084344, 0, -8.51234)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream214" parent="Props" unique_id=544002550 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.55389816, 0, -0.77464527, 0, 0.9523017, 0, 0.77464527, 0, 0.55389816, 8.759084, 15, -9.1793995)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream215" parent="Props" unique_id=869539529 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7611933, 0, 0.55033714, 0, 0.9393009, 0, -0.55033714, 0, 0.7611933, 8.980843, 15, -8.739606)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream216" parent="Props" unique_id=1948812219 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.40667814, 0, 0.839012, 0, 0.93237776, 0, -0.839012, 0, -0.40667814, 8.163158, 15, -9.064329)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream217" parent="Props" unique_id=1359468068 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9067749, 0, -0.16625793, 0, 0.9218907, 0, 0.16625793, 0, 0.9067749, 9.345347, 20, -8.717564)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream218" parent="Props" unique_id=1596978964 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.5165309, 0, 0.838802, 0, 0.98508525, 0, -0.838802, 0, -0.5165309, 6.7986355, 0, -7.6783276)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream219" parent="Props" unique_id=1839875010 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.50497675, 0, -0.76871336, 0, 0.91974, 0, 0.76871336, 0, 0.50497675, 8.127045, 15, -6.4647875)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream220" parent="Props" unique_id=1992602855 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.19962788, 0, -0.98484194, 0, 1.0048707, 0, 0.98484194, 0, 0.19962788, 7.053692, 15, -7.988461)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream221" parent="Props" unique_id=1488721079 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0576122, 0, -0.13687621, 0, 1.0664327, 0, 0.13687621, 0, -1.0576122, 7.4763765, 15, -7.757739)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream222" parent="Props" unique_id=837752166 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.5161963, 0, -0.8427144, 0, 0.988244, 0, 0.8427144, 0, -0.5161963, 8.507907, 15, -7.4420085)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream223" parent="Props" unique_id=1221352289 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.64508146, 0, 0.7287375, 0, 0.973236, 0, -0.7287375, 0, -0.64508146, 7.219114, 15, -6.6839194)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream224" parent="Props" unique_id=2019452981 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9193889, 0, -0.3187639, 0, 0.9730809, 0, 0.3187639, 0, 0.9193889, 9.96333, 20, -8.866837)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream225" parent="Props" unique_id=19348931 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.805499, 0, 0.7197205, 0, 1.0801973, 0, -0.7197205, 0, -0.805499, 9.380995, 20, -9.150743)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream226" parent="Props" unique_id=389882022 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.68480897, 0, -0.7450589, 0, 1.0119665, 0, 0.7450589, 0, -0.68480897, 9.423266, 0, -7.2734694)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream227" parent="Props" unique_id=1688942971 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0448036, 0, 0.19224925, 0, 1.0623438, 0, -0.19224925, 0, 1.0448036, 8.752367, 15, -7.8657293)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream228" parent="Props" unique_id=1707004303 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9615272, 0, 0.07143603, 0, 0.9641772, 0, -0.07143603, 0, -0.9615272, 7.021756, 15, -6.215252)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream229" parent="Props" unique_id=1321746165 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.4152101, 0, 0.9027816, 0, 0.9936871, 0, -0.9027816, 0, -0.4152101, 8.904022, 15, -8.950342)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream230" parent="Props" unique_id=145073702 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.10684828, 0, 0.993143, 0, 0.9988742, 0, -0.993143, 0, 0.10684828, 9.935433, 0, -7.4509087)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream231" parent="Props" unique_id=1212209569 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.32599384, 0, 0.8622645, 0, 0.92183083, 0, -0.8622645, 0, -0.32599384, 8.13947, 15, -6.67906)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream232" parent="Props" unique_id=1725277805 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.7305748, 0, 0.693551, 0, 1.0073493, 0, -0.693551, 0, -0.7305748, 7.25723, 15, -8.429936)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream233" parent="Props" unique_id=1617569337 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.79364496, 0, 0.75513595, 0, 1.095492, 0, -0.75513595, 0, -0.79364496, 7.2962885, 15, -8.856128)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream234" parent="Props" unique_id=9930661 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.40331867, 0, 0.9229335, 0, 1.0072101, 0, -0.9229335, 0, -0.40331867, 8.719093, 15, -8.828075)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream235" parent="Props" unique_id=433380098 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9288704, 0, -0.26571968, 0, 0.96612996, 0, 0.26571968, 0, 0.9288704, 7.758793, 15, -9.509188)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream236" parent="Props" unique_id=868952797 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.71303874, 0, 0.6096828, 0, 0.93815637, 0, -0.6096828, 0, 0.71303874, 8.903501, 15, -10.09993)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream237" parent="Props" unique_id=987191062 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.19073707, 0, -0.9330936, 0, 0.95238876, 0, 0.9330936, 0, -0.19073707, 9.308927, 20, -8.375205)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream238" parent="Props" unique_id=366023380 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.38503858, 0, 0.9019238, 0, 0.98067385, 0, -0.9019238, 0, 0.38503858, 7.930971, 15, -9.321566)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream239" parent="Props" unique_id=412982467 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.908535, 0, -0.07410087, 0, 0.9115519, 0, 0.07410087, 0, -0.908535, 7.054798, 15, -9.398508)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream240" parent="Props" unique_id=744031461 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.5457467, 0, -0.7910503, 0, 0.9610411, 0, 0.7910503, 0, -0.5457467, 9.399866, 0, -7.7281227)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream241" parent="Props" unique_id=1129766449 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.84386855, 0, 0.57927775, 0, 1.0235609, 0, -0.57927775, 0, 0.84386855, 9.23397, 20, -9.963281)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream242" parent="Props" unique_id=616994991 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9710665, 0, -0.058302645, 0, 0.97281516, 0, 0.058302645, 0, 0.9710665, 7.2972345, 15, -8.160932)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream243" parent="Props" unique_id=727894577 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.09395674, 0, -0.8959164, 0, 0.9008296, 0, 0.8959164, 0, -0.09395674, 8.69578, 15, -10.301353)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream244" parent="Props" unique_id=223436245 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0015746, 0, 0.1081256, 0, 1.0073941, 0, -0.1081256, 0, 1.0015746, 7.564361, 15, -9.447058)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream245" parent="Props" unique_id=1433257253 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.18240702, 0, 0.9624053, 0, 0.97953886, 0, -0.9624053, 0, -0.18240702, 7.3559465, 15, -9.865257)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream246" parent="Props" unique_id=243472550 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.5563938, 0, 0.8820748, 0, 1.042895, 0, -0.8820748, 0, 0.5563938, 6.9747734, 0, -8.803417)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream247" parent="Props" unique_id=2112644888 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.41455168, 0, 0.9036919, 0, 0.99423945, 0, -0.9036919, 0, -0.41455168, 7.566174, 15, -9.849913)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream248" parent="Props" unique_id=837141822 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.49380565, 0, 0.9753264, 0, 1.0932089, 0, -0.9753264, 0, -0.49380565, 10.03346, 0, -8.041436)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream249" parent="Props" unique_id=1241395741 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9978514, 0, -0.038170036, 0, 0.9985812, 0, 0.038170036, 0, 0.9978514, 6.678013, 0, -8.360141)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream250" parent="Props" unique_id=823653224 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.092899, 0, 0.022753073, 0, 1.0931358, 0, -0.022753073, 0, -1.092899, 6.775609, 0, -7.9279847)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream251" parent="Props" unique_id=2049516594 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0516108, 0, -0.23807937, 0, 1.0782241, 0, 0.23807937, 0, 1.0516108, 9.094967, 20, -9.174329)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream252" parent="Props" unique_id=1516625747 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.94854474, 0, 0.4784436, 0, 1.0623772, 0, -0.4784436, 0, -0.94854474, 10.079153, 0, -7.105346)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream253" parent="Props" unique_id=1777197838 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.5806842, 0, -0.8822298, 0, 1.0561835, 0, 0.8822298, 0, 0.5806842, 8.583314, 15, -9.373016)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream254" parent="Props" unique_id=1098192671 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.7636769, 0, 0.66429496, 0, 1.012171, 0, -0.66429496, 0, -0.7636769, 8.844968, 15, -8.363949)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream255" parent="Props" unique_id=1134504689 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.6718273, 0, 0.76623374, 0, 1.0190516, 0, -0.76623374, 0, -0.6718273, 9.188832, 0, -6.6282153)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream256" parent="Props" unique_id=503235694 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.078098156, 0, -1.0518157, 0, 1.0547112, 0, 1.0518157, 0, -0.078098156, 9.194473, 20, -9.569672)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream257" parent="Props" unique_id=983247878 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0466902, 0, 0.21901976, 0, 1.0693597, 0, -0.21901976, 0, 1.0466902, 7.1266127, 15, -9.179208)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream258" parent="Props" unique_id=428574488 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.38021025, 0, -0.82485837, 0, 0.9082682, 0, 0.82485837, 0, -0.38021025, 10.385935, 0, -8.439588)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream259" parent="Props" unique_id=350968434 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.92957246, 0, 0.4076103, 0, 1.0150129, 0, -0.4076103, 0, -0.92957246, 7.5737004, 15, -10.119748)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream260" parent="Props" unique_id=1227381274 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.4483741, 0, -0.9259621, 0, 1.0288076, 0, 0.9259621, 0, -0.4483741, 10.2408085, 0, -8.23064)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream261" parent="Props" unique_id=492748900 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.704769, 0, 0.77806425, 0, 1.0498016, 0, -0.77806425, 0, 0.704769, 6.9082985, 0, -9.332462)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream262" parent="Props" unique_id=872467862 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.42833367, 0, -0.845683, 0, 0.9479712, 0, 0.845683, 0, -0.42833367, 7.280241, 15, -9.309705)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream263" parent="Props" unique_id=1275460011 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9134341, 0, 0.26949325, 0, 0.95235944, 0, -0.26949325, 0, -0.9134341, 8.336918, 15, -9.182873)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream264" parent="Props" unique_id=1983563576 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.75722, 0, -0.537462, 0, 0.9285728, 0, 0.537462, 0, 0.75722, 9.443806, 20, -9.654907)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream265" parent="Props" unique_id=452330543 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.56476283, 0, -0.85501903, 0, 1.0247022, 0, 0.85501903, 0, -0.56476283, 6.7165065, 0, -8.771885)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream266" parent="Props" unique_id=1463248596 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0692133, 0, 0.048314653, 0, 1.0703043, 0, -0.048314653, 0, -1.0692133, 8.402526, 15, -9.993477)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream267" parent="Props" unique_id=1902398132 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.5402455, 0, 0.77133864, 0, 0.9417157, 0, -0.77133864, 0, -0.5402455, 8.962584, 15, -9.152148)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream268" parent="Props" unique_id=454381254 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.5726475, 0, -0.7785859, 0, 0.96649945, 0, 0.7785859, 0, -0.5726475, 10.253419, 0, -8.650716)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream269" parent="Props" unique_id=1941366051 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.96757215, 0, -0.45965707, 0, 1.0712051, 0, 0.45965707, 0, -0.96757215, 7.002147, 15, -8.93964)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream270" parent="Props" unique_id=1043507729 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.84984857, 0, -0.4676479, 0, 0.9700191, 0, 0.4676479, 0, 0.84984857, 8.454148, 15, -6.905872)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream271" parent="Props" unique_id=778488499 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.86157376, 0, 0.31686553, 0, 0.9179941, 0, -0.31686553, 0, -0.86157376, 7.6846485, 15, -9.0518875)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream272" parent="Props" unique_id=965699307 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9702696, 0, -0.21504587, 0, 0.99381477, 0, 0.21504587, 0, -0.9702696, 9.0482855, 20, -9.791549)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream273" parent="Props" unique_id=789852235 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.84819597, 0, 0.37279108, 0, 0.92650396, 0, -0.37279108, 0, -0.84819597, 8.594953, 15, -8.237648)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream274" parent="Props" unique_id=273898350 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.38944533, 0, -0.853116, 0, 0.93780303, 0, 0.853116, 0, -0.38944533, 8.680971, 15, -9.691139)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream275" parent="Props" unique_id=114302806 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.78202343, 0, 0.72426164, 0, 1.0658872, 0, -0.72426164, 0, -0.78202343, 7.9243183, 15, -7.517834)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream276" parent="Props" unique_id=74070942 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.72911835, 0, 0.6312953, 0, 0.9644415, 0, -0.6312953, 0, 0.72911835, 7.2036967, 15, -9.549523)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream277" parent="Props" unique_id=257873257 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0477701, 0, -0.19658536, 0, 1.0660526, 0, 0.19658536, 0, -1.0477701, 9.945147, 20, -9.734446)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream278" parent="Props" unique_id=84417566 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.30253768, 0, -1.0147252, 0, 1.0588655, 0, 1.0147252, 0, -0.30253768, 10.444388, 0, -8.921717)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream279" parent="Props" unique_id=584473185 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.22666879, 0, -0.9624638, 0, 0.98879486, 0, 0.9624638, 0, 0.22666879, 7.5510936, 15, -6.9760313)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream280" parent="Props" unique_id=1177510043 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.93404377, 0, -0.14985906, 0, 0.9459892, 0, 0.14985906, 0, -0.93404377, 9.445974, 20, -10.192779)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream281" parent="Props" unique_id=1960171135 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.057054337, 0, 0.9811322, 0, 0.9827897, 0, -0.9811322, 0, 0.057054337, 7.081596, 15, -7.450612)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream282" parent="Props" unique_id=229511977 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.24858727, 0, -0.97341484, 0, 1.0046552, 0, 0.97341484, 0, 0.24858727, 8.177284, 15, -10.1431055)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream283" parent="Props" unique_id=1914710374 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.3252682, 0, -0.8580365, 0, 0.91761976, 0, 0.8580365, 0, -0.3252682, 8.254387, 15, -8.785615)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream284" parent="Props" unique_id=1292332850 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.34459475, 0, -0.87717676, 0, 0.94243544, 0, 0.87717676, 0, -0.34459475, 10.196333, 0, -9.233425)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream285" parent="Props" unique_id=1777720311 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7562796, 0, -0.6284733, 0, 0.9833298, 0, 0.6284733, 0, 0.7562796, 10.028587, 0, -9.679542)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream286" parent="Props" unique_id=809058533 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.8145874, 0, 0.40164384, 0, 0.90822375, 0, -0.40164384, 0, -0.8145874, 8.500648, 15, -9.012766)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream287" parent="Props" unique_id=512425954 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9027262, 0, -0.10434674, 0, 0.9087369, 0, 0.10434674, 0, -0.9027262, 8.280363, 15, -8.124666)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream288" parent="Props" unique_id=186303558 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.096545845, 0, -0.99708074, 0, 1.001744, 0, 0.99708074, 0, 0.096545845, 6.639283, 0, -8.109343)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream289" parent="Props" unique_id=132133205 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.74739504, 0, -0.68321615, 0, 1.0126122, 0, 0.68321615, 0, -0.74739504, 8.097837, 15, -9.647377)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream290" parent="Props" unique_id=2040682648 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.8998365, 0, -0.025595967, 0, 0.9002004, 0, 0.025595967, 0, -0.8998365, 9.195832, 20, -10.180589)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream291" parent="Props" unique_id=1304472166 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.895921, 0, -0.11201673, 0, 0.9028966, 0, 0.11201673, 0, 0.895921, 7.4487433, 15, -10.736889)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream292" parent="Props" unique_id=1369142844 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.6986399, 0, 0.60914755, 0, 0.926908, 0, -0.60914755, 0, -0.6986399, 8.393884, 0, -11.700805)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream293" parent="Props" unique_id=1080969376 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.49428645, 0, -0.808942, 0, 0.9480012, 0, 0.808942, 0, 0.49428645, 6.7104177, 0, -10.982556)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream294" parent="Props" unique_id=619214053 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.77936906, 0, 0.4996319, 0, 0.925769, 0, -0.4996319, 0, -0.77936906, 9.318172, 0, -11.442609)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream295" parent="Props" unique_id=1982755559 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.837467, 0, 0.53810406, 0, 0.9954431, 0, -0.53810406, 0, 0.837467, 9.544543, 20, -10.830128)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream296" parent="Props" unique_id=855626793 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.03807617, 0, 0.97892326, 0, 0.9796635, 0, -0.97892326, 0, 0.03807617, 8.519506, 0, -11.422536)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream297" parent="Props" unique_id=1268918802 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.36511576, 0, 0.9190318, 0, 0.98890287, 0, -0.9190318, 0, 0.36511576, 7.0224433, 15, -9.782338)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream298" parent="Props" unique_id=788313330 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0547208, 0, -0.10663028, 0, 1.0600971, 0, 0.10663028, 0, -1.0547208, 9.234759, 20, -10.845077)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream299" parent="Props" unique_id=207171643 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.6772396, 0, -0.82671845, 0, 1.0686986, 0, 0.82671845, 0, 0.6772396, 8.91536, 0, -11.946452)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream300" parent="Props" unique_id=804103602 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.854579, 0, 0.6764748, 0, 1.089919, 0, -0.6764748, 0, -0.854579, 9.976607, 0, -11.160408)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream301" parent="Props" unique_id=1887454846 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.98017657, 0, 0.4626838, 0, 1.0838922, 0, -0.4626838, 0, 0.98017657, 8.372751, 15, -9.707146)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream302" parent="Props" unique_id=28133219 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.9764561, 0, -0.36344323, 0, 1.0419009, 0, 0.36344323, 0, 0.9764561, 10.106541, 0, -10.4150715)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream303" parent="Props" unique_id=1924534748 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.7640764, 0, 0.7811544, 0, 1.0927099, 0, -0.7811544, 0, -0.7640764, 8.198186, 0, -11.365586)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream304" parent="Props" unique_id=969709565 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.80521953, 0, 0.43624547, 0, 0.91579944, 0, -0.43624547, 0, 0.80521953, 10.434388, 0, -9.902423)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream305" parent="Props" unique_id=1163609298 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.04836907, 0, 0.99147516, 0, 0.9926543, 0, -0.99147516, 0, 0.04836907, 8.005339, 0, -11.825465)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream306" parent="Props" unique_id=1548530845 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.94538265, 0, -0.09734119, 0, 0.9503808, 0, 0.09734119, 0, -0.94538265, 9.608871, 0, -11.156968)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream307" parent="Props" unique_id=1474153135 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.6941984, 0, -0.8082167, 0, 1.0654228, 0, 0.8082167, 0, -0.6941984, 8.637517, 15, -10.916075)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream308" parent="Props" unique_id=672247265 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0606637, 0, -0.013752305, 0, 1.0607529, 0, 0.013752305, 0, 1.0606637, 9.052686, 20, -10.440062)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream309" parent="Props" unique_id=264351786 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.103745006, 0, -0.91687155, 0, 0.9227223, 0, 0.91687155, 0, 0.103745006, 6.6478705, 0, -10.406949)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream310" parent="Props" unique_id=736969188 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.22013973, 0, 0.94121075, 0, 0.9666122, 0, -0.94121075, 0, -0.22013973, 6.7422605, 0, -10.080549)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream311" parent="Props" unique_id=2102845732 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.94555616, 0, -0.25536588, 0, 0.9794326, 0, 0.25536588, 0, 0.94555616, 8.989516, 15, -9.685826)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream312" parent="Props" unique_id=485644983 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.819571, 0, -0.6039807, 0, 1.0180812, 0, 0.6039807, 0, 0.819571, 9.959042, 20, -10.582299)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream313" parent="Props" unique_id=39750975 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.49910992, 0, -0.8469005, 0, 0.98303163, 0, 0.8469005, 0, 0.49910992, 10.259128, 0, -10.925743)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream314" parent="Props" unique_id=2099456667 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.51125103, 0, -0.8183981, 0, 0.9649627, 0, 0.8183981, 0, 0.51125103, 7.4545884, 0, -11.994336)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream315" parent="Props" unique_id=619504989 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.3503103, 0, -0.91058034, 0, 0.97564024, 0, 0.91058034, 0, 0.3503103, 8.018723, 15, -10.419773)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream316" parent="Props" unique_id=1591943868 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.49426746, 0, 0.8020707, 0, 0.9421347, 0, -0.8020707, 0, -0.49426746, 7.680242, 15, -10.669045)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream317" parent="Props" unique_id=780380558 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.77929366, 0, -0.46285385, 0, 0.90638417, 0, 0.46285385, 0, 0.77929366, 8.67932, 0, -11.194726)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream318" parent="Props" unique_id=843889706 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.19552366, 0, -0.9580323, 0, 0.9777809, 0, 0.9580323, 0, -0.19552366, 9.085472, 0, -11.253163)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream319" parent="Props" unique_id=1919489719 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0053331, 0, 0.31185737, 0, 1.0525919, 0, -0.31185737, 0, 1.0053331, 9.00048, 20, -8.774099)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream320" parent="Props" unique_id=1568305431 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.17655525, 0, -0.94853014, 0, 0.9648218, 0, 0.94853014, 0, 0.17655525, 10.389111, 0, -10.753563)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream321" parent="Props" unique_id=1824370441 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.92974836, 0, -0.084564425, 0, 0.9335862, 0, 0.084564425, 0, -0.92974836, 7.212487, 15, -10.411415)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream322" parent="Props" unique_id=2068410718 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.56781936, 0, 0.7273505, 0, 0.9227446, 0, -0.7273505, 0, 0.56781936, 7.063771, 0, -11.494682)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream323" parent="Props" unique_id=572237273 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.57417643, 0, -0.7811289, 0, 0.96945393, 0, 0.7811289, 0, -0.57417643, 8.755415, 0, -11.513761)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream324" parent="Props" unique_id=1923568391 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7060978, 0, 0.80373853, 0, 1.0698457, 0, -0.80373853, 0, 0.7060978, 7.740099, 15, -10.314312)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream325" parent="Props" unique_id=387896470 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0153313, 0, -0.080834776, 0, 1.018544, 0, 0.080834776, 0, 1.0153313, 9.94578, 0, -11.479841)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream326" parent="Props" unique_id=998350867 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.49763036, 0, -0.84455943, 0, 0.9802636, 0, 0.84455943, 0, -0.49763036, 9.95713, 20, -10.968545)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream327" parent="Props" unique_id=1270381919 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.669927, 0, -0.77325463, 0, 1.0230957, 0, 0.77325463, 0, 0.669927, 9.672656, 20, -9.959326)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream328" parent="Props" unique_id=1041477577 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.36991856, 0, 0.841564, 0, 0.9192767, 0, -0.841564, 0, 0.36991856, 9.69528, 20, -9.278762)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream329" parent="Props" unique_id=69919119 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.1221073, 0, -1.0127418, 0, 1.0200765, 0, 1.0127418, 0, 0.1221073, 7.6166177, 0, -11.787554)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream330" parent="Props" unique_id=1803794974 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7807873, 0, -0.60593545, 0, 0.9883251, 0, 0.60593545, 0, 0.7807873, 9.400217, 0, -11.661684)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream331" parent="Props" unique_id=1842568903 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.08375746, 0, -1.0710816, 0, 1.0743515, 0, 1.0710816, 0, 0.08375746, 8.964203, 15, -10.424056)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream332" parent="Props" unique_id=1066447700 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.7133411, 0, -0.7435654, 0, 1.0304102, 0, 0.7435654, 0, 0.7133411, 9.677889, 0, -11.925446)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream333" parent="Props" unique_id=1228316891 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.2125922, 0, 0.9873018, 0, 1.0099308, 0, -0.9873018, 0, 0.2125922, 7.045183, 0, -11.188677)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream334" parent="Props" unique_id=1836867183 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.07929261, 0, 1.0557424, 0, 1.0587158, 0, -1.0557424, 0, -0.07929261, 7.701127, 0, -11.175906)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream335" parent="Props" unique_id=412499277 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0869896, 0, -0.12701538, 0, 1.0943854, 0, 0.12701538, 0, -1.0869896, 10.340146, 0, -11.377488)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream336" parent="Props" unique_id=617699627 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9142489, 0, -0.39393792, 0, 0.99550897, 0, 0.39393792, 0, -0.9142489, 6.9258213, 0, -10.961082)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream337" parent="Props" unique_id=1753290939 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.4308514, 0, -0.79940563, 0, 0.9081202, 0, 0.79940563, 0, -0.4308514, 7.251915, 15, -10.948272)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream338" parent="Props" unique_id=255621843 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.7912481, 0, -0.7484079, 0, 1.0891225, 0, 0.7484079, 0, -0.7912481, 9.667549, 0, -11.478565)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream339" parent="Props" unique_id=1817546704 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.96510863, 0, -0.023271827, 0, 0.96538913, 0, 0.023271827, 0, -0.96510863, 6.756032, 0, -11.310792)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream340" parent="Props" unique_id=303522821 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(0.91380996, 0, 0.07599879, 0, 0.9169648, 0, -0.07599879, 0, 0.91380996, 7.5712824, 15, -10.431502)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream341" parent="Props" unique_id=507379102 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-1.0604639, 0, -0.07831914, 0, 1.063352, 0, 0.07831914, 0, -1.0604639, 7.9186025, 15, -10.873551)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream342" parent="Props" unique_id=143469234 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.9280883, 0, 0.00321924, 0, 0.9280939, 0, -0.00321924, 0, -0.9280883, 8.470719, 0, -11.9633875)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream343" parent="Props" unique_id=1606231990 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(-0.8563385, 0, 0.68602526, 0, 1.0972449, 0, -0.68602526, 0, -0.8563385, 6.8458786, 0, -10.283209)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="FlowersCream344" parent="Props" unique_id=34576498 instance=ExtResource("15_nr1dp")]
+transform = Transform3D(1.0262474, 0, 0.07502035, 0, 1.0289859, 0, -0.07502035, 0, 1.0262474, 8.199423, 0, -11.627108)
+metadata/level_asset_id = &"forest_flowers_cream"
+
+[node name="Rocks" parent="Props" unique_id=1232171000 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.626142, 0, 6.409209)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="Rocks2" parent="Props" unique_id=1515350624 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.902166, 0, 3.3531587)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="Rocks3" parent="Props" unique_id=726414897 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.826798, 0, 4.6155868)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="Rocks4" parent="Props" unique_id=703975137 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.726826, 0, 3.0783443)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="Rocks5" parent="Props" unique_id=1399423057 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.659549, 0, 2.3243952)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="Rocks6" parent="Props" unique_id=613409244 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.704618, 0, 2.7449918)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="Rocks7" parent="Props" unique_id=940407842 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.957909, 0, 7.639574)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="Rocks8" parent="Props" unique_id=1961150775 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.436818, 0, 8.433093)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="Rocks9" parent="Props" unique_id=361045195 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.283876, 0, 7.590393)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="Rocks10" parent="Props" unique_id=426659996 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.040279, 0, 6.511965)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="Rocks11" parent="Props" unique_id=476399053 instance=ExtResource("16_lys7k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.4793377, 0, 7.3705873)
+metadata/level_asset_id = &"forest_rocks"
+
+[node name="PineB" parent="Props" unique_id=1465650193 instance=ExtResource("17_j2du5")]
+transform = Transform3D(0.9140273, 0, 0.3448322, 0, 0.976911, 0, -0.3448322, 0, 0.9140273, -10.228477, 0, 7.531274)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB2" parent="Props" unique_id=844175554 instance=ExtResource("17_j2du5")]
+transform = Transform3D(-0.971781, 0, -0.44004264, 0, 1.0667689, 0, 0.44004264, 0, -0.971781, -8.447052, 0, 10.094932)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB3" parent="Props" unique_id=60626601 instance=ExtResource("17_j2du5")]
+transform = Transform3D(0.73078895, 0, -0.6771519, 0, 0.9962867, 0, 0.6771519, 0, 0.73078895, -11.556601, 0, 0.39794004)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB4" parent="Props" unique_id=986933262 instance=ExtResource("17_j2du5")]
+transform = Transform3D(-0.654353, 0, -0.8561903, 0, 1.0776083, 0, 0.8561903, 0, -0.654353, -9.5189, 0, -0.9928292)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB5" parent="Props" unique_id=1025537020 instance=ExtResource("17_j2du5")]
+transform = Transform3D(-0.5319162, 0, 0.72935945, 0, 0.9027182, 0, -0.72935945, 0, -0.5319162, -11.753843, 0, -2.6562386)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB6" parent="Props" unique_id=1561500236 instance=ExtResource("17_j2du5")]
+transform = Transform3D(0.29995298, 0, 0.90363723, 0, 0.95211977, 0, -0.90363723, 0, 0.29995298, -10.854389, 0, -4.98306)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB7" parent="Props" unique_id=1875995069 instance=ExtResource("17_j2du5")]
+transform = Transform3D(0.9990385, 0, 0.04838385, 0, 1.0002095, 0, -0.04838385, 0, 0.9990385, -9.557107, 0, -7.176339)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB8" parent="Props" unique_id=1687660261 instance=ExtResource("17_j2du5")]
+transform = Transform3D(0.7433607, 0, 0.72484916, 0, 1.0382637, 0, -0.72484916, 0, 0.7433607, -11.120752, 0, -8.97217)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB9" parent="Props" unique_id=1463881425 instance=ExtResource("17_j2du5")]
+transform = Transform3D(1.0110103, 0, 0.018959887, 0, 1.011188, 0, -0.018959887, 0, 1.0110103, 9.554002, 0, 11.545466)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB10" parent="Props" unique_id=1438145287 instance=ExtResource("17_j2du5")]
+transform = Transform3D(-0.97292066, 0, -0.31584078, 0, 1.0229027, 0, 0.31584078, 0, -0.97292066, 8.268958, 0, 8.781814)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB11" parent="Props" unique_id=446583356 instance=ExtResource("17_j2du5")]
+transform = Transform3D(0.83056027, 0, -0.6232551, 0, 1.0384012, 0, 0.6232551, 0, 0.83056027, 10.298105, 0, 6.3432617)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB12" parent="Props" unique_id=806100656 instance=ExtResource("17_j2du5")]
+transform = Transform3D(0.06849098, 0, 1.0493587, 0, 1.0515915, 0, -1.0493587, 0, 0.06849098, 11.680979, 0, 8.160277)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB13" parent="Props" unique_id=1781963339 instance=ExtResource("17_j2du5")]
+transform = Transform3D(0.5389318, 0, 0.8604772, 0, 1.015317, 0, -0.8604772, 0, 0.5389318, 10.764272, 0, 4.1829734)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB14" parent="Props" unique_id=28985123 instance=ExtResource("17_j2du5")]
+transform = Transform3D(-0.7977846, 0, 0.5063246, 0, 0.94489413, 0, -0.5063246, 0, -0.7977846, 8.574553, 0, 5.239912)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB15" parent="Props" unique_id=2075584256 instance=ExtResource("17_j2du5")]
+transform = Transform3D(0.68539315, 0, 0.83473873, 0, 1.0800706, 0, -0.83473873, 0, 0.68539315, 9.066937, 0, 2.602332)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB16" parent="Props" unique_id=722101216 instance=ExtResource("17_j2du5")]
+transform = Transform3D(-0.73906183, 0, -0.51962125, 0, 0.9034482, 0, 0.51962125, 0, -0.73906183, 11.195534, 0, 1.5047766)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB17" parent="Props" unique_id=655479924 instance=ExtResource("17_j2du5")]
+transform = Transform3D(-1.0289232, 0, 0.12762515, 0, 1.0368081, 0, -0.12762515, 0, -1.0289232, 10.492628, 0, -0.8754828)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="PineB18" parent="Props" unique_id=284092321 instance=ExtResource("17_j2du5")]
+transform = Transform3D(1.0844324, 0, 0.007557176, 0, 1.0844587, 0, -0.007557176, 0, 1.0844324, 8.576677, 0, -0.25910294)
+metadata/level_asset_id = &"forest_pine_b"
+
+[node name="Enemies" type="Node3D" parent="." unique_id=899465030]
+
+[node name="Eikelwacht" parent="Enemies" unique_id=610905967 instance=ExtResource("11_cd4bc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -6)
+persistent_id = &"enemy.dc8863bc9e1d02f3ec707d8256d1aa72"
+metadata/level_asset_id = &"acorn_guard"
+metadata/identity_scene = "res://scenes/levels/312123123.tscn"
+
+[node name="Eikelwacht2" parent="Enemies" unique_id=1053620296 instance=ExtResource("11_cd4bc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 10, 4)
+persistent_id = &"enemy.ab5f3096b0d89a831e91fd94ba679674"
+metadata/level_asset_id = &"acorn_guard"
+metadata/identity_scene = "res://scenes/levels/312123123.tscn"
+
+[node name="Gameplay" type="Node3D" parent="." unique_id=1849521547]
+
+[node name="Vuurlelie" parent="Gameplay" unique_id=2121762931 instance=ExtResource("11_xm8ml")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.3183484, 9, 8)
+checkpoint_id = &"lily.030c4b17792c4db130a45d4b3832ea9a"
+checkpoint_editor_scene_uid = 7243612345770830731
+checkpoint_editor_scene_path = "res://scenes/levels/312123123.tscn"
+area = ExtResource("2_xm8ml")
+metadata/level_asset_id = &"vuurlelie"
+
+[node name="Encounter" type="Node" parent="Gameplay" unique_id=1904381050]
+script = ExtResource("15_yhxxh")
+
+[node name="Encounter2" type="Node" parent="Gameplay" unique_id=149431972]
+script = ExtResource("15_yhxxh")
+
+[node name="Encounter3" type="Node" parent="Gameplay" unique_id=1465384570]
+script = ExtResource("15_yhxxh")
+
+[node name="Encounter4" type="Node" parent="Gameplay" unique_id=1538223316]
+script = ExtResource("15_yhxxh")
+
+[node name="Encounter5" type="Node" parent="Gameplay" unique_id=931821435]
+script = ExtResource("15_yhxxh")
+
+[node name="Encounter6" type="Node" parent="Gameplay" unique_id=1042256097]
+script = ExtResource("15_yhxxh")
+
+[node name="Routes" type="Node3D" parent="." unique_id=1680586851]
+
+[node name="Spawns" type="Node3D" parent="." unique_id=1401432777]
+
+[node name="Entrance" type="Marker3D" parent="Spawns" unique_id=1965186536]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+script = ExtResource("7_vu2pc")
+
+[node name="StartCheckpoint" type="Marker3D" parent="Spawns" unique_id=806730452]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+script = ExtResource("8_yhxxh")
+checkpoint_id = &"start.area.7d9d6c730d4f064912fbbac7f06748ff"
+area = ExtResource("2_xm8ml")
+
+[node name="Player" parent="." unique_id=2007691737 instance=ExtResource("9_nr1dp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=199371574]
+transform = Transform3D(0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76604444, -0.70710677, -0.5416752, 0.45451948, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=345921936]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
+projection = 1
+current = true
+size = 13.0
+far = 160.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1729719639]
+environment = SubResource("Environment_57gid")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1979311747]
+transform = Transform3D(0.8480481, 0.43408445, -0.3039492, 0, 0.57357645, 0.81915206, 0.52991927, -0.69468033, 0.48642042, 0, 0, 0)
+light_color = Color(0.6784314, 0.7882353, 0.8745098, 1)
+light_energy = 0.4
+shadow_enabled = true
+
+[node name="HUD" parent="." unique_id=1842499398 instance=ExtResource("13_r1eut")]
+
+[node name="DebugVolumes" type="MeshInstance3D" parent="." unique_id=1909318081]
+
+[node name="ImpactPool" type="Node3D" parent="." unique_id=51322654]
+
+[node name="Spark0" parent="ImpactPool" unique_id=760371389 instance=ExtResource("15_7uwde")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark1" parent="ImpactPool" unique_id=428090244 instance=ExtResource("15_7uwde")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark2" parent="ImpactPool" unique_id=898617228 instance=ExtResource("15_7uwde")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark3" parent="ImpactPool" unique_id=2042136495 instance=ExtResource("15_7uwde")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="." unique_id=971130643]
+stream = ExtResource("16_uc7vq")
+volume_db = -8.0
+max_distance = 30.0

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LevelAsset" format=3 uid="uid://c5c35tdcy347j"]
+
+[ext_resource type="PackedScene" uid="uid://b864gi03xctjy" path="res://scenes/assets/environment/forest_butterfly/Asset.tscn" id="1_8mqgt"]
+[ext_resource type="Script" uid="uid://by5rasrr2pw65" path="res://scripts/world/authoring/level_asset.gd" id="2_rq433"]
+[ext_resource type="Texture2D" uid="uid://dhl8gg4vj72jf" path="res://assets/editor/level_builder/forest_butterfly.res" id="3_bygg8"]
+
+[resource]
+script = ExtResource("2_rq433")
+id = &"forest_butterfly"
+display_name = "Forest Butterfly"
+scene = ExtResource("1_8mqgt")
+tags = PackedStringArray()
+thumbnail = ExtResource("3_bygg8")

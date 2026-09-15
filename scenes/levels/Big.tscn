@@ -1,0 +1,2544 @@
+[gd_scene format=3 uid="uid://bku3d7gjjb3rp"]
+
+[ext_resource type="Script" uid="uid://dahr67yknirj2" path="res://scripts/world/authoring/authored_level.gd" id="1_q7fc1"]
+[ext_resource type="Resource" uid="uid://c3ilslu18pvxd" path="res://settings/areas/big.tres" id="2_cix6n"]
+[ext_resource type="Resource" path="res://settings/area_sets/cave.tres" id="3_qci8a"]
+[ext_resource type="Script" uid="uid://clqcgbow6xpru" path="res://scripts/world/authoring/level_terrain.gd" id="4_0ehv5"]
+[ext_resource type="ArrayMesh" uid="uid://deth335fdt3sk" path="res://scenes/levels/Big.terrain/Terrain.res" id="5_5jeno"]
+[ext_resource type="Shape3D" uid="uid://bc25pd1y4b6ar" path="res://scenes/levels/Big.terrain/Terrain_collision.res" id="6_fydq0"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_pine/Asset.tscn" id="7_17lni"]
+[ext_resource type="Script" uid="uid://baahi06eehkq4" path="res://scripts/world/scene_spawn_point.gd" id="7_y5pen"]
+[ext_resource type="Script" uid="uid://dnfqek7ev0jgq" path="res://scripts/world/checkpoint_anchor.gd" id="8_l5tgy"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="9_3urp7"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="13_yfhy4"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="15_7shfp"]
+[ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="16_t0o7n"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_17lni"]
+size = Vector3(0.5, 8, 101)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gebn0"]
+size = Vector3(0.5, 8, 101)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_r3se1"]
+size = Vector3(101, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q7fc1"]
+size = Vector3(101, 8, 0.5)
+
+[sub_resource type="Environment" id="Environment_p1jaw"]
+background_mode = 1
+background_color = Color(0.08627451, 0.11372549, 0.14901961, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.60784316, 0.6627451, 0.72156864, 1)
+ambient_light_energy = 0.55
+reflected_light_source = 2
+tonemap_mode = 3
+ssao_enabled = true
+ssao_radius = 0.4
+ssao_intensity = 0.7
+glow_enabled = true
+glow_intensity = 0.35
+fog_enabled = true
+fog_light_color = Color(0.21960784, 0.30980393, 0.28235295, 1)
+fog_density = 0.001
+
+[sub_resource type="ParticleProcessMaterial" id="Process"]
+emission_shape = 1
+emission_sphere_radius = 0.025
+direction = Vector3(0, 1, 0)
+spread = 140.0
+initial_velocity_min = 0.8
+initial_velocity_max = 2.0
+gravity = Vector3(0, -3, 0)
+scale_min = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+shading_mode = 0
+albedo_color = Color(1, 0.2, 0.4, 1)
+
+[sub_resource type="SphereMesh" id="SparkMesh"]
+material = SubResource("Material")
+radius = 0.024
+height = 0.048
+radial_segments = 8
+rings = 4
+
+[node name="Big" type="Node3D" unique_id=895304401]
+script = ExtResource("1_q7fc1")
+area = ExtResource("2_cix6n")
+area_set = ExtResource("3_qci8a")
+spawn_position = Vector3(0, 0, 6)
+camera_min = Vector2(-45, -45)
+camera_max = Vector2(45, 45)
+
+[node name="Terrain" type="Node3D" parent="." unique_id=710927200]
+script = ExtResource("4_0ehv5")
+area_set = ExtResource("3_qci8a")
+size = Vector2(100, 100)
+baked_signature = "d915023a353d8e270befb8324348ea6896bb1b314cda6bd5d3048ba7529f5014"
+
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=62768514]
+metadata/level_builder_generated = true
+
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=629828324]
+mesh = ExtResource("5_5jeno")
+
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=181368277]
+collision_mask = 0
+
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1756665977]
+shape = ExtResource("6_fydq0")
+
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=2047284532]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50.25, 3, 0)
+shape = SubResource("BoxShape3D_17lni")
+
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=2013563932]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50.25, 3, 0)
+shape = SubResource("BoxShape3D_gebn0")
+
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1293557772]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -50.25)
+shape = SubResource("BoxShape3D_r3se1")
+
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1840792936]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 50.25)
+shape = SubResource("BoxShape3D_q7fc1")
+
+[node name="Props" type="Node3D" parent="." unique_id=363538449]
+
+[node name="Pine" parent="Props" unique_id=1513906300 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.98834103, 0, 0.34310305, 0, 1.0462016, 0, -0.34310305, 0, 0.98834103, -46.9917, 0, -48.328537)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine2" parent="Props" unique_id=284751468 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.504346, 0, -0.8895315, 0, 1.0225611, 0, 0.8895315, 0, 0.504346, -49.82564, 0, -47.40769)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine3" parent="Props" unique_id=1654511656 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.778986, 0, 0.7245915, 0, 1.0638853, 0, -0.7245915, 0, -0.778986, -49.922024, 0, -49.734474)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine4" parent="Props" unique_id=1294151198 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.30486092, 0, 1.0499533, 0, 1.093317, 0, -1.0499533, 0, -0.30486092, -47.531963, 0, -45.96161)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine5" parent="Props" unique_id=943451269 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7887808, 0, -0.58516854, 0, 0.98213917, 0, 0.58516854, 0, 0.7887808, -46.289253, 0, -43.227524)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine6" parent="Props" unique_id=146729184 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.07208793, 0, 1.0479736, 0, 1.0504501, 0, -1.0479736, 0, -0.07208793, -48.634556, 0, -43.32706)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine7" parent="Props" unique_id=1258670242 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.5335025, 0, -0.82947314, 0, 0.9862305, 0, 0.82947314, 0, 0.5335025, -47.39381, 0, -41.03465)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine8" parent="Props" unique_id=425453888 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.93967664, 0, 0.48203743, 0, 1.0561024, 0, -0.48203743, 0, -0.93967664, -45.253616, 0, -40.15668)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine9" parent="Props" unique_id=1045252131 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.08490455, 0, -0.89626634, 0, 0.9002789, 0, 0.89626634, 0, 0.08490455, -48.115036, 0, -38.816666)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine10" parent="Props" unique_id=714682232 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8181199, 0, -0.39503157, 0, 0.90849876, 0, 0.39503157, 0, 0.8181199, -45.72401, 0, -37.45173)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine11" parent="Props" unique_id=2050281702 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.16678193, 0, 1.0491984, 0, 1.0623716, 0, -1.0491984, 0, 0.16678193, -48.800713, 0, -36.570873)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine12" parent="Props" unique_id=1072314866 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.93642545, 0, 0.57212806, 0, 1.097371, 0, -0.57212806, 0, 0.93642545, -47.01209, 0, -34.854893)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine13" parent="Props" unique_id=129100091 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.908892, 0, 0.5192093, 0, 1.0467392, 0, -0.5192093, 0, -0.908892, -46.849945, 0, -31.90831)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine14" parent="Props" unique_id=243761413 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5167194, 0, 0.85525435, 0, 0.9992292, 0, -0.85525435, 0, -0.5167194, -49.05376, 0, -33.443893)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine15" parent="Props" unique_id=1340360908 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.831756, 0, 0.45981246, 0, 0.9503923, 0, -0.45981246, 0, -0.831756, -48.478794, 0, -30.154802)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine16" parent="Props" unique_id=930818418 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.52529466, 0, -0.8236889, 0, 0.97693294, 0, 0.8236889, 0, -0.52529466, -45.533115, 0, -29.724012)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine17" parent="Props" unique_id=462383828 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.27394852, 0, 0.92356473, 0, 0.9633377, 0, -0.92356473, 0, 0.27394852, -47.36223, 0, -27.872314)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine18" parent="Props" unique_id=1008897418 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6272438, 0, -0.7852434, 0, 1.0050085, 0, 0.7852434, 0, -0.6272438, -46.068935, 0, -25.721914)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine19" parent="Props" unique_id=322669946 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.08556951, 0, -0.96548, 0, 0.9692646, 0, 0.96548, 0, 0.08556951, -48.166073, 0, -24.272686)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine20" parent="Props" unique_id=104858318 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.66759753, 0, 0.69452286, 0, 0.96335274, 0, -0.69452286, 0, 0.66759753, -45.81752, 0, -23.368526)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine21" parent="Props" unique_id=2116702572 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.6714123, 0, -0.7496438, 0, 1.0063599, 0, 0.7496438, 0, 0.6714123, -47.732136, 0, -21.126686)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine22" parent="Props" unique_id=1378834039 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0070219, 0, -0.3335448, 0, 1.0608228, 0, 0.3335448, 0, 1.0070219, -45.45148, 0, -20.767805)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine23" parent="Props" unique_id=1015345368 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.28712937, 0, -0.9206016, 0, 0.9643395, 0, 0.9206016, 0, 0.28712937, -46.093628, 0, -18.13191)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine24" parent="Props" unique_id=741870617 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.6866284, 0, 0.6877815, 0, 0.97185487, 0, -0.6877815, 0, 0.6866284, -48.55008, 0, -18.76516)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine25" parent="Props" unique_id=16214761 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8428995, 0, 0.5237053, 0, 0.99234414, 0, -0.5237053, 0, -0.8428995, -47.658638, 0, -16.301302)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine26" parent="Props" unique_id=1291086295 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0561368, 0, 0.16223358, 0, 1.0685246, 0, -0.16223358, 0, -1.0561368, -45.48047, 0, -15.551072)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine27" parent="Props" unique_id=587812022 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.91064584, 0, 0.10093347, 0, 0.91622233, 0, -0.10093347, 0, 0.91064584, -47.25339, 0, -14.020204)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine28" parent="Props" unique_id=1725120468 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.35905418, 0, -1.0242089, 0, 1.0853219, 0, 1.0242089, 0, 0.35905418, -46.006485, 0, -12.063722)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine29" parent="Props" unique_id=746921154 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0560002, 0, -0.0051294197, 0, 1.0560127, 0, 0.0051294197, 0, 1.0560002, -48.340736, 0, -11.915128)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine30" parent="Props" unique_id=1216014589 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.07778318, 0, -0.92138207, 0, 0.9246595, 0, 0.92138207, 0, 0.07778318, -46.983093, 0, -9.818383)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine31" parent="Props" unique_id=204843871 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9125754, 0, -0.5350858, 0, 1.0578803, 0, 0.5350858, 0, -0.9125754, -47.321617, 0, -7.036245)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine32" parent="Props" unique_id=1686261762 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.12911469, 0, 0.93309885, 0, 0.9419894, 0, -0.93309885, 0, 0.12911469, -45.20037, 0, -8.0253725)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine33" parent="Props" unique_id=308705575 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.13865407, 0, -1.0745461, 0, 1.0834547, 0, 1.0745461, 0, 0.13865407, -48.07736, 0, -4.115718)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine34" parent="Props" unique_id=623624714 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.39355534, 0, 0.9739926, 0, 1.0504986, 0, -0.9739926, 0, 0.39355534, -45.47893, 0, -5.435298)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine35" parent="Props" unique_id=676782790 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8301779, 0, -0.63927805, 0, 1.0477937, 0, 0.63927805, 0, 0.8301779, -45.917706, 0, -3.1038783)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine36" parent="Props" unique_id=53180848 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.57595706, 0, -0.82980996, 0, 1.0101045, 0, 0.82980996, 0, 0.57595706, -48.241226, 0, -1.6903358)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine37" parent="Props" unique_id=270348342 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.77326643, 0, 0.62854147, 0, 0.99649656, 0, -0.62854147, 0, 0.77326643, -46.48822, 0, 0.01380384)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine38" parent="Props" unique_id=140493929 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.59538144, 0, -0.9061343, 0, 1.0842317, 0, 0.9061343, 0, 0.59538144, -48.36381, 0, 1.463223)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine39" parent="Props" unique_id=662430578 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.19479337, 0, 1.0572969, 0, 1.0750912, 0, -1.0572969, 0, 0.19479337, -46.423676, 0, 3.0285048)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine40" parent="Props" unique_id=2065519135 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.51112795, 0, -0.7791762, 0, 0.93186224, 0, 0.7791762, 0, 0.51112795, -45.022778, 0, 4.8604493)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine41" parent="Props" unique_id=1241034663 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.88458693, 0, -0.21342137, 0, 0.90996855, 0, 0.21342137, 0, -0.88458693, -47.821133, 0, 5.0129437)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine42" parent="Props" unique_id=579987520 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.4265511, 0, 0.8703921, 0, 0.96929264, 0, -0.8703921, 0, -0.4265511, -46.46812, 0, 7.651587)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine43" parent="Props" unique_id=180159229 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.30789095, 0, 0.99005747, 0, 1.0368272, 0, -0.99005747, 0, -0.30789095, -44.96051, 0, 9.421795)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine44" parent="Props" unique_id=1843614478 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.27374646, 0, -1.0561241, 0, 1.0910249, 0, 1.0561241, 0, -0.27374646, -47.007763, 0, 10.654925)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine45" parent="Props" unique_id=2040344177 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9336421, 0, -0.38624012, 0, 1.0103806, 0, 0.38624012, 0, 0.9336421, -45.705013, 0, 12.587565)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine46" parent="Props" unique_id=613839476 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.89061207, 0, -0.28616366, 0, 0.9354568, 0, 0.28616366, 0, 0.89061207, -47.99283, 0, 13.388658)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine47" parent="Props" unique_id=1833497499 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.67870426, 0, 0.65019995, 0, 0.9398933, 0, -0.65019995, 0, -0.67870426, -44.62069, 0, 14.664861)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine48" parent="Props" unique_id=935580187 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.47424066, 0, -0.7801188, 0, 0.91295654, 0, 0.7801188, 0, -0.47424066, -47.00694, 0, 15.507523)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine49" parent="Props" unique_id=177749626 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.27545702, 0, -0.9106079, 0, 0.9513586, 0, 0.9106079, 0, -0.27545702, -44.89831, 0, 17.441372)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine50" parent="Props" unique_id=3930209 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.17886204, 0, -0.9926355, 0, 1.0086212, 0, 0.9926355, 0, -0.17886204, -47.465664, 0, 18.167723)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine51" parent="Props" unique_id=2118118677 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.33182538, 0, -0.9064051, 0, 0.9652348, 0, 0.9064051, 0, 0.33182538, -45.349995, 0, 20.067686)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine52" parent="Props" unique_id=395266603 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9981789, 0, 0.4477468, 0, 1.094001, 0, -0.4477468, 0, 0.9981789, -46.937775, 0, 21.914658)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine53" parent="Props" unique_id=633576002 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.013563936, 0, -1.0774711, 0, 1.0775565, 0, 1.0774711, 0, -0.013563936, -44.56156, 0, 22.272465)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine54" parent="Props" unique_id=1115107492 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.95535123, 0, 0.49988833, 0, 1.078232, 0, -0.49988833, 0, 0.95535123, -47.008167, 0, 24.541574)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine55" parent="Props" unique_id=1905179660 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.83113104, 0, 0.51214355, 0, 0.976253, 0, -0.51214355, 0, -0.83113104, -44.71189, 0, 25.31834)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine56" parent="Props" unique_id=1802587318 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.92885566, 0, -0.16994986, 0, 0.94427526, 0, 0.16994986, 0, 0.92885566, -46.77915, 0, 27.378578)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine57" parent="Props" unique_id=1452177615 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7516872, 0, 0.5243644, 0, 0.9165106, 0, -0.5243644, 0, -0.7516872, -44.04757, 0, 28.030437)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine58" parent="Props" unique_id=220662381 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.2308149, 0, -0.99822223, 0, 1.02456, 0, 0.99822223, 0, -0.2308149, -45.762455, 0, 30.53751)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine59" parent="Props" unique_id=89908071 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.33484176, 0, -1.0136083, 0, 1.0674834, 0, 1.0136083, 0, -0.33484176, -42.987377, 0, 30.176039)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine60" parent="Props" unique_id=1357710569 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7015846, 0, -0.82806104, 0, 1.0853138, 0, 0.82806104, 0, 0.7015846, -44.81917, 0, 32.64694)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine61" parent="Props" unique_id=1772039136 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.74637544, 0, 0.69712496, 0, 1.0213028, 0, -0.69712496, 0, -0.74637544, -42.549835, 0, 33.537777)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine62" parent="Props" unique_id=509284577 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.962881, 0, -0.35224015, 0, 1.0252868, 0, 0.35224015, 0, 0.962881, -44.34607, 0, 35.740486)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine63" parent="Props" unique_id=883074727 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8760384, 0, -0.49148074, 0, 1.0044882, 0, 0.49148074, 0, -0.8760384, -46.95606, 0, 35.84675)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine64" parent="Props" unique_id=1909161429 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.72730756, 0, -0.66336536, 0, 0.9843932, 0, 0.66336536, 0, 0.72730756, -44.770042, 0, 38.0643)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine65" parent="Props" unique_id=377286822 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9113899, 0, 0.25485274, 0, 0.94635165, 0, -0.25485274, 0, -0.9113899, -47.059002, 0, 38.54273)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine66" parent="Props" unique_id=1188511733 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.71916556, 0, -0.7325278, 0, 1.0265456, 0, 0.7325278, 0, -0.71916556, -46.734932, 0, 41.07329)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine67" parent="Props" unique_id=1906288594 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9205173, 0, 0.20539254, 0, 0.9431533, 0, -0.20539254, 0, 0.9205173, -47.9047, 0, 43.0889)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine68" parent="Props" unique_id=1254264517 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0796201, 0, 0.17868187, 0, 1.0943066, 0, -0.17868187, 0, -1.0796201, -45.067093, 0, 43.497845)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine69" parent="Props" unique_id=21144901 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.26865986, 0, 1.0645607, 0, 1.0979378, 0, -1.0645607, 0, 0.26865986, -46.445206, 0, 46.14491)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine70" parent="Props" unique_id=34609128 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.83101934, 0, -0.67306536, 0, 1.0693971, 0, 0.67306536, 0, -0.83101934, -43.971867, 0, 47.216843)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine71" parent="Props" unique_id=149805505 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8515903, 0, -0.5554454, 0, 1.0167229, 0, 0.5554454, 0, 0.8515903, -46.945442, 0, 48.518906)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine72" parent="Props" unique_id=321601960 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9120932, 0, -0.1972845, 0, 0.9331855, 0, 0.1972845, 0, -0.9120932, -43.501762, 0, 49.647682)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine73" parent="Props" unique_id=128460573 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.41218263, 0, 0.84296334, 0, 0.9383399, 0, -0.84296334, 0, -0.41218263, -41.481907, 0, 47.471107)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine74" parent="Props" unique_id=1033411610 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.56332743, 0, -0.7320622, 0, 0.9237169, 0, 0.7320622, 0, -0.56332743, -39.743748, 0, 48.991558)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine75" parent="Props" unique_id=1183210790 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.047353063, 0, -1.084, 0, 1.0850338, 0, 1.084, 0, 0.047353063, -39.03394, 0, 46.646763)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine76" parent="Props" unique_id=299570000 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.48939154, 0, 0.79838014, 0, 0.93643737, 0, -0.79838014, 0, 0.48939154, -37.431496, 0, 48.473988)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine77" parent="Props" unique_id=1116566825 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.52783537, 0, -0.85756326, 0, 1.006988, 0, 0.85756326, 0, 0.52783537, -36.198074, 0, 46.527138)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine78" parent="Props" unique_id=1111814195 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0587348, 0, 0.21688998, 0, 1.0807222, 0, -0.21688998, 0, -1.0587348, -34.86021, 0, 49.030804)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine79" parent="Props" unique_id=353640260 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.57420194, 0, -0.8524647, 0, 1.0278151, 0, 0.8524647, 0, 0.57420194, -39.620884, 0, 43.923737)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine80" parent="Props" unique_id=537042014 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.72803414, 0, 0.76864785, 0, 1.0587035, 0, -0.76864785, 0, 0.72803414, -41.89998, 0, 44.65158)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine81" parent="Props" unique_id=1109190585 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9613109, 0, -0.52546966, 0, 1.0955533, 0, 0.52546966, 0, -0.9613109, -40.880913, 0, 41.569267)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine82" parent="Props" unique_id=1280069934 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7807065, 0, 0.56658334, 0, 0.96463436, 0, -0.56658334, 0, 0.7807065, -38.643402, 0, 40.173046)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine83" parent="Props" unique_id=1605346614 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.83653826, 0, 0.38307288, 0, 0.92007667, 0, -0.38307288, 0, -0.83653826, -41.120983, 0, 39.213192)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine84" parent="Props" unique_id=1919882165 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.85736877, 0, -0.67503244, 0, 1.0912149, 0, 0.67503244, 0, 0.85736877, -39.061428, 0, 37.627403)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine85" parent="Props" unique_id=2111766589 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.03904481, 0, 0.91815186, 0, 0.91898173, 0, -0.91815186, 0, -0.03904481, -39.434364, 0, 35.29303)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine86" parent="Props" unique_id=1243079523 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.02268999, 0, -1.02991, 0, 1.0301598, 0, 1.02991, 0, -0.02268999, -41.37075, 0, 36.83869)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine87" parent="Props" unique_id=691425947 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.035650488, 0, 1.0149161, 0, 1.015542, 0, -1.0149161, 0, 0.035650488, -39.310192, 0, 32.49129)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine88" parent="Props" unique_id=627940558 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.027905436, 0, -1.0832999, 0, 1.0836593, 0, 1.0832999, 0, -0.027905436, -37.50044, 0, 33.99637)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine89" parent="Props" unique_id=1783186513 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.4164561, 0, -0.8643114, 0, 0.95941126, 0, 0.8643114, 0, 0.4164561, -40.66518, 0, 29.76576)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine90" parent="Props" unique_id=13985367 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.16565666, 0, -1.0681646, 0, 1.0809337, 0, 1.0681646, 0, 0.16565666, -38.220234, 0, 30.133808)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine91" parent="Props" unique_id=768820314 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.39568266, 0, 0.9311867, 0, 1.0117675, 0, -0.9311867, 0, -0.39568266, -39.29568, 0, 27.79363)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine92" parent="Props" unique_id=1230669509 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.34578174, 0, -1.0142043, 0, 1.0715294, 0, 1.0142043, 0, 0.34578174, -41.69368, 0, 27.27166)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine93" parent="Props" unique_id=766467201 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.21194106, 0, 1.0600244, 0, 1.0810045, 0, -1.0600244, 0, -0.21194106, -40.135628, 0, 25.434402)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine94" parent="Props" unique_id=722604258 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9018593, 0, -0.33248776, 0, 0.96119624, 0, 0.33248776, 0, -0.9018593, -42.04781, 0, 24.109957)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine95" parent="Props" unique_id=813550075 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0489856, 0, 0.03789993, 0, 1.0496701, 0, -0.03789993, 0, -1.0489856, -39.72551, 0, 23.018276)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine96" parent="Props" unique_id=1653823688 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6293119, 0, 0.6702721, 0, 0.919401, 0, -0.6702721, 0, -0.6293119, -41.949734, 0, 21.736483)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine97" parent="Props" unique_id=202023226 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.37737685, 0, 0.87796456, 0, 0.9556333, 0, -0.87796456, 0, 0.37737685, -39.6396, 0, 19.813475)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine98" parent="Props" unique_id=1297117427 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.1975736, 0, 0.93737423, 0, 0.9579696, 0, -0.93737423, 0, 0.1975736, -42.231224, 0, 18.827751)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine99" parent="Props" unique_id=1810607947 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.059847422, 0, 0.9763889, 0, 0.97822136, 0, -0.9763889, 0, -0.059847422, -41.126217, 0, 16.455706)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine100" parent="Props" unique_id=695398926 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.089705, 0, 0.06841959, 0, 1.0918508, 0, -0.06841959, 0, -1.089705, -40.091305, 0, 13.839507)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine101" parent="Props" unique_id=456880877 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.605678, 0, -0.6691161, 0, 0.90253097, 0, 0.6691161, 0, 0.605678, -42.79468, 0, 13.196235)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine102" parent="Props" unique_id=1843983864 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.14471835, 0, -0.98558635, 0, 0.99615455, 0, 0.98558635, 0, -0.14471835, -40.455524, 0, 11.563724)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine103" parent="Props" unique_id=28262938 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7304657, 0, 0.6045275, 0, 0.9481738, 0, -0.6045275, 0, 0.7304657, -42.08718, 0, 9.538728)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine104" parent="Props" unique_id=1414299910 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.273403, 0, -0.9150361, 0, 0.955008, 0, 0.9150361, 0, 0.273403, -39.498856, 0, 9.216551)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine105" parent="Props" unique_id=1973476577 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.40311208, 0, 0.98432356, 0, 1.0636692, 0, -0.98432356, 0, -0.40311208, -41.306225, 0, 6.5867577)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine106" parent="Props" unique_id=1054678704 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8475752, 0, 0.41353622, 0, 0.94307786, 0, -0.41353622, 0, 0.8475752, -38.99324, 0, 6.661264)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine107" parent="Props" unique_id=514446465 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.80550253, 0, -0.64732003, 0, 1.0333719, 0, 0.64732003, 0, 0.80550253, -40.392487, 0, 4.438358)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine108" parent="Props" unique_id=2047064056 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8038358, 0, -0.42900622, 0, 0.9111522, 0, 0.42900622, 0, 0.8038358, -40.078407, 0, 1.7561625)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine109" parent="Props" unique_id=170359488 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.46247497, 0, -0.94116765, 0, 1.0486561, 0, 0.94116765, 0, -0.46247497, -42.615204, 0, 3.0807035)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine110" parent="Props" unique_id=2057484164 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.3869037, 0, 0.8764921, 0, 0.95808816, 0, -0.8764921, 0, 0.3869037, -42.179058, 0, 0.3163576)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine111" parent="Props" unique_id=18021792 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.40085983, 0, -1.0037395, 0, 1.0808245, 0, 1.0037395, 0, -0.40085983, -39.28026, 0, -0.8952566)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine112" parent="Props" unique_id=1902423361 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.90250885, 0, 0.43345, 0, 1.0011998, 0, -0.43345, 0, 0.90250885, -41.5566, 0, -2.0991838)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine113" parent="Props" unique_id=989957294 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.029140571, 0, -1.0620192, 0, 1.0624189, 0, 1.0620192, 0, -0.029140571, -38.55263, 0, -3.1443498)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine114" parent="Props" unique_id=1983150831 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.67458, 0, 0.7365633, 0, 0.9987911, 0, -0.7365633, 0, 0.67458, -40.813435, 0, -4.2825694)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine115" parent="Props" unique_id=895323921 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.6703105, 0, 0.7680854, 0, 1.0194466, 0, -0.7680854, 0, 0.6703105, -39.710457, 0, -6.3542633)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine116" parent="Props" unique_id=1037508010 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9253696, 0, 0.22471456, 0, 0.95226336, 0, -0.22471456, 0, -0.9253696, -41.16147, 0, -8.1933565)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine117" parent="Props" unique_id=436290534 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.05961942, 0, 1.0105814, 0, 1.0123385, 0, -1.0105814, 0, -0.05961942, -38.474335, 0, -8.850481)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine118" parent="Props" unique_id=622817423 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.22283857, 0, -0.9729759, 0, 0.9981679, 0, 0.9729759, 0, 0.22283857, -40.169167, 0, -10.615777)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine119" parent="Props" unique_id=40040088 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7736871, 0, -0.4717156, 0, 0.90614974, 0, 0.4717156, 0, 0.7736871, -38.500378, 0, -12.315174)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine120" parent="Props" unique_id=2141764884 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.4802785, 0, -0.98026353, 0, 1.091597, 0, 0.98026353, 0, -0.4802785, -41.663128, 0, -12.40203)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine121" parent="Props" unique_id=2123730101 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.58441126, 0, 0.7979151, 0, 0.98904246, 0, -0.7979151, 0, -0.58441126, -40.239536, 0, -14.405067)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine122" parent="Props" unique_id=1528904437 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8997634, 0, 0.1501518, 0, 0.912206, 0, -0.1501518, 0, 0.8997634, -38.845924, 0, -16.890335)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine123" parent="Props" unique_id=264228668 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5886972, 0, -0.81524223, 0, 1.0055766, 0, 0.81524223, 0, -0.5886972, -41.332882, 0, -16.71015)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine124" parent="Props" unique_id=1181262181 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.73203063, 0, -0.7539427, 0, 1.0508561, 0, 0.7539427, 0, 0.73203063, -41.53369, 0, -19.043793)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine125" parent="Props" unique_id=1986767986 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.2657979, 0, -1.0404999, 0, 1.0739127, 0, 1.0404999, 0, -0.2657979, -39.53013, 0, -20.299755)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine126" parent="Props" unique_id=341831417 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.80081546, 0, 0.5574388, 0, 0.97572714, 0, -0.5574388, 0, -0.80081546, -41.454018, 0, -21.779396)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine127" parent="Props" unique_id=694437811 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.42879623, 0, 0.8803332, 0, 0.97921026, 0, -0.8803332, 0, -0.42879623, -38.6514, 0, -22.664038)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine128" parent="Props" unique_id=287937479 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.41112545, 0, 1.0040709, 0, 1.0849804, 0, -1.0040709, 0, -0.41112545, -41.567734, 0, -24.109804)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine129" parent="Props" unique_id=1270828218 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.43670583, 0, -0.9629773, 0, 1.0573728, 0, 0.9629773, 0, 0.43670583, -39.31459, 0, -25.125458)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine130" parent="Props" unique_id=678208148 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.692888, 0, -0.6256714, 0, 0.93357295, 0, 0.6256714, 0, 0.692888, -41.137917, 0, -27.522293)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine131" parent="Props" unique_id=2059256576 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.054671127, 0, 0.9010876, 0, 0.9027446, 0, -0.9010876, 0, 0.054671127, -39.201046, 0, -28.781761)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine132" parent="Props" unique_id=1067171064 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.75460076, 0, 0.6077127, 0, 0.9688844, 0, -0.6077127, 0, -0.75460076, -42.04921, 0, -30.26364)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine133" parent="Props" unique_id=311035221 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8958014, 0, 0.41950136, 0, 0.989162, 0, -0.41950136, 0, 0.8958014, -40.4157, 0, -31.963161)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine134" parent="Props" unique_id=2112718589 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0696048, 0, 0.10516169, 0, 1.074762, 0, -0.10516169, 0, -1.0696048, -41.225685, 0, -34.517483)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine135" parent="Props" unique_id=789115038 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7480167, 0, -0.74663967, 0, 1.0568821, 0, 0.74663967, 0, -0.7480167, -43.097225, 0, -32.84909)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine136" parent="Props" unique_id=1070898156 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.007193, 0, 0.3314591, 0, 1.0603315, 0, -0.3314591, 0, -1.007193, -43.27168, 0, -35.63144)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine137" parent="Props" unique_id=1452484308 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.89364237, 0, -0.49902287, 0, 1.0235333, 0, 0.49902287, 0, -0.89364237, -40.36011, 0, -36.84829)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine138" parent="Props" unique_id=1175957835 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.917519, 0, 0.2879537, 0, 0.96164364, 0, -0.2879537, 0, -0.917519, -42.51842, 0, -38.087555)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine139" parent="Props" unique_id=449744723 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8913519, 0, -0.40527225, 0, 0.9791597, 0, 0.40527225, 0, 0.8913519, -41.917202, 0, -40.369244)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine140" parent="Props" unique_id=1633070308 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.3269826, 0, -0.9616465, 0, 1.0157173, 0, 0.9616465, 0, 0.3269826, -43.430874, 0, -42.69967)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine141" parent="Props" unique_id=1822974486 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.06686083, 0, 0.929295, 0, 0.93169713, 0, -0.929295, 0, 0.06686083, -41.13625, 0, -43.049423)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine142" parent="Props" unique_id=690381478 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.89485586, 0, -0.19612907, 0, 0.9160969, 0, 0.19612907, 0, -0.89485586, -41.99882, 0, -45.39926)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine143" parent="Props" unique_id=300985420 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.56500834, 0, -0.89143175, 0, 1.0554075, 0, 0.89143175, 0, -0.56500834, -44.450706, 0, -45.16998)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine144" parent="Props" unique_id=1950450644 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6522395, 0, -0.77898145, 0, 1.0159864, 0, 0.77898145, 0, -0.6522395, -43.521267, 0, -48.344017)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine145" parent="Props" unique_id=1654129031 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9030896, 0, 0.36517647, 0, 0.97412765, 0, -0.36517647, 0, 0.9030896, -41.302113, 0, -47.714718)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine146" parent="Props" unique_id=283190623 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.85768, 0, 0.30987975, 0, 0.91194326, 0, -0.30987975, 0, 0.85768, -45.252655, 0, -49.899845)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine147" parent="Props" unique_id=2014086741 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0035294, 0, 0.04996993, 0, 1.0047728, 0, -0.04996993, 0, 1.0035294, -49.51729, 0, -26.891119)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine148" parent="Props" unique_id=201866497 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.42420995, 0, 0.8489378, 0, 0.9490256, 0, -0.8489378, 0, 0.42420995, -43.848095, 0, -13.344119)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine149" parent="Props" unique_id=455754574 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5349304, 0, -0.81049633, 0, 0.9711101, 0, 0.81049633, 0, -0.5349304, -44.10277, 0, -10.486527)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine150" parent="Props" unique_id=1022768250 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.042062357, 0, 1.0208539, 0, 1.02172, 0, -1.0208539, 0, -0.042062357, -43.052467, 0, -6.135881)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine151" parent="Props" unique_id=1889558794 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9177268, 0, 0.5057674, 0, 1.047866, 0, -0.5057674, 0, -0.9177268, -43.653343, 0, -3.8558187)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine152" parent="Props" unique_id=232755220 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.725282, 0, -0.80450356, 0, 1.0831712, 0, 0.80450356, 0, 0.725282, -44.315704, 0, -1.2542095)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine153" parent="Props" unique_id=1865323287 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.046545163, 0, -0.98801833, 0, 0.9891141, 0, 0.98801833, 0, 0.046545163, -44.551384, 0, 1.5160238)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine154" parent="Props" unique_id=747764929 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.098511145, 0, -0.95099306, 0, 0.9560817, 0, 0.95099306, 0, 0.098511145, -43.888706, 0, 6.870706)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine155" parent="Props" unique_id=1942294197 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6860613, 0, -0.6356484, 0, 0.9352695, 0, 0.6356484, 0, -0.6860613, -37.325035, 0, 43.391075)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine156" parent="Props" unique_id=205093422 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.6286066, 0, -0.88529253, 0, 1.0857666, 0, 0.88529253, 0, 0.6286066, -34.90983, 0, 44.391903)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine157" parent="Props" unique_id=938613569 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8880903, 0, -0.16990511, 0, 0.904197, 0, 0.16990511, 0, 0.8880903, -33.872047, 0, 46.56507)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine158" parent="Props" unique_id=2118294378 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0665348, 0, -0.09564367, 0, 1.0708147, 0, 0.09564367, 0, 1.0665348, -32.479725, 0, 48.99165)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine159" parent="Props" unique_id=224921598 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.97105724, 0, 0.24480304, 0, 1.0014393, 0, -0.24480304, 0, 0.97105724, -31.57257, 0, 46.344505)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine160" parent="Props" unique_id=507017994 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.74488205, 0, -0.659787, 0, 0.99507195, 0, 0.659787, 0, -0.74488205, -32.36251, 0, 44.040688)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine161" parent="Props" unique_id=378069829 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.05539344, 0, -0.9955543, 0, 0.9970942, 0, 0.9955543, 0, 0.05539344, -33.854767, 0, 42.091797)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine162" parent="Props" unique_id=277975270 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7677784, 0, -0.48907366, 0, 0.9103168, 0, 0.48907366, 0, 0.7677784, -32.29794, 0, 40.269794)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine163" parent="Props" unique_id=1755060877 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.21467848, 0, -0.89195865, 0, 0.91742957, 0, 0.89195865, 0, -0.21467848, -34.528637, 0, 39.635647)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine164" parent="Props" unique_id=586196863 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.31167462, 0, -0.8574666, 0, 0.9123541, 0, 0.8574666, 0, -0.31167462, -33.473053, 0, 37.580593)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine165" parent="Props" unique_id=84172857 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9284978, 0, 0.51679206, 0, 1.0626298, 0, -0.51679206, 0, 0.9284978, -36.00542, 0, 37.73052)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine166" parent="Props" unique_id=1280736028 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.98510426, 0, 0.17900899, 0, 1.0012366, 0, -0.17900899, 0, 0.98510426, -34.659176, 0, 35.575066)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine167" parent="Props" unique_id=187822378 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8813327, 0, 0.47376323, 0, 1.0005993, 0, -0.47376323, 0, -0.8813327, -32.760136, 0, 34.201)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine168" parent="Props" unique_id=1525076885 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.055009, 0, -0.08787175, 0, 1.0586622, 0, 0.08787175, 0, 1.055009, -35.20656, 0, 33.09855)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine169" parent="Props" unique_id=2068513473 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5613619, 0, -0.73504096, 0, 0.9248851, 0, 0.73504096, 0, -0.5613619, -34.642868, 0, 30.793474)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine170" parent="Props" unique_id=1666711416 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8281326, 0, -0.59080666, 0, 1.0172788, 0, 0.59080666, 0, -0.8281326, -33.31237, 0, 28.722229)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine171" parent="Props" unique_id=26200382 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.3346528, 0, -1.0181814, 0, 1.0717677, 0, 1.0181814, 0, -0.3346528, -36.242092, 0, 28.581335)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine172" parent="Props" unique_id=1196150733 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9230755, 0, -0.21089058, 0, 0.94685966, 0, 0.21089058, 0, 0.9230755, -35.366287, 0, 25.723988)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine173" parent="Props" unique_id=1177138517 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.95193106, 0, 0.22591238, 0, 0.9783706, 0, -0.22591238, 0, 0.95193106, -34.146645, 0, 23.668478)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine174" parent="Props" unique_id=2097353985 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.11984968, 0, 1.06659, 0, 1.0733024, 0, -1.06659, 0, 0.11984968, -36.33531, 0, 22.942562)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine175" parent="Props" unique_id=383838196 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.2334624, 0, 1.0747494, 0, 1.099814, 0, -1.0747494, 0, 0.2334624, -35.338856, 0, 20.644207)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine176" parent="Props" unique_id=313466204 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.46533573, 0, 0.7720778, 0, 0.9014663, 0, -0.7720778, 0, 0.46533573, -37.0688, 0, 19.082201)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine177" parent="Props" unique_id=2006106988 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.186288, 0, 0.974977, 0, 0.9926144, 0, -0.974977, 0, 0.186288, -34.74215, 0, 17.989273)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine178" parent="Props" unique_id=1800475727 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0971491, 0, 0.054924972, 0, 1.0985231, 0, -0.054924972, 0, 1.0971491, -38.25641, 0, 16.72801)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine179" parent="Props" unique_id=181762401 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.88541013, 0, 0.3545674, 0, 0.9537658, 0, -0.3545674, 0, 0.88541013, -36.15051, 0, 15.202118)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine180" parent="Props" unique_id=1096478308 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.12698422, 0, -0.91277426, 0, 0.92156494, 0, 0.91277426, 0, -0.12698422, -37.6823, 0, 13.252106)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine181" parent="Props" unique_id=309737744 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0170604, 0, -0.3492471, 0, 1.0753536, 0, 0.3492471, 0, -1.0170604, -37.783165, 0, 10.919477)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine182" parent="Props" unique_id=90647704 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.44372597, 0, 0.9671648, 0, 1.0640961, 0, -0.9671648, 0, 0.44372597, -36.972996, 0, 8.506788)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine183" parent="Props" unique_id=1551106977 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.90473896, 0, 0.084961295, 0, 0.9087194, 0, -0.084961295, 0, 0.90473896, -37.601498, 0, 4.6120653)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine184" parent="Props" unique_id=2055811711 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6810659, 0, -0.81757146, 0, 1.0640836, 0, 0.81757146, 0, -0.6810659, -37.79677, 0, 2.048734)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine185" parent="Props" unique_id=795927251 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.17286722, 0, -0.96580315, 0, 0.98115176, 0, 0.96580315, 0, -0.17286722, -36.95091, 0, -25.78366)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine186" parent="Props" unique_id=2098369629 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5307261, 0, -0.8268393, 0, 0.98251384, 0, 0.8268393, 0, -0.5307261, -36.9839, 0, -28.127256)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine187" parent="Props" unique_id=144753314 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7606717, 0, 0.68881625, 0, 1.0262014, 0, -0.68881625, 0, 0.7606717, -36.909496, 0, -30.80275)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine188" parent="Props" unique_id=1518398510 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9335151, 0, -0.002204593, 0, 0.9335177, 0, 0.002204593, 0, 0.9335151, -38.067825, 0, -32.79102)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine189" parent="Props" unique_id=1814984682 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.91073656, 0, -0.25659102, 0, 0.9461924, 0, 0.25659102, 0, -0.91073656, -36.50615, 0, -34.561287)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine190" parent="Props" unique_id=1247696359 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.996148, 0, -0.43847278, 0, 1.0883791, 0, 0.43847278, 0, 0.996148, -38.941456, 0, -35.004883)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine191" parent="Props" unique_id=2093896822 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8346839, 0, 0.5786283, 0, 1.0156318, 0, -0.5786283, 0, -0.8346839, -37.587845, 0, -36.963383)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine192" parent="Props" unique_id=1742152246 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.05230813, 0, 1.0393157, 0, 1.0406312, 0, -1.0393157, 0, 0.05230813, -38.656216, 0, -39.202972)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine193" parent="Props" unique_id=87619038 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.78057283, 0, 0.6012279, 0, 0.98527604, 0, -0.6012279, 0, 0.78057283, -36.199203, 0, -39.012207)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine194" parent="Props" unique_id=1142087522 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9419978, 0, 0.08122938, 0, 0.9454936, 0, -0.08122938, 0, 0.9419978, -37.64769, 0, -41.379597)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine195" parent="Props" unique_id=484213878 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.71978444, 0, 0.72238934, 0, 1.0197725, 0, -0.72238934, 0, 0.71978444, -37.69921, 0, -43.720913)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine196" parent="Props" unique_id=935205623 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.16202274, 0, 0.9360198, 0, 0.94993913, 0, -0.9360198, 0, -0.16202274, -35.594845, 0, -44.785767)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine197" parent="Props" unique_id=1202692906 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9866983, 0, -0.0105110705, 0, 0.9867543, 0, 0.0105110705, 0, 0.9866983, -38.309147, 0, -46.132362)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine198" parent="Props" unique_id=1355737129 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6930481, 0, 0.6824767, 0, 0.9726716, 0, -0.6824767, 0, -0.6930481, -36.774975, 0, -48.108)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine199" parent="Props" unique_id=512237611 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9670262, 0, 0.003309439, 0, 0.96703184, 0, -0.003309439, 0, 0.9670262, -34.249496, 0, -47.19281)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine200" parent="Props" unique_id=285758491 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0119697, 0, -0.18912418, 0, 1.0294905, 0, 0.18912418, 0, -1.0119697, -35.2491, 0, -49.93786)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine201" parent="Props" unique_id=2013364062 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.50927067, 0, 0.88471395, 0, 1.020821, 0, -0.88471395, 0, 0.50927067, -32.711063, 0, -49.132137)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine202" parent="Props" unique_id=546895308 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.5658724, 0, 0.9374208, 0, 1.0949745, 0, -0.9374208, 0, 0.5658724, -31.658504, 0, -47.046497)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine203" parent="Props" unique_id=1814377294 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.13347712, 0, 1.0898575, 0, 1.0980006, 0, -1.0898575, 0, -0.13347712, -30.26155, 0, -49.332535)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine204" parent="Props" unique_id=2002195283 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.683204, 0, -0.83380216, 0, 1.0779581, 0, 0.83380216, 0, 0.683204, -27.939253, 0, -49.537758)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine205" parent="Props" unique_id=1173507016 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.90897864, 0, 0.59213436, 0, 1.0848342, 0, -0.59213436, 0, 0.90897864, -25.230742, 0, -49.632523)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine206" parent="Props" unique_id=348733935 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.89394116, 0, -0.25530964, 0, 0.92968476, 0, 0.25530964, 0, -0.89394116, -23.13408, 0, -48.639706)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine207" parent="Props" unique_id=665395156 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.74651825, 0, 0.58482885, 0, 0.9483218, 0, -0.58482885, 0, -0.74651825, -21.017033, 0, -49.767994)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine208" parent="Props" unique_id=1436747946 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7833801, 0, -0.48486155, 0, 0.9212899, 0, 0.48486155, 0, -0.7833801, -18.75481, 0, -48.73853)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine209" parent="Props" unique_id=240126049 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.874744, 0, -0.5300673, 0, 1.022814, 0, 0.5300673, 0, -0.874744, -16.413439, 0, -49.295765)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine210" parent="Props" unique_id=1298171414 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.6693809, 0, 0.8625437, 0, 1.0918115, 0, -0.8625437, 0, 0.6693809, -13.977987, 0, -48.957554)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine211" parent="Props" unique_id=1955416645 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.17841136, 0, -1.0814708, 0, 1.0960884, 0, 1.0814708, 0, 0.17841136, -11.846555, 0, -49.882042)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine212" parent="Props" unique_id=2032859858 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.096556775, 0, 0.9094337, 0, 0.9145452, 0, -0.9094337, 0, 0.096556775, -10.635519, 0, -47.788303)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine213" parent="Props" unique_id=1695359788 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8892448, 0, -0.31016275, 0, 0.9417841, 0, 0.31016275, 0, -0.8892448, -9.454937, 0, -49.942337)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine214" parent="Props" unique_id=408638177 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.92332953, 0, 0.39548114, 0, 1.0044614, 0, -0.39548114, 0, -0.92332953, -7.386859, 0, -48.296135)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine215" parent="Props" unique_id=52678595 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.75786483, 0, 0.63825953, 0, 0.99082506, 0, -0.63825953, 0, 0.75786483, -4.979398, 0, -49.841377)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine216" parent="Props" unique_id=1166700970 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.196535, 0, -1.0302027, 0, 1.048782, 0, 1.0302027, 0, 0.196535, -3.2425053, 0, -48.138737)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine217" parent="Props" unique_id=1515190465 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.89801115, 0, 0.445626, 0, 1.0025002, 0, -0.445626, 0, 0.89801115, -1.5328636, 0, -49.92446)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine218" parent="Props" unique_id=324727305 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.020712657, 0, 0.92382, 0, 0.9240522, 0, -0.92382, 0, 0.020712657, -0.66019714, 0, -47.75176)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine219" parent="Props" unique_id=1989559537 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.058104564, 0, 0.95099384, 0, 0.95276725, 0, -0.95099384, 0, -0.058104564, -1.9873078, 0, -45.744286)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine220" parent="Props" unique_id=1976068968 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7781118, 0, 0.48857182, 0, 0.918782, 0, -0.48857182, 0, 0.7781118, 0.44612312, 0, -44.89264)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine221" parent="Props" unique_id=57193034 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.94732106, 0, -0.41590568, 0, 1.0345988, 0, 0.41590568, 0, -0.94732106, -4.4942875, 0, -45.8705)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine222" parent="Props" unique_id=344053365 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.28386948, 0, 1.0149916, 0, 1.0539402, 0, -1.0149916, 0, 0.28386948, -7.32187, 0, -45.158836)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine223" parent="Props" unique_id=76598463 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.89146, 0, 0.62768596, 0, 1.0902709, 0, -0.62768596, 0, -0.89146, -9.838248, 0, -45.299263)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine224" parent="Props" unique_id=982535958 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.2418654, 0, 1.0472168, 0, 1.0747845, 0, -1.0472168, 0, 0.2418654, -12.344783, 0, -45.710003)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine225" parent="Props" unique_id=862717114 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.2711526, 0, 1.0042163, 0, 1.0401798, 0, -1.0042163, 0, 0.2711526, -15.312017, 0, -46.932354)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine226" parent="Props" unique_id=1818525175 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.23730901, 0, 0.97448915, 0, 1.002968, 0, -0.97448915, 0, -0.23730901, -17.582268, 0, -46.40471)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine227" parent="Props" unique_id=303677820 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0857347, 0, -0.050996076, 0, 1.0869317, 0, 0.050996076, 0, -1.0857347, -20.678331, 0, -46.860275)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine228" parent="Props" unique_id=191216621 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.5544266, 0, 0.7769804, 0, 0.95450896, 0, -0.7769804, 0, 0.5544266, -24.653244, 0, -46.817215)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine229" parent="Props" unique_id=1935328110 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6826538, 0, 0.7867847, 0, 1.0416555, 0, -0.7867847, 0, -0.6826538, -27.23924, 0, -47.153885)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine230" parent="Props" unique_id=1328505173 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.30360517, 0, 0.870752, 0, 0.92216325, 0, -0.870752, 0, -0.30360517, -38.54739, 0, -49.68301)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine231" parent="Props" unique_id=1060301905 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.634611, 0, -0.78452665, 0, 1.0090655, 0, 0.78452665, 0, -0.634611, -41.586662, 0, -49.998123)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine232" parent="Props" unique_id=14815447 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.2292441, 0, 1.0035996, 0, 1.029449, 0, -1.0035996, 0, -0.2292441, -29.788311, 0, -45.31948)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine233" parent="Props" unique_id=393489839 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.16979381, 0, 0.96279866, 0, 0.97765595, 0, -0.96279866, 0, 0.16979381, -26.361721, 0, -44.884193)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine234" parent="Props" unique_id=444228848 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.35966915, 0, -1.0010885, 0, 1.0637387, 0, 1.0010885, 0, 0.35966915, -22.690289, 0, -45.507393)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine235" parent="Props" unique_id=1309367996 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9138156, 0, -0.06251596, 0, 0.91595155, 0, 0.06251596, 0, -0.9138156, -20.542645, 0, -44.4438)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine236" parent="Props" unique_id=206433140 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7234727, 0, 0.7682664, 0, 1.0552943, 0, -0.7682664, 0, -0.7234727, -17.534708, 0, -44.066975)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine237" parent="Props" unique_id=1002811488 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.19366698, 0, -0.99962354, 0, 1.0182112, 0, 0.99962354, 0, 0.19366698, -14.958524, 0, -44.35984)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine238" parent="Props" unique_id=1130630862 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8506908, 0, -0.4458584, 0, 0.9604502, 0, 0.4458584, 0, 0.8506908, 1.1243018, 0, -49.614902)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine239" parent="Props" unique_id=799031977 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8580222, 0, 0.3383906, 0, 0.92233956, 0, -0.3383906, 0, -0.8580222, 3.2791674, 0, -48.459866)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine240" parent="Props" unique_id=1859130223 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.40463528, 0, -0.8137838, 0, 0.90883106, 0, 0.8137838, 0, -0.40463528, 5.34653, 0, -49.696842)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine241" parent="Props" unique_id=1400302727 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.67269987, 0, 0.7232395, 0, 0.9877249, 0, -0.7232395, 0, 0.67269987, 6.6236773, 0, -47.604843)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine242" parent="Props" unique_id=2029417673 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5619633, 0, -0.79795676, 0, 0.9759804, 0, 0.79795676, 0, -0.5619633, 7.7074175, 0, -49.645718)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine243" parent="Props" unique_id=1569436597 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.72378266, 0, 0.6456004, 0, 0.9698769, 0, -0.6456004, 0, -0.72378266, 9.860641, 0, -48.48395)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine244" parent="Props" unique_id=893617842 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.96890104, 0, -0.15050581, 0, 0.9805209, 0, 0.15050581, 0, 0.96890104, 12.430495, 0, -49.541504)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine245" parent="Props" unique_id=513334503 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.14390074, 0, -1.0054069, 0, 1.0156527, 0, 1.0054069, 0, 0.14390074, 14.639433, 0, -48.75888)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine246" parent="Props" unique_id=1535847189 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.33334312, 0, -0.99339455, 0, 1.0478313, 0, 0.99339455, 0, 0.33334312, 4.6259284, 0, -46.4481)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine247" parent="Props" unique_id=892202946 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.07486007, 0, 1.0356996, 0, 1.0384015, 0, -1.0356996, 0, 0.07486007, 2.2380338, 0, -46.366173)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine248" parent="Props" unique_id=2024586739 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7761057, 0, 0.50188595, 0, 0.9242454, 0, -0.50188595, 0, -0.7761057, 8.547665, 0, -46.30869)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine249" parent="Props" unique_id=2122326426 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.60889554, 0, -0.89350206, 0, 1.0812491, 0, 0.89350206, 0, -0.60889554, 11.668722, 0, -46.683277)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine250" parent="Props" unique_id=1123424866 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.098707, 0, -0.029899592, 0, 1.0991137, 0, 0.029899592, 0, 1.098707, 14.261056, 0, -46.221226)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine251" parent="Props" unique_id=224022136 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.61099344, 0, 0.73361397, 0, 0.9547264, 0, -0.73361397, 0, 0.61099344, 16.835402, 0, -46.453846)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine252" parent="Props" unique_id=1862735500 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7800047, 0, 0.48485345, 0, 0.9184172, 0, -0.48485345, 0, -0.7800047, 18.350233, 0, -48.229507)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine253" parent="Props" unique_id=109684080 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9564826, 0, -0.530662, 0, 1.0938287, 0, 0.530662, 0, 0.9564826, 19.216482, 0, -46.047516)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine254" parent="Props" unique_id=1514231388 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.08624369, 0, -0.9678651, 0, 0.97169995, 0, 0.9678651, 0, -0.08624369, 21.620031, 0, -45.829823)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine255" parent="Props" unique_id=1417351146 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7935078, 0, 0.53543687, 0, 0.9572603, 0, -0.53543687, 0, -0.7935078, 20.710646, 0, -48.054096)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine256" parent="Props" unique_id=1738073777 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9387181, 0, 0.23182204, 0, 0.9669194, 0, -0.23182204, 0, 0.9387181, 23.290604, 0, -48.036743)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine257" parent="Props" unique_id=1479781198 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.95212907, 0, 0.2458989, 0, 0.9833697, 0, -0.2458989, 0, 0.95212907, 24.502575, 0, -46.048916)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine258" parent="Props" unique_id=70260159 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.69062907, 0, 0.8089109, 0, 1.0636284, 0, -0.8089109, 0, 0.69062907, 26.714867, 0, -47.445656)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine259" parent="Props" unique_id=1055612552 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.008194015, 0, 0.9369577, 0, 0.9369936, 0, -0.9369577, 0, -0.008194015, 27.32689, 0, -45.184746)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine260" parent="Props" unique_id=704103446 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8631113, 0, 0.323757, 0, 0.92183495, 0, -0.323757, 0, 0.8631113, 29.393402, 0, -47.331383)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine261" parent="Props" unique_id=1907115787 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.90157145, 0, -0.1965469, 0, 0.92274684, 0, 0.1965469, 0, -0.90157145, 29.822186, 0, -45.05324)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine262" parent="Props" unique_id=1254148247 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.71729183, 0, -0.7525828, 0, 1.0396578, 0, 0.7525828, 0, -0.71729183, 32.780235, 0, -47.243496)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine263" parent="Props" unique_id=1188214101 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8190578, 0, -0.40235782, 0, 0.91255, 0, 0.40235782, 0, -0.8190578, 34.554337, 0, -45.340317)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine264" parent="Props" unique_id=322678223 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.94323236, 0, 0.4235713, 0, 1.0339729, 0, -0.4235713, 0, -0.94323236, 35.2495, 0, -47.6647)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine265" parent="Props" unique_id=1654470636 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.37310326, 0, -1.0191511, 0, 1.0852995, 0, 1.0191511, 0, 0.37310326, 37.27239, 0, -46.371445)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine266" parent="Props" unique_id=1121845242 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0664799, 0, -0.2040206, 0, 1.0858195, 0, 0.2040206, 0, -1.0664799, 37.8953, 0, -48.60767)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine267" parent="Props" unique_id=784181065 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0273582, 0, 0.38196638, 0, 1.0960671, 0, -0.38196638, 0, -1.0273582, 39.705902, 0, -46.901253)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine268" parent="Props" unique_id=1701190963 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.14837894, 0, -1.042568, 0, 1.0530738, 0, 1.042568, 0, -0.14837894, 42.31212, 0, -46.578423)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine269" parent="Props" unique_id=789154888 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.3935359, 0, 0.93090945, 0, 1.0106745, 0, -0.93090945, 0, -0.3935359, 41.145206, 0, -48.927925)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine270" parent="Props" unique_id=1772571384 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.53656965, 0, 0.7761851, 0, 0.94359434, 0, -0.7761851, 0, 0.53656965, 44.191578, 0, -47.955902)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine271" parent="Props" unique_id=1395134408 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8761854, 0, -0.42452508, 0, 0.9736131, 0, 0.42452508, 0, -0.8761854, 45.482204, 0, -45.854298)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine272" parent="Props" unique_id=1449489845 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.5126891, 0, 0.90128905, 0, 1.036905, 0, -0.90128905, 0, 0.5126891, 46.91739, 0, -43.472668)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine273" parent="Props" unique_id=2040130584 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.15645282, 0, 0.9889244, 0, 1.0012237, 0, -0.9889244, 0, -0.15645282, 48.65292, 0, -41.2793)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine274" parent="Props" unique_id=2129044859 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.65891737, 0, 0.76545376, 0, 1.0099958, 0, -0.76545376, 0, 0.65891737, 45.89984, 0, -40.99429)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine275" parent="Props" unique_id=915780448 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0552176, 0, -0.07063498, 0, 1.0575792, 0, 0.07063498, 0, -1.0552176, 48.030956, 0, -38.84944)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine276" parent="Props" unique_id=558865288 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.777857, 0, 0.6233402, 0, 0.99680215, 0, -0.6233402, 0, -0.777857, 45.712875, 0, -38.660625)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine277" parent="Props" unique_id=530778133 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.52990437, 0, 0.8477494, 0, 0.9997388, 0, -0.8477494, 0, 0.52990437, 47.277073, 0, -36.6754)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine278" parent="Props" unique_id=1800070730 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7331114, 0, -0.5555585, 0, 0.9198356, 0, 0.5555585, 0, 0.7331114, 44.99796, 0, -36.20061)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine279" parent="Props" unique_id=587799425 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9556109, 0, -0.35051706, 0, 1.0178676, 0, 0.35051706, 0, -0.9556109, 46.447926, 0, -34.178165)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine280" parent="Props" unique_id=1055386204 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7542412, 0, 0.49766403, 0, 0.9036312, 0, -0.49766403, 0, 0.7542412, 44.767193, 0, -32.569553)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine281" parent="Props" unique_id=1092647890 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.52427566, 0, 0.8486056, 0, 0.99749506, 0, -0.8486056, 0, -0.52427566, 47.041714, 0, -31.94985)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine282" parent="Props" unique_id=241130002 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9010046, 0, 0.5511413, 0, 1.0562036, 0, -0.5511413, 0, 0.9010046, 45.47761, 0, -30.104532)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine283" parent="Props" unique_id=2055104226 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.92481595, 0, -0.001325908, 0, 0.9248169, 0, 0.001325908, 0, -0.92481595, 45.699703, 0, -27.80674)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine284" parent="Props" unique_id=25640090 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.3538292, 0, 0.90933853, 0, 0.9757519, 0, -0.90933853, 0, -0.3538292, 43.370487, 0, -28.988613)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine285" parent="Props" unique_id=1937943555 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5372766, 0, 0.7776066, 0, 0.9451657, 0, -0.7776066, 0, -0.5372766, 43.84024, 0, -26.309605)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine286" parent="Props" unique_id=811579749 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.73890543, 0, 0.5216453, 0, 0.90448606, 0, -0.5216453, 0, 0.73890543, 46.152985, 0, -25.40632)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine287" parent="Props" unique_id=1006267123 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.22035122, 0, -0.9275122, 0, 0.95332766, 0, 0.9275122, 0, 0.22035122, 44.288055, 0, -23.984552)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine288" parent="Props" unique_id=44920890 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.29939383, 0, -0.9671133, 0, 1.0123956, 0, 0.9671133, 0, -0.29939383, 42.219933, 0, -22.828878)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine289" parent="Props" unique_id=185471422 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.96626484, 0, -0.3005064, 0, 1.011915, 0, 0.3005064, 0, 0.96626484, 44.952015, 0, -21.191797)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine290" parent="Props" unique_id=1258863585 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.947294, 0, 0.46288052, 0, 1.054336, 0, -0.46288052, 0, -0.947294, 42.60379, 0, -20.512611)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine291" parent="Props" unique_id=1478383693 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9378448, 0, -0.01489307, 0, 0.93796307, 0, 0.01489307, 0, -0.9378448, 44.456837, 0, -18.298359)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine292" parent="Props" unique_id=1321574964 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0594102, 0, -0.23693292, 0, 1.0855815, 0, 0.23693292, 0, 1.0594102, 42.046295, 0, -17.785797)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine293" parent="Props" unique_id=657682458 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.5142859, 0, 0.8947767, 0, 1.0320443, 0, -0.8947767, 0, 0.5142859, 43.648403, 0, -16.116762)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine294" parent="Props" unique_id=904202013 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.73538053, 0, -0.66514194, 0, 0.9915636, 0, 0.66514194, 0, -0.73538053, 42.294865, 0, -14.256981)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine295" parent="Props" unique_id=970150670 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.3189995, 0, 0.89904183, 0, 0.9539585, 0, -0.89904183, 0, 0.3189995, 44.763256, 0, -13.869295)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine296" parent="Props" unique_id=1465563276 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7032407, 0, 0.83667123, 0, 1.0929621, 0, -0.83667123, 0, 0.7032407, 43.333855, 0, -11.6220875)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine297" parent="Props" unique_id=2135129829 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.25103047, 0, 1.0140712, 0, 1.0446802, 0, -1.0140712, 0, -0.25103047, 43.125042, 0, -9.236672)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine298" parent="Props" unique_id=1236031867 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.50650346, 0, -0.93467456, 0, 1.0630909, 0, 0.93467456, 0, 0.50650346, 42.41071, 0, -6.5597544)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine299" parent="Props" unique_id=1026776013 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8260028, 0, -0.46119666, 0, 0.9460354, 0, 0.46119666, 0, -0.8260028, 44.888893, 0, -7.191536)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine300" parent="Props" unique_id=1654600528 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.94847864, 0, 0.52010256, 0, 1.0817201, 0, -0.52010256, 0, 0.94847864, 43.382168, 0, -4.3749523)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine301" parent="Props" unique_id=991643778 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.27865717, 0, 0.9575831, 0, 0.99730396, 0, -0.9575831, 0, 0.27865717, 42.306858, 0, -2.2992857)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine302" parent="Props" unique_id=1795898406 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8380059, 0, 0.49913204, 0, 0.97539055, 0, -0.49913204, 0, -0.8380059, 44.843647, 0, -2.5082657)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine303" parent="Props" unique_id=299898676 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8593596, 0, 0.3266025, 0, 0.9193303, 0, -0.3266025, 0, 0.8593596, 43.65893, 0, -0.31924903)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine304" parent="Props" unique_id=150574757 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0478566, 0, -0.14781389, 0, 1.0582308, 0, 0.14781389, 0, 1.0478566, 42.3662, 0, 1.6519715)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine305" parent="Props" unique_id=228700000 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.16127492, 0, -0.90652215, 0, 0.9207562, 0, 0.90652215, 0, -0.16127492, 44.671112, 0, 1.892246)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine306" parent="Props" unique_id=1833651505 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9687396, 0, -0.3987112, 0, 1.0475816, 0, 0.3987112, 0, -0.9687396, 46.160072, 0, -0.31670457)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine307" parent="Props" unique_id=1057079122 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.40826154, 0, -0.9455075, 0, 1.0298845, 0, 0.9455075, 0, 0.40826154, 47.603386, 0, -2.45633)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine308" parent="Props" unique_id=1171640286 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8449116, 0, -0.5407672, 0, 1.0031474, 0, 0.5407672, 0, -0.8449116, 46.23491, 0, -4.4392624)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine309" parent="Props" unique_id=1238829630 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.62346226, 0, -0.8000157, 0, 1.0142634, 0, 0.8000157, 0, 0.62346226, 48.395355, 0, -5.6713886)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine310" parent="Props" unique_id=416160109 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0561621, 0, 0.20292166, 0, 1.0754793, 0, -0.20292166, 0, -1.0561621, 48.15724, 0, -8.069051)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine311" parent="Props" unique_id=168065948 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.09315495, 0, -1.0690757, 0, 1.0731267, 0, 1.0690757, 0, -0.09315495, 48.19303, 0, -10.382451)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine312" parent="Props" unique_id=711581097 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.94562966, 0, -0.027181491, 0, 0.94602025, 0, 0.027181491, 0, 0.94562966, 49.133827, 0, -12.768122)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine313" parent="Props" unique_id=46496771 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9370281, 0, 0.48874986, 0, 1.056834, 0, -0.48874986, 0, -0.9370281, 48.0219, 0, -14.915096)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine314" parent="Props" unique_id=1559612000 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9848783, 0, 0.14081173, 0, 0.9948936, 0, -0.14081173, 0, -0.9848783, 49.81055, 0, -16.672535)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine315" parent="Props" unique_id=1661667191 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.28042868, 0, 0.9336895, 0, 0.974893, 0, -0.9336895, 0, -0.28042868, 47.951706, 0, -18.51778)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine316" parent="Props" unique_id=1034229083 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.56495243, 0, 0.8926553, 0, 1.0564113, 0, -0.8926553, 0, -0.56495243, 49.873043, 0, -20.295607)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine317" parent="Props" unique_id=602842360 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.96480906, 0, -0.16096407, 0, 0.9781441, 0, 0.16096407, 0, -0.96480906, 49.992226, 0, -22.887783)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine318" parent="Props" unique_id=270760473 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5922185, 0, 0.90535605, 0, 1.0818467, 0, -0.90535605, 0, -0.5922185, 47.914745, 0, -21.751513)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine319" parent="Props" unique_id=697110550 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7607274, 0, 0.65703213, 0, 1.0051852, 0, -0.65703213, 0, 0.7607274, 49.103294, 0, -25.10642)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine320" parent="Props" unique_id=1232859208 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.59747523, 0, 0.7721698, 0, 0.97633135, 0, -0.7721698, 0, 0.59747523, 46.835407, 0, -12.543429)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine321" parent="Props" unique_id=593911830 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.53148323, 0, -0.8415612, 0, 0.99533904, 0, 0.8415612, 0, 0.53148323, 49.819614, 0, -28.177725)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine322" parent="Props" unique_id=878229165 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7555498, 0, 0.6335535, 0, 0.9860251, 0, -0.6335535, 0, -0.7555498, 47.856644, 0, -29.569778)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine323" parent="Props" unique_id=1496981396 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.12073705, 0, 0.92884606, 0, 0.9366603, 0, -0.92884606, 0, -0.12073705, 49.76104, 0, -31.115623)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine324" parent="Props" unique_id=1314550438 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.003776, 0, 0.046399992, 0, 1.0048478, 0, -0.046399992, 0, 1.003776, 48.982132, 0, -34.209198)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine325" parent="Props" unique_id=142732761 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.6082318, 0, -0.7976245, 0, 1.0030707, 0, 0.7976245, 0, 0.6082318, 49.793873, 0, -37.167362)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine326" parent="Props" unique_id=328245747 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.10277113, 0, -0.9145565, 0, 0.9203127, 0, 0.9145565, 0, 0.10277113, 49.972603, 0, -1.4265809)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine327" parent="Props" unique_id=678542369 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.12102293, 0, -1.0584635, 0, 1.0653598, 0, 1.0584635, 0, 0.12102293, 48.452114, 0, 0.76127017)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine328" parent="Props" unique_id=225292698 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.21955469, 0, 0.987892, 0, 1.0119954, 0, -0.987892, 0, -0.21955469, 48.29013, 0, 3.129165)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine329" parent="Props" unique_id=1463531278 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9828434, 0, -0.2956498, 0, 1.0263479, 0, 0.2956498, 0, 0.9828434, 46.0446, 0, 3.7779987)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine330" parent="Props" unique_id=619067080 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.913569, 0, 0.47167984, 0, 1.0281489, 0, -0.47167984, 0, 0.913569, 49.543137, 0, 5.1612263)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine331" parent="Props" unique_id=53871113 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.778686, 0, -0.5547724, 0, 0.95609844, 0, 0.5547724, 0, -0.778686, 47.341187, 0, 6.0107994)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine332" parent="Props" unique_id=1262087898 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0201508, 0, -0.34092575, 0, 1.0756105, 0, 0.34092575, 0, -1.0201508, 48.988556, 0, 7.7612834)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine333" parent="Props" unique_id=1490314717 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8874261, 0, -0.36759037, 0, 0.96054554, 0, 0.36759037, 0, 0.8874261, 46.319107, 0, 8.367885)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine334" parent="Props" unique_id=682667415 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9514232, 0, -0.1921746, 0, 0.9706375, 0, 0.1921746, 0, 0.9514232, 44.997406, 0, 6.261462)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine335" parent="Props" unique_id=15155807 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.10708539, 0, 0.97424436, 0, 0.9801119, 0, -0.97424436, 0, 0.10708539, 43.633423, 0, 3.9997392)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine336" parent="Props" unique_id=2016512251 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9935191, 0, -0.4284309, 0, 1.081958, 0, 0.4284309, 0, 0.9935191, 43.856377, 0, 8.465838)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine337" parent="Props" unique_id=888359341 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0619861, 0, 0.24452811, 0, 1.0897745, 0, -0.24452811, 0, 1.0619861, 45.127625, 0, 10.529297)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine338" parent="Props" unique_id=1239986656 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.91219205, 0, -0.1225806, 0, 0.92039144, 0, 0.1225806, 0, 0.91219205, 42.584824, 0, 11.314569)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine339" parent="Props" unique_id=1537335276 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9918242, 0, 0.367219, 0, 1.0576223, 0, -0.367219, 0, 0.9918242, 44.211334, 0, 12.987318)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine340" parent="Props" unique_id=1588894432 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.03535765, 0, -0.906912, 0, 0.907601, 0, 0.906912, 0, -0.03535765, 46.477165, 0, 12.438053)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine341" parent="Props" unique_id=1480983608 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.6147439, 0, -0.732688, 0, 0.9564214, 0, 0.732688, 0, 0.6147439, 45.296547, 0, 15.612675)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine342" parent="Props" unique_id=468205894 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.95792645, 0, -0.08913021, 0, 0.9620641, 0, 0.08913021, 0, -0.95792645, 44.03303, 0, 17.676117)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine343" parent="Props" unique_id=1225482233 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.028388625, 0, -1.0563655, 0, 1.0567468, 0, 1.0563655, 0, 0.028388625, 46.40375, 0, 17.72536)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine344" parent="Props" unique_id=551598740 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7906986, 0, -0.70127153, 0, 1.0568756, 0, 0.70127153, 0, 0.7906986, 44.88639, 0, 20.276436)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine345" parent="Props" unique_id=1118921686 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8937092, 0, 0.44878745, 0, 1.0000632, 0, -0.44878745, 0, 0.8937092, 46.31226, 0, 22.166403)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine346" parent="Props" unique_id=1604311318 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7618127, 0, -0.59256804, 0, 0.96514016, 0, 0.59256804, 0, -0.7618127, 44.282387, 0, 23.310537)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine347" parent="Props" unique_id=226635043 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.49580815, 0, 0.9639938, 0, 1.0840248, 0, -0.9639938, 0, 0.49580815, 45.767746, 0, 25.372984)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine348" parent="Props" unique_id=1838684590 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9082715, 0, 0.5295682, 0, 1.0513798, 0, -0.5295682, 0, -0.9082715, 43.764126, 0, 26.569698)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine349" parent="Props" unique_id=98518497 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.98122346, 0, 0.11101195, 0, 0.98748326, 0, -0.11101195, 0, -0.98122346, 46.61808, 0, 27.896505)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine350" parent="Props" unique_id=1177236174 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.386958, 0, -1.0173323, 0, 1.08844, 0, 1.0173323, 0, -0.386958, 44.319744, 0, 29.017294)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine351" parent="Props" unique_id=461982346 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.05546287, 0, 1.0252078, 0, 1.0267069, 0, -1.0252078, 0, 0.05546287, 46.381912, 0, 30.203371)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine352" parent="Props" unique_id=129678848 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.35755083, 0, -0.9024476, 0, 0.9706978, 0, 0.9024476, 0, -0.35755083, 44.916172, 0, 32.543667)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine353" parent="Props" unique_id=410662756 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.6402472, 0, -0.73564726, 0, 0.9752402, 0, 0.73564726, 0, 0.6402472, 47.55056, 0, 14.879201)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine354" parent="Props" unique_id=1011537630 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.41026187, 0, -0.9274386, 0, 1.0141288, 0, 0.9274386, 0, 0.41026187, 47.679535, 0, 10.395681)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine355" parent="Props" unique_id=1670666998 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.32189026, 0, 0.85657054, 0, 0.91505545, 0, -0.85657054, 0, 0.32189026, 49.011333, 0, 12.418778)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine356" parent="Props" unique_id=791605392 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0504532, 0, -0.057247866, 0, 1.052012, 0, 0.057247866, 0, -1.0504532, 49.94058, 0, 14.692237)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine357" parent="Props" unique_id=308229191 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8020431, 0, 0.521732, 0, 0.9568058, 0, -0.521732, 0, -0.8020431, 49.658054, 0, 17.00617)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine358" parent="Props" unique_id=651697560 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8765079, 0, -0.28941703, 0, 0.9230538, 0, 0.28941703, 0, 0.8765079, 48.9812, 0, 19.433096)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine359" parent="Props" unique_id=44054576 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.956941, 0, -0.116325065, 0, 0.9639853, 0, 0.116325065, 0, 0.956941, 48.35287, 0, 23.311947)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine360" parent="Props" unique_id=1528373355 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0371623, 0, -0.28625426, 0, 1.0759401, 0, 0.28625426, 0, -1.0371623, 48.080692, 0, 25.95987)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine361" parent="Props" unique_id=85200435 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.63265187, 0, -0.72020537, 0, 0.9586157, 0, 0.72020537, 0, 0.63265187, 47.0805, 0, 33.460773)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine362" parent="Props" unique_id=158961911 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.83027077, 0, 0.54834163, 0, 0.99500155, 0, -0.54834163, 0, -0.83027077, 45.807632, 0, 35.446198)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine363" parent="Props" unique_id=478490253 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.90571123, 0, 0.26665103, 0, 0.9441481, 0, -0.26665103, 0, 0.90571123, 47.37685, 0, 37.205547)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine364" parent="Props" unique_id=162891672 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.16118383, 0, 1.0389357, 0, 1.0513647, 0, -1.0389357, 0, -0.16118383, 45.12598, 0, 38.043743)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine365" parent="Props" unique_id=1265586877 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.99613726, 0, -0.41568738, 0, 1.0793912, 0, 0.41568738, 0, -0.99613726, 46.3411, 0, 40.07729)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine366" parent="Props" unique_id=602574421 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.4489563, 0, 0.7915558, 0, 0.9100123, 0, -0.7915558, 0, 0.4489563, 43.566875, 0, 39.956257)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine367" parent="Props" unique_id=2112230222 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.97234154, 0, 0.28345725, 0, 1.012816, 0, -0.28345725, 0, 0.97234154, 44.73461, 0, 42.087406)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine368" parent="Props" unique_id=1428470195 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.3476494, 0, 1.0116271, 0, 1.069696, 0, -1.0116271, 0, 0.3476494, 47.11537, 0, 42.36643)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine369" parent="Props" unique_id=732881976 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.93752193, 0, 0.43592176, 0, 1.0339125, 0, -0.43592176, 0, -0.93752193, 45.663246, 0, 44.498516)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine370" parent="Props" unique_id=771239080 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.09895892, 0, -0.98964804, 0, 0.99458337, 0, 0.98964804, 0, -0.09895892, 43.52496, 0, 45.433464)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine371" parent="Props" unique_id=963688445 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.60445225, 0, 0.89541495, 0, 1.0803381, 0, -0.89541495, 0, 0.60445225, 46.315575, 0, 46.88568)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine372" parent="Props" unique_id=2143531112 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.42928243, 0, 0.79183614, 0, 0.9007152, 0, -0.79183614, 0, 0.42928243, 44.04392, 0, 47.769424)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine373" parent="Props" unique_id=445663466 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0434109, 0, -0.2907664, 0, 1.0831673, 0, 0.2907664, 0, 1.0434109, 45.87295, 0, 49.42729)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine374" parent="Props" unique_id=1796042478 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.83556974, 0, 0.41942537, 0, 0.9349302, 0, -0.41942537, 0, -0.83556974, 48.718597, 0, 40.475647)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine375" parent="Props" unique_id=2132366118 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9207247, 0, -0.3912597, 0, 1.000409, 0, 0.3912597, 0, 0.9207247, 49.096024, 0, 35.525917)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine376" parent="Props" unique_id=1383507594 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0172521, 0, -0.07307118, 0, 1.0198731, 0, 0.07307118, 0, -1.0172521, 49.336433, 0, 32.795986)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine377" parent="Props" unique_id=1063119562 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5241003, 0, -0.85790414, 0, 1.0053262, 0, 0.85790414, 0, -0.5241003, 49.069756, 0, 30.153362)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine378" parent="Props" unique_id=98645762 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.812317, 0, 0.58126, 0, 0.9988604, 0, -0.58126, 0, -0.812317, 49.789474, 0, 27.95839)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine379" parent="Props" unique_id=1513391304 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.18695426, 0, -1.0025247, 0, 1.0198077, 0, 1.0025247, 0, -0.18695426, 49.1, 0, 43.826218)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine380" parent="Props" unique_id=68934265 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7950075, 0, -0.6127171, 0, 1.0037227, 0, 0.6127171, 0, -0.7950075, 48.67473, 0, 46.77507)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine381" parent="Props" unique_id=858938831 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8674787, 0, -0.5906592, 0, 1.049475, 0, 0.5906592, 0, 0.8674787, 48.353603, 0, 49.27987)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine382" parent="Props" unique_id=1750152060 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.034812, 0, 0.23971072, 0, 1.0622133, 0, -0.23971072, 0, -1.034812, 49.99176, 0, 38.283463)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine383" parent="Props" unique_id=1209717324 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.784714, 0, 0.53639823, 0, 0.9505257, 0, -0.53639823, 0, 0.784714, 49.985836, 0, 21.630022)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine384" parent="Props" unique_id=842863513 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.039314024, 0, -1.0467525, 0, 1.0474905, 0, 1.0467525, 0, 0.039314024, 49.97522, 0, 9.978597)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine385" parent="Props" unique_id=1978445315 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.17745045, 0, -1.0733835, 0, 1.0879525, 0, 1.0733835, 0, -0.17745045, 49.819466, 0, -3.8448062)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine386" parent="Props" unique_id=1044410286 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8028907, 0, 0.42712218, 0, 0.9094322, 0, -0.42712218, 0, -0.8028907, 43.63347, 0, 34.55643)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine387" parent="Props" unique_id=1859041330 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.44107082, 0, -0.9203229, 0, 1.0205575, 0, 0.9203229, 0, 0.44107082, 42.664974, 0, 37.009422)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine388" parent="Props" unique_id=785671737 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.005677989, 0, -0.93922424, 0, 0.9392414, 0, 0.93922424, 0, -0.005677989, 41.999542, 0, 42.25408)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine389" parent="Props" unique_id=585058906 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.36487696, 0, -0.92118216, 0, 0.9908137, 0, 0.92118216, 0, -0.36487696, 41.128647, 0, 44.725452)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine390" parent="Props" unique_id=679648279 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7911168, 0, 0.50328326, 0, 0.9376352, 0, -0.50328326, 0, 0.7911168, 41.22454, 0, 47.179535)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine391" parent="Props" unique_id=91270715 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7326226, 0, -0.58802575, 0, 0.93942016, 0, 0.58802575, 0, -0.7326226, 41.858616, 0, 49.492455)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine392" parent="Props" unique_id=2066144262 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9655219, 0, 0.13807093, 0, 0.97534406, 0, -0.13807093, 0, 0.9655219, 38.94492, 0, 47.743523)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine393" parent="Props" unique_id=1521106443 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.6506065, 0, 0.68956834, 0, 0.9480471, 0, -0.68956834, 0, 0.6506065, 37.290257, 0, 49.391243)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine394" parent="Props" unique_id=1066694245 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9561056, 0, 0.39939922, 0, 1.0361745, 0, -0.39939922, 0, 0.9561056, 36.758156, 0, 46.62103)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine395" parent="Props" unique_id=148863306 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.57313484, 0, -0.8046853, 0, 0.98792815, 0, 0.8046853, 0, -0.57313484, 38.213448, 0, 44.27272)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine396" parent="Props" unique_id=779091814 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9529199, 0, -0.4240003, 0, 1.0429921, 0, 0.4240003, 0, 0.9529199, 39.39516, 0, 42.121716)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine397" parent="Props" unique_id=1072769074 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.49259776, 0, 0.7981826, 0, 0.9379488, 0, -0.7981826, 0, -0.49259776, 40.01635, 0, 39.578194)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine398" parent="Props" unique_id=2002235694 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.90663886, 0, -0.4891989, 0, 1.0301988, 0, 0.4891989, 0, -0.90663886, 37.353237, 0, 40.798428)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine399" parent="Props" unique_id=1739033302 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.142574, 0, 0.9608771, 0, 0.97139704, 0, -0.9608771, 0, 0.142574, 39.23429, 0, 37.412445)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine400" parent="Props" unique_id=1154046099 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0047632, 0, -0.28941536, 0, 1.0456148, 0, 0.28941536, 0, 1.0047632, 39.50786, 0, 34.764717)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine401" parent="Props" unique_id=1663559441 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7905934, 0, -0.6315141, 0, 1.0118537, 0, 0.6315141, 0, 0.7905934, 41.254673, 0, 32.57609)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine402" parent="Props" unique_id=48110393 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.87701285, 0, 0.29784912, 0, 0.92621034, 0, -0.29784912, 0, 0.87701285, 40.15433, 0, 30.506466)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine403" parent="Props" unique_id=2080489870 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8666351, 0, -0.65147173, 0, 1.0841918, 0, 0.65147173, 0, -0.8666351, 42.500576, 0, 30.464983)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine404" parent="Props" unique_id=66103778 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.70079845, 0, 0.65241915, 0, 0.95748067, 0, -0.65241915, 0, -0.70079845, 41.501247, 0, 28.390423)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine405" parent="Props" unique_id=884271527 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0729849, 0, -0.14640547, 0, 1.0829272, 0, 0.14640547, 0, 1.0729849, 39.523983, 0, 26.215893)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine406" parent="Props" unique_id=1166736737 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9505626, 0, -0.458731, 0, 1.0554636, 0, 0.458731, 0, -0.9505626, 42.18699, 0, 24.77432)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine407" parent="Props" unique_id=760006024 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.57416975, 0, 0.7835067, 0, 0.9713669, 0, -0.7835067, 0, -0.57416975, 40.108513, 0, 23.692673)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine408" parent="Props" unique_id=374719488 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.21015422, 0, -0.94599223, 0, 0.9690542, 0, 0.94599223, 0, 0.21015422, 41.921432, 0, 22.169355)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine409" parent="Props" unique_id=1103303895 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.98210275, 0, 0.27040398, 0, 1.0186481, 0, -0.27040398, 0, -0.98210275, 39.586388, 0, 21.151056)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine410" parent="Props" unique_id=242729958 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8732975, 0, -0.30813202, 0, 0.92606366, 0, 0.30813202, 0, 0.8732975, 41.9767, 0, 19.724255)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine411" parent="Props" unique_id=113856508 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.93759143, 0, -0.41581926, 0, 1.0256624, 0, 0.41581926, 0, -0.93759143, 39.865223, 0, 18.660057)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine412" parent="Props" unique_id=979291254 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8457381, 0, 0.6234952, 0, 1.0507232, 0, -0.6234952, 0, -0.8457381, 40.75782, 0, 16.381794)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine413" parent="Props" unique_id=1469699029 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0753691, 0, -0.16054039, 0, 1.0872866, 0, 0.16054039, 0, 1.0753691, 40.474663, 0, 14.069393)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine414" parent="Props" unique_id=856037825 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.80031013, 0, 0.6805978, 0, 1.0505759, 0, -0.6805978, 0, -0.80031013, 39.488766, 0, 11.634002)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine415" parent="Props" unique_id=698564482 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.94042116, 0, 0.5406818, 0, 1.0847713, 0, -0.5406818, 0, 0.94042116, 40.836884, 0, 9.580763)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine416" parent="Props" unique_id=943485575 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.032806385, 0, -0.9721786, 0, 0.97273195, 0, 0.9721786, 0, 0.032806385, 41.721523, 0, 6.588404)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine417" parent="Props" unique_id=702062755 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0321771, 0, 0.009945953, 0, 1.032225, 0, -0.009945953, 0, -1.0321771, 39.560585, 0, 7.549844)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine418" parent="Props" unique_id=676217837 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.97809196, 0, 0.38051912, 0, 1.049504, 0, -0.38051912, 0, -0.97809196, 39.70731, 0, 4.653265)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine419" parent="Props" unique_id=1820221867 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.3423578, 0, 0.9209305, 0, 0.98250794, 0, -0.9209305, 0, 0.3423578, 40.034256, 0, 1.9077202)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine420" parent="Props" unique_id=1780110135 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.53762794, 0, 0.8289245, 0, 0.9880079, 0, -0.8289245, 0, -0.53762794, 40.814568, 0, -0.4511981)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine421" parent="Props" unique_id=1750459644 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9717244, 0, -0.365274, 0, 1.0381105, 0, 0.365274, 0, -0.9717244, 40.11905, 0, -3.0587173)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine422" parent="Props" unique_id=59745705 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.07243365, 0, 0.927252, 0, 0.93007684, 0, -0.927252, 0, -0.07243365, 40.297382, 0, -5.424949)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine423" parent="Props" unique_id=2015543804 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.00046236074, 0, -0.9190688, 0, 0.91906893, 0, 0.9190688, 0, 0.00046236074, 40.75601, 0, -8.368276)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine424" parent="Props" unique_id=1144049290 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8743376, 0, 0.6396332, 0, 1.0833268, 0, -0.6396332, 0, -0.8743376, 39.97204, 0, -11.410023)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine425" parent="Props" unique_id=2146002401 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6960177, 0, -0.83929557, 0, 1.0903475, 0, 0.83929557, 0, -0.6960177, 39.49354, 0, -13.733072)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine426" parent="Props" unique_id=359585127 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7955337, 0, 0.4702932, 0, 0.924148, 0, -0.4702932, 0, -0.7955337, 40.007496, 0, -15.984353)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine427" parent="Props" unique_id=1304452286 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8992496, 0, 0.088442884, 0, 0.9035884, 0, -0.088442884, 0, 0.8992496, 39.280094, 0, -18.274353)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine428" parent="Props" unique_id=2076842859 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.63673824, 0, 0.77140725, 0, 1.0002524, 0, -0.77140725, 0, -0.63673824, 40.193398, 0, -20.60207)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine429" parent="Props" unique_id=600867063 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0866383, 0, 0.16387214, 0, 1.0989254, 0, -0.16387214, 0, -1.0866383, 39.894623, 0, -22.996773)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine430" parent="Props" unique_id=353964608 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8672317, 0, 0.3972633, 0, 0.9538915, 0, -0.3972633, 0, -0.8672317, 40.1428, 0, -25.378647)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine431" parent="Props" unique_id=657585095 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.97803295, 0, 0.08629796, 0, 0.98183286, 0, -0.08629796, 0, -0.97803295, 41.57871, 0, -27.256897)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine432" parent="Props" unique_id=1905157742 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.4383729, 0, 0.9242794, 0, 1.0229678, 0, -0.9242794, 0, -0.4383729, 38.80603, 0, -27.372879)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine433" parent="Props" unique_id=1453646391 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.6402969, 0, -0.73022264, 0, 0.97118753, 0, 0.73022264, 0, 0.6402969, 40.439236, 0, -29.537987)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine434" parent="Props" unique_id=670042122 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9878266, 0, 0.4316823, 0, 1.0780311, 0, -0.4316823, 0, -0.9878266, 42.237015, 0, -31.348879)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine435" parent="Props" unique_id=1158413973 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.5239819, 0, -0.96234006, 0, 1.0957443, 0, 0.96234006, 0, 0.5239819, 38.483677, 0, -30.765245)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine436" parent="Props" unique_id=159672709 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.93702, 0, 0.4119171, 0, 1.0235635, 0, -0.4119171, 0, 0.93702, 40.202675, 0, -32.66229)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine437" parent="Props" unique_id=780201568 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.09703582, 0, 0.92679924, 0, 0.9318652, 0, -0.92679924, 0, -0.09703582, 41.37086, 0, -35.214436)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine438" parent="Props" unique_id=1871423701 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0381228, 0, -0.29068372, 0, 1.0780519, 0, 0.29068372, 0, -1.0381228, 38.553764, 0, -34.405148)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine439" parent="Props" unique_id=533014962 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.46957153, 0, -0.7828754, 0, 0.9129027, 0, 0.7828754, 0, 0.46957153, 39.18893, 0, -36.810307)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine440" parent="Props" unique_id=1912635104 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.31902382, 0, 0.86459076, 0, 0.92157114, 0, -0.86459076, 0, -0.31902382, 41.29604, 0, -37.94575)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine441" parent="Props" unique_id=1436403883 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.20709227, 0, 0.8829998, 0, 0.90695965, 0, -0.8829998, 0, -0.20709227, 39.2769, 0, -39.4655)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine442" parent="Props" unique_id=1284010200 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.24312147, 0, -0.95604223, 0, 0.9864709, 0, 0.95604223, 0, 0.24312147, 40.723774, 0, -41.274426)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine443" parent="Props" unique_id=885992829 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.852379, 0, -0.55739635, 0, 1.0184501, 0, 0.55739635, 0, -0.852379, 39.175495, 0, -43.276745)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine444" parent="Props" unique_id=1679322754 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9479551, 0, -0.1170753, 0, 0.9551573, 0, 0.1170753, 0, 0.9479551, 41.953564, 0, -43.57474)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine445" parent="Props" unique_id=949538471 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8287865, 0, -0.6122154, 0, 1.0303857, 0, 0.6122154, 0, 0.8287865, 44.27938, 0, -43.0756)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine446" parent="Props" unique_id=1795015355 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.27737325, 0, -1.0074456, 0, 1.0449319, 0, 1.0074456, 0, 0.27737325, 43.054306, 0, -40.76894)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine447" parent="Props" unique_id=993497930 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6889773, 0, 0.71712345, 0, 0.99446255, 0, -0.71712345, 0, -0.6889773, 37.69432, 0, -41.257633)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine448" parent="Props" unique_id=1119075054 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.2511709, 0, -1.0083723, 0, 1.0391831, 0, 1.0083723, 0, 0.2511709, 35.626633, 0, -42.46006)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine449" parent="Props" unique_id=1218873898 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.65919524, 0, 0.6924829, 0, 0.95607054, 0, -0.6924829, 0, -0.65919524, 35.443375, 0, -39.82439)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine450" parent="Props" unique_id=1825266250 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8069116, 0, -0.7450676, 0, 1.0982859, 0, 0.7450676, 0, -0.8069116, 32.913406, 0, -42.015305)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine451" parent="Props" unique_id=171328273 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0176628, 0, 0.23715976, 0, 1.0449318, 0, -0.23715976, 0, -1.0176628, 30.995197, 0, -40.637478)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine452" parent="Props" unique_id=1071945907 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0503178, 0, -0.32511923, 0, 1.0994862, 0, 0.32511923, 0, 1.0503178, 29.67814, 0, -42.606056)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine453" parent="Props" unique_id=444067942 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8257489, 0, -0.3932215, 0, 0.91459525, 0, 0.3932215, 0, 0.8257489, 28.403969, 0, -40.350487)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine454" parent="Props" unique_id=698082270 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.28509125, 0, -0.9367819, 0, 0.9792024, 0, 0.9367819, 0, -0.28509125, 27.211203, 0, -42.537758)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine455" parent="Props" unique_id=317775517 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.25630322, 0, 0.97120476, 0, 1.0044551, 0, -0.97120476, 0, -0.25630322, 24.877478, 0, -42.621956)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine456" parent="Props" unique_id=639375774 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9471271, 0, -0.277133, 0, 0.98683965, 0, 0.277133, 0, -0.9471271, 25.950266, 0, -40.260113)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine457" parent="Props" unique_id=1876606022 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.11098393, 0, 1.0760816, 0, 1.0817897, 0, -1.0760816, 0, -0.11098393, 23.537262, 0, -40.735348)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine458" parent="Props" unique_id=151119010 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.13319665, 0, -1.0678003, 0, 1.0760757, 0, 1.0678003, 0, -0.13319665, 22.07455, 0, -42.683075)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine459" parent="Props" unique_id=2013387387 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0145415, 0, -0.19150324, 0, 1.0324572, 0, 0.19150324, 0, -1.0145415, 21.004572, 0, -40.241764)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine460" parent="Props" unique_id=1813444657 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.3652564, 0, -0.9881473, 0, 1.0534929, 0, 0.9881473, 0, -0.3652564, 19.18668, 0, -42.29756)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine461" parent="Props" unique_id=151382343 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.22458278, 0, -0.9433654, 0, 0.9697297, 0, 0.9433654, 0, -0.22458278, 17.758543, 0, -40.432373)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine462" parent="Props" unique_id=1983349952 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9536546, 0, -0.083966054, 0, 0.95734394, 0, 0.083966054, 0, -0.9536546, 16.495516, 0, -43.250946)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine463" parent="Props" unique_id=1930203668 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0239102, 0, 0.013892367, 0, 1.0240045, 0, -0.013892367, 0, -1.0239102, 15.002298, 0, -41.170815)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine464" parent="Props" unique_id=1679969458 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0360909, 0, 0.1616567, 0, 1.0486263, 0, -0.1616567, 0, -1.0360909, 13.388377, 0, -42.89605)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine465" parent="Props" unique_id=917347974 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.96017593, 0, 0.1166833, 0, 0.9672398, 0, -0.1166833, 0, -0.96017593, 12.478324, 0, -40.309975)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine466" parent="Props" unique_id=1969789243 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.0065038525, 0, -1.039982, 0, 1.0400023, 0, 1.039982, 0, 0.0065038525, 11.124002, 0, -42.212738)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine467" parent="Props" unique_id=248061120 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.36879355, 0, 0.8998007, 0, 0.9724454, 0, -0.8998007, 0, -0.36879355, 9.436041, 0, -40.308926)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine468" parent="Props" unique_id=136775751 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8377298, 0, -0.70571196, 0, 1.0953633, 0, 0.70571196, 0, 0.8377298, 8.850295, 0, -43.25282)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine469" parent="Props" unique_id=1330882390 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.19048184, 0, 0.88845384, 0, 0.90864384, 0, -0.88845384, 0, 0.19048184, 7.0911903, 0, -41.574722)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine470" parent="Props" unique_id=1836404743 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.23474483, 0, 1.0286108, 0, 1.055057, 0, -1.0286108, 0, -0.23474483, 4.739406, 0, -39.866234)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine471" parent="Props" unique_id=2071449602 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.50136214, 0, -0.75819874, 0, 0.90897155, 0, 0.75819874, 0, 0.50136214, 4.6778145, 0, -42.711864)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine472" parent="Props" unique_id=1506782933 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.87131506, 0, 0.30071482, 0, 0.921748, 0, -0.30071482, 0, -0.87131506, 2.7943377, 0, -41.13127)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine473" parent="Props" unique_id=2122624448 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0969486, 0, 0.033142805, 0, 1.0974492, 0, -0.033142805, 0, -1.0969486, 0.57819486, 0, -42.285683)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine474" parent="Props" unique_id=15904875 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8931383, 0, 0.49871576, 0, 1.0229435, 0, -0.49871576, 0, -0.8931383, 0.5522419, 0, -39.781387)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine475" parent="Props" unique_id=94349482 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.22121924, 0, 0.9477228, 0, 0.97319907, 0, -0.9477228, 0, -0.22121924, -1.661003, 0, -41.694714)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine476" parent="Props" unique_id=829353269 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8902854, 0, -0.330542, 0, 0.94966626, 0, 0.330542, 0, -0.8902854, -3.7964542, 0, -40.230377)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine477" parent="Props" unique_id=1457849694 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.50776815, 0, -0.9744828, 0, 1.0988381, 0, 0.9744828, 0, 0.50776815, -4.620475, 0, -42.54661)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine478" parent="Props" unique_id=320297699 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.89667165, 0, -0.59622157, 0, 1.076801, 0, 0.59622157, 0, 0.89667165, -6.840276, 0, -41.768307)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine479" parent="Props" unique_id=398066461 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.5599053, 0, -0.7413511, 0, 0.9290293, 0, 0.7413511, 0, 0.5599053, -8.89175, 0, -42.86561)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine480" parent="Props" unique_id=1304261736 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.14340904, 0, 1.0111821, 0, 1.0213008, 0, -1.0111821, 0, -0.14340904, -8.735734, 0, -40.12117)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine481" parent="Props" unique_id=161037999 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9856921, 0, 0.08407112, 0, 0.98927087, 0, -0.08407112, 0, -0.9856921, -11.276985, 0, -42.558872)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine482" parent="Props" unique_id=728055972 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0207776, 0, 0.3195861, 0, 1.0696365, 0, -0.3195861, 0, 1.0207776, -13.646456, 0, -41.550278)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine483" parent="Props" unique_id=6505364 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.24147424, 0, -1.0094756, 0, 1.0379552, 0, 1.0094756, 0, 0.24147424, -15.882404, 0, -42.218464)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine484" parent="Props" unique_id=334635821 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.0021538876, 0, 0.9684678, 0, 0.96847016, 0, -0.9684678, 0, -0.0021538876, -18.202045, 0, -41.717037)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine485" parent="Props" unique_id=2113685798 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.1542162, 0, -0.96089107, 0, 0.9731877, 0, 0.96089107, 0, 0.1542162, -20.479836, 0, -42.050583)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine486" parent="Props" unique_id=1756083405 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.14952675, 0, 1.0367112, 0, 1.047439, 0, -1.0367112, 0, 0.14952675, -22.775803, 0, -42.91006)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine487" parent="Props" unique_id=167978724 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.63027173, 0, -0.8592831, 0, 1.06565, 0, 0.8592831, 0, 0.63027173, -25.626442, 0, -42.580036)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine488" parent="Props" unique_id=260557693 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7589134, 0, 0.6110516, 0, 0.9743376, 0, -0.6110516, 0, -0.7589134, -24.094948, 0, -40.814117)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine489" parent="Props" unique_id=567587768 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.5741295, 0, 0.8727962, 0, 1.0446999, 0, -0.8727962, 0, 0.5741295, -28.633839, 0, -43.026333)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine490" parent="Props" unique_id=163728547 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8102013, 0, 0.5843889, 0, 0.99896777, 0, -0.5843889, 0, 0.8102013, -31.344631, 0, -43.23929)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine491" parent="Props" unique_id=456045781 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.12844391, 0, -1.0526619, 0, 1.0604692, 0, 1.0526619, 0, 0.12844391, -30.32686, 0, -41.16505)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine492" parent="Props" unique_id=975707324 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.45103425, 0, -0.8380544, 0, 0.951718, 0, 0.8380544, 0, 0.45103425, -34.421715, 0, -42.643173)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine493" parent="Props" unique_id=564693732 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.79848045, 0, -0.6690109, 0, 1.0417037, 0, 0.6690109, 0, -0.79848045, -33.298622, 0, -44.944748)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine494" parent="Props" unique_id=544947101 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.96787506, 0, 0.36519408, 0, 1.03448, 0, -0.36519408, 0, -0.96787506, -33.832344, 0, -39.942764)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine495" parent="Props" unique_id=126492617 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.95367455, 0, 0.17536823, 0, 0.96966445, 0, -0.17536823, 0, 0.95367455, -34.10716, 0, -37.54504)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine496" parent="Props" unique_id=1837492577 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7827202, 0, -0.46308517, 0, 0.90944976, 0, 0.46308517, 0, -0.7827202, -33.590588, 0, -35.131733)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine497" parent="Props" unique_id=612311631 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9718413, 0, -0.32688975, 0, 1.025345, 0, 0.32688975, 0, -0.9718413, -32.004044, 0, -32.88877)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine498" parent="Props" unique_id=629798066 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8839183, 0, 0.5907262, 0, 1.0631411, 0, -0.5907262, 0, 0.8839183, -34.5796, 0, -32.28686)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine499" parent="Props" unique_id=86797554 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0586455, 0, 0.115583725, 0, 1.0649365, 0, -0.115583725, 0, -1.0586455, -32.96652, 0, -30.526789)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine500" parent="Props" unique_id=531627391 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.32961568, 0, 0.91184586, 0, 0.96959233, 0, -0.91184586, 0, -0.32961568, -31.268427, 0, -28.10469)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine501" parent="Props" unique_id=1488138967 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.04244564, 0, 1.079026, 0, 1.0798604, 0, -1.079026, 0, 0.04244564, -34.02834, 0, -28.329226)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine502" parent="Props" unique_id=1804264243 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9565472, 0, -0.2115236, 0, 0.97965544, 0, 0.2115236, 0, 0.9565472, -32.565216, 0, -25.872217)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine503" parent="Props" unique_id=980123564 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6165953, 0, -0.7570257, 0, 0.9763594, 0, 0.7570257, 0, -0.6165953, -32.41166, 0, -23.479641)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine504" parent="Props" unique_id=1826339635 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.09236111, 0, -0.914787, 0, 0.91943777, 0, 0.914787, 0, 0.09236111, -30.34116, 0, -24.546679)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine505" parent="Props" unique_id=198787868 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.44431895, 0, -0.9623507, 0, 1.0599709, 0, 0.9623507, 0, -0.44431895, -32.71316, 0, -21.15782)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine506" parent="Props" unique_id=1931468493 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.08723307, 0, 0.9433227, 0, 0.9473475, 0, -0.9433227, 0, -0.08723307, -30.044472, 0, -22.179174)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine507" parent="Props" unique_id=452713799 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9956931, 0, -0.33503628, 0, 1.0505494, 0, 0.33503628, 0, -0.9956931, -30.47936, 0, -19.63576)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine508" parent="Props" unique_id=104572009 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.88892424, 0, -0.23218502, 0, 0.91874707, 0, 0.23218502, 0, 0.88892424, -31.965796, 0, -17.788929)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine509" parent="Props" unique_id=1149067387 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8026218, 0, 0.4971362, 0, 0.9441113, 0, -0.4971362, 0, 0.8026218, -29.96978, 0, -16.5238)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine510" parent="Props" unique_id=1234379060 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0155679, 0, -0.39172655, 0, 1.088498, 0, 0.39172655, 0, 1.0155679, -32.244144, 0, -15.35097)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine511" parent="Props" unique_id=961170727 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.71569324, 0, -0.75070655, 0, 1.0371968, 0, 0.75070655, 0, -0.71569324, -30.527643, 0, -13.81982)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine512" parent="Props" unique_id=1649289468 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0076338, 0, 0.31763792, 0, 1.056513, 0, -0.31763792, 0, -1.0076338, -32.579205, 0, -12.696741)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine513" parent="Props" unique_id=1202044660 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8657148, 0, 0.45095283, 0, 0.97612524, 0, -0.45095283, 0, -0.8657148, -29.798819, 0, -11.340807)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine514" parent="Props" unique_id=807385066 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.86431915, 0, 0.5048633, 0, 1.0009668, 0, -0.5048633, 0, -0.86431915, -32.202, 0, -10.352223)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine515" parent="Props" unique_id=1396432633 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.4127262, 0, 0.9896092, 0, 1.0722263, 0, -0.9896092, 0, 0.4127262, -29.868647, 0, -8.66875)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine516" parent="Props" unique_id=112215781 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.11235746, 0, 1.0097625, 0, 1.0159943, 0, -1.0097625, 0, -0.11235746, -32.005875, 0, -6.941294)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine517" parent="Props" unique_id=1862356221 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.40960538, 0, -1.0024186, 0, 1.0828756, 0, 1.0024186, 0, 0.40960538, -28.96543, 0, -5.9949183)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine518" parent="Props" unique_id=61448106 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9361345, 0, 0.16322017, 0, 0.9502571, 0, -0.16322017, 0, -0.9361345, -29.904696, 0, -3.656528)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine519" parent="Props" unique_id=1476758235 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.91095, 0, -0.22162, 0, 0.93752086, 0, 0.22162, 0, 0.91095, -27.862247, 0, -1.8793769)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine520" parent="Props" unique_id=90953148 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.4909219, 0, 0.977469, 0, 1.0938236, 0, -0.977469, 0, 0.4909219, -30.6178, 0, -1.3912113)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine521" parent="Props" unique_id=395775787 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8245793, 0, -0.44730318, 0, 0.9380891, 0, 0.44730318, 0, 0.8245793, -28.6616, 0, 1.03817)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine522" parent="Props" unique_id=204059880 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.09195251, 0, 0.9024188, 0, 0.90709144, 0, -0.9024188, 0, -0.09195251, -30.952356, 0, 1.8019346)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine523" parent="Props" unique_id=1224711195 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0805058, 0, -0.10927042, 0, 1.086017, 0, 0.10927042, 0, -1.0805058, -29.112452, 0, 3.3581438)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine524" parent="Props" unique_id=1495179002 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.33342296, 0, -0.9407704, 0, 0.99810815, 0, 0.9407704, 0, 0.33342296, -28.898811, 0, 6.0097666)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine525" parent="Props" unique_id=530580502 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.85120624, 0, 0.5396454, 0, 1.0078537, 0, -0.5396454, 0, -0.85120624, -26.937502, 0, 4.490121)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine526" parent="Props" unique_id=7857126 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8101472, 0, 0.41966015, 0, 0.9123887, 0, -0.41966015, 0, 0.8101472, -26.825186, 0, 7.052444)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine527" parent="Props" unique_id=1222589019 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.009376887, 0, 1.0030363, 0, 1.0030801, 0, -1.0030363, 0, 0.009376887, -29.778488, 0, 8.635982)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine528" parent="Props" unique_id=1014628188 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9144221, 0, -0.5202824, 0, 1.0520749, 0, 0.5202824, 0, 0.9144221, -26.955477, 0, 9.598261)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine529" parent="Props" unique_id=1834461006 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.052734055, 0, -0.9248831, 0, 0.9263853, 0, 0.9248831, 0, -0.052734055, -28.938354, 0, 11.036862)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine530" parent="Props" unique_id=1352808544 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.40933466, 0, -0.9377565, 0, 1.0232018, 0, 0.9377565, 0, -0.40933466, -31.201334, 0, 10.482908)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine531" parent="Props" unique_id=1911511951 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.83107007, 0, -0.48651052, 0, 0.9630005, 0, 0.48651052, 0, -0.83107007, -32.07389, 0, 7.865145)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine532" parent="Props" unique_id=507778033 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8822534, 0, -0.5574303, 0, 1.0435994, 0, 0.5574303, 0, 0.8822534, -31.652018, 0, 5.357191)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine533" parent="Props" unique_id=155631072 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0184376, 0, 0.19990347, 0, 1.0378711, 0, -0.19990347, 0, -1.0184376, -33.123238, 0, 3.0956612)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine534" parent="Props" unique_id=76748784 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.933428, 0, 0.26076752, 0, 0.9691684, 0, -0.26076752, 0, 0.933428, -33.153633, 0, 0.69193137)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine535" parent="Props" unique_id=544542460 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.35596973, 0, 0.9737799, 0, 1.0368036, 0, -0.9737799, 0, 0.35596973, -33.922226, 0, -1.5269167)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine536" parent="Props" unique_id=2120791638 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.41412377, 0, 0.9711343, 0, 1.0557463, 0, -0.9711343, 0, -0.41412377, -32.57694, 0, -3.6576202)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine537" parent="Props" unique_id=2060333926 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.84119385, 0, 0.65954256, 0, 1.0689263, 0, -0.65954256, 0, 0.84119385, -34.16068, 0, -5.550578)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine538" parent="Props" unique_id=1753447408 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8193251, 0, 0.48673782, 0, 0.9529991, 0, -0.48673782, 0, 0.8193251, -34.48302, 0, -7.9848866)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine539" parent="Props" unique_id=1949701084 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7263112, 0, -0.73407215, 0, 1.0326616, 0, 0.73407215, 0, -0.7263112, -34.696495, 0, -10.911328)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine540" parent="Props" unique_id=472546714 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.581302, 0, -0.8309949, 0, 1.0141324, 0, 0.8309949, 0, -0.581302, -34.538025, 0, -14.915735)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine541" parent="Props" unique_id=1527949561 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.31486955, 0, -1.0497166, 0, 1.0959232, 0, 1.0497166, 0, 0.31486955, -35.30103, 0, -17.432886)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine542" parent="Props" unique_id=1096825727 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.92755914, 0, 0.022543361, 0, 0.9278331, 0, -0.022543361, 0, 0.92755914, -35.2041, 0, -20.082127)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine543" parent="Props" unique_id=266052829 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.66565037, 0, 0.7424834, 0, 0.997182, 0, -0.7424834, 0, 0.66565037, -35.001858, 0, -22.687962)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine544" parent="Props" unique_id=1770908401 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.26312688, 0, -0.9536453, 0, 0.9892801, 0, 0.9536453, 0, 0.26312688, -43.6972, 0, -22.336914)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine545" parent="Props" unique_id=1592588340 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.91267085, 0, -0.3655263, 0, 0.9831467, 0, 0.3655263, 0, -0.91267085, -43.6486, 0, -25.810314)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine546" parent="Props" unique_id=793092336 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.960153, 0, -0.53369397, 0, 1.0985094, 0, 0.53369397, 0, 0.960153, -43.49724, 0, -28.332718)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine547" parent="Props" unique_id=1265008571 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8931094, 0, 0.166489, 0, 0.9084949, 0, -0.166489, 0, -0.8931094, -43.63406, 0, -17.674038)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine548" parent="Props" unique_id=899164497 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0069627, 0, -0.41505563, 0, 1.0891488, 0, 0.41505563, 0, -1.0069627, -37.476334, 0, -18.986109)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine549" parent="Props" unique_id=1579952376 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.8834184, 0, -0.2877371, 0, 0.9290967, 0, 0.2877371, 0, -0.8834184, -37.243786, 0, -15.096308)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine550" parent="Props" unique_id=1233101950 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.45003042, 0, -0.9335281, 0, 1.0363407, 0, 0.9335281, 0, 0.45003042, -49.983284, 0, -40.52959)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine551" parent="Props" unique_id=786308196 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.5441393, 0, 0.9281975, 0, 1.075936, 0, -0.9281975, 0, 0.5441393, 6.0709376, 0, -44.63505)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine552" parent="Props" unique_id=470088741 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5749211, 0, 0.9096993, 0, 1.0761446, 0, -0.9096993, 0, -0.5749211, 2.4451838, 0, -43.71952)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine553" parent="Props" unique_id=2122097281 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0004803, 0, -0.06802597, 0, 1.0027902, 0, 0.06802597, 0, -1.0004803, -11.408496, 0, -39.50235)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine554" parent="Props" unique_id=193439041 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9357049, 0, 0.44115224, 0, 1.0344849, 0, -0.44115224, 0, -0.9357049, -13.711955, 0, -38.721134)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine555" parent="Props" unique_id=68991294 instance=ExtResource("7_17lni")]
+transform = Transform3D(-1.0191692, 0, 0.09505531, 0, 1.0235924, 0, -0.09505531, 0, -1.0191692, -34.18801, 0, 9.79762)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine556" parent="Props" unique_id=265075885 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.7233906, 0, 0.7526022, 0, 1.0438889, 0, -0.7526022, 0, 0.7233906, -33.80568, 0, 12.648558)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine557" parent="Props" unique_id=1497244392 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.68927544, 0, 0.8330373, 0, 1.081227, 0, -0.8330373, 0, -0.68927544, -34.853794, 0, 7.557514)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine558" parent="Props" unique_id=1079723786 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.7693386, 0, 0.725705, 0, 1.0576056, 0, -0.725705, 0, -0.7693386, -34.885628, 0, 5.032872)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine559" parent="Props" unique_id=712305912 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.30996132, 0, -0.9496695, 0, 0.99897355, 0, 0.9496695, 0, -0.30996132, -35.35843, 0, 2.0266912)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine560" parent="Props" unique_id=26301928 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9170751, 0, 0.49554396, 0, 1.0423965, 0, -0.49554396, 0, 0.9170751, -36.628376, 0, 0.0054062605)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine561" parent="Props" unique_id=720899650 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.92669284, 0, -0.5229233, 0, 1.0640528, 0, 0.5229233, 0, -0.92669284, -35.795326, 0, -2.8942518)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine562" parent="Props" unique_id=1689509517 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.5056451, 0, -0.96291137, 0, 1.0876007, 0, 0.96291137, 0, -0.5056451, -37.37376, 0, -5.173023)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine563" parent="Props" unique_id=61642302 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.29011184, 0, 0.95536935, 0, 0.9984466, 0, -0.95536935, 0, 0.29011184, -35.95721, 0, -12.838552)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine564" parent="Props" unique_id=1675645887 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.20264445, 0, 1.0734882, 0, 1.0924476, 0, -1.0734882, 0, -0.20264445, -48.844933, 0, 8.144896)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine565" parent="Props" unique_id=1732181003 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.449293, 0, -0.8210067, 0, 0.93590397, 0, 0.8210067, 0, -0.449293, -49.40475, 0, 10.627966)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine566" parent="Props" unique_id=1115725304 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.9420461, 0, 0.1520604, 0, 0.9542396, 0, -0.1520604, 0, 0.9420461, -49.925514, 0, 14.9668)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine567" parent="Props" unique_id=386093293 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6145289, 0, 0.8917407, 0, 1.0829808, 0, -0.8917407, 0, -0.6145289, -49.690296, 0, 17.581549)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine568" parent="Props" unique_id=1845852839 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.95687515, 0, -0.17098652, 0, 0.97203207, 0, 0.17098652, 0, 0.95687515, -48.989635, 0, 20.257109)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine569" parent="Props" unique_id=1460611698 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.88013804, 0, -0.45678696, 0, 0.99161345, 0, 0.45678696, 0, 0.88013804, -49.26299, 0, 22.855259)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine570" parent="Props" unique_id=958564380 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0160166, 0, -0.16788682, 0, 1.029794, 0, 0.16788682, 0, 1.0160166, -49.83019, 0, 25.434544)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine571" parent="Props" unique_id=2001649646 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.4516974, 0, -0.93872714, 0, 1.0417482, 0, 0.93872714, 0, -0.4516974, -49.44239, 0, 27.801971)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine572" parent="Props" unique_id=545518071 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.61802095, 0, 0.76265204, 0, 0.9816252, 0, -0.76265204, 0, 0.61802095, -48.25889, 0, 29.949802)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine573" parent="Props" unique_id=797652266 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.15821968, 0, -0.9501197, 0, 0.96320343, 0, 0.9501197, 0, -0.15821968, -49.570843, 0, 31.878284)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine574" parent="Props" unique_id=1421581916 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.28832337, 0, -0.8584184, 0, 0.9055455, 0, 0.8584184, 0, -0.28832337, -47.80018, 0, 33.477665)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine575" parent="Props" unique_id=1215095420 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.4309681, 0, -0.88019615, 0, 0.9800402, 0, 0.88019615, 0, -0.4309681, -49.6865, 0, 34.816498)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine576" parent="Props" unique_id=1527418565 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0154036, 0, -0.4008594, 0, 1.0916651, 0, 0.4008594, 0, 1.0154036, -49.198345, 0, 37.370213)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine577" parent="Props" unique_id=83214926 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.72746706, 0, -0.5331447, 0, 0.90191555, 0, 0.5331447, 0, 0.72746706, -49.09102, 0, 39.903606)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine578" parent="Props" unique_id=1219534952 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.15892202, 0, -0.9428188, 0, 0.956119, 0, 0.9428188, 0, 0.15892202, -49.91251, 0, 3.9883866)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine579" parent="Props" unique_id=1389984197 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.97808176, 0, -0.0059974147, 0, 0.9781001, 0, 0.0059974147, 0, -0.97808176, -49.48948, 0, -6.263142)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine580" parent="Props" unique_id=1860922186 instance=ExtResource("7_17lni")]
+transform = Transform3D(1.0021982, 0, 0.3169814, 0, 1.0511321, 0, -0.3169814, 0, 1.0021982, -49.135532, 0, -8.631559)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine581" parent="Props" unique_id=1854611670 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.58192873, 0, 0.9042446, 0, 1.0753136, 0, -0.9042446, 0, -0.58192873, -49.642525, 0, -14.174818)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine582" parent="Props" unique_id=945001334 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.28021386, 0, 0.9704675, 0, 1.0101124, 0, -0.9704675, 0, -0.28021386, -49.95313, 0, -16.68282)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine583" parent="Props" unique_id=1314594050 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.8254475, 0, -0.64500964, 0, 1.047569, 0, 0.64500964, 0, 0.8254475, -49.995476, 0, -20.701004)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine584" parent="Props" unique_id=316169848 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.86945635, 0, 0.31740952, 0, 0.9255826, 0, -0.31740952, 0, -0.86945635, 45.633194, 0, -9.8632)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine585" parent="Props" unique_id=1965939964 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.74243206, 0, 0.6074053, 0, 0.9592427, 0, -0.6074053, 0, -0.74243206, 46.176815, 0, -16.526482)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine586" parent="Props" unique_id=1960108942 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.940758, 0, -0.28806338, 0, 0.983873, 0, 0.28806338, 0, -0.940758, -43.333202, 0, 39.936253)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine587" parent="Props" unique_id=670045855 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.3024625, 0, -0.9589465, 0, 1.0055158, 0, 0.9589465, 0, 0.3024625, -36.489147, 0, 41.24386)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine588" parent="Props" unique_id=1427974824 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.6731032, 0, 0.67797786, 0, 0.9553648, 0, -0.67797786, 0, -0.6731032, -49.053158, 0, 47.514446)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine589" parent="Props" unique_id=1588857171 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.2766267, 0, -0.9416643, 0, 0.981455, 0, 0.9416643, 0, -0.2766267, -49.43774, 0, 49.974934)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine590" parent="Props" unique_id=1537299815 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.9907451, 0, 0.28745392, 0, 1.0316035, 0, -0.28745392, 0, -0.9907451, -49.828228, 0, 45.004932)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine591" parent="Props" unique_id=1647745787 instance=ExtResource("7_17lni")]
+transform = Transform3D(0.95093256, 0, 0.031173766, 0, 0.95144343, 0, -0.031173766, 0, 0.95093256, -49.997234, 0, 42.056946)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Pine592" parent="Props" unique_id=1420744431 instance=ExtResource("7_17lni")]
+transform = Transform3D(-0.68927556, 0, 0.634019, 0, 0.93652594, 0, -0.634019, 0, -0.68927556, -37.759407, 0, 25.14506)
+metadata/level_asset_id = &"forest_pine"
+
+[node name="Enemies" type="Node3D" parent="." unique_id=1429410747]
+
+[node name="Gameplay" type="Node3D" parent="." unique_id=1303505057]
+
+[node name="Routes" type="Node3D" parent="." unique_id=323569267]
+
+[node name="Spawns" type="Node3D" parent="." unique_id=658149173]
+
+[node name="Entrance" type="Marker3D" parent="Spawns" unique_id=427194267]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+script = ExtResource("7_y5pen")
+
+[node name="StartCheckpoint" type="Marker3D" parent="Spawns" unique_id=647376292]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+script = ExtResource("8_l5tgy")
+checkpoint_id = &"start.area.510eb99412185151f753984272e7a6ff"
+area = ExtResource("2_cix6n")
+
+[node name="Player" parent="." unique_id=1478859882 instance=ExtResource("9_3urp7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=11282136]
+transform = Transform3D(0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76604444, -0.70710677, -0.5416752, 0.45451948, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=1531632049]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
+projection = 1
+current = true
+size = 13.0
+far = 160.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1159147213]
+environment = SubResource("Environment_p1jaw")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1977738229]
+transform = Transform3D(0.8480481, 0.43408445, -0.3039492, 0, 0.57357645, 0.81915206, 0.52991927, -0.69468033, 0.48642042, 0, 0, 0)
+light_color = Color(0.6784314, 0.7882353, 0.8745098, 1)
+light_energy = 0.4
+shadow_enabled = true
+
+[node name="HUD" parent="." unique_id=1229696262 instance=ExtResource("13_yfhy4")]
+
+[node name="DebugVolumes" type="MeshInstance3D" parent="." unique_id=251788188]
+
+[node name="ImpactPool" type="Node3D" parent="." unique_id=438531465]
+
+[node name="Spark0" parent="ImpactPool" unique_id=549657086 instance=ExtResource("15_7shfp")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark1" parent="ImpactPool" unique_id=2110988916 instance=ExtResource("15_7shfp")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark2" parent="ImpactPool" unique_id=2093414203 instance=ExtResource("15_7shfp")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark3" parent="ImpactPool" unique_id=1802782345 instance=ExtResource("15_7shfp")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="." unique_id=125614459]
+stream = ExtResource("16_t0o7n")
+volume_db = -8.0
+max_distance = 30.0

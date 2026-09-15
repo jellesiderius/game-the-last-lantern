@@ -138,7 +138,7 @@ func run(editor_plugin: EditorPlugin) -> void:
 	redo_last()
 	check("curve point redo", path_node.curve.point_count == 2)
 	plugin._set_tool(0)
-	# Plateaus: the chosen height is exact, in half-metre steps up to 10 m.
+	# Plateaus: the chosen height is exact, in half-metre steps up to 100 m.
 	plugin.plateau_height.value = 1.0
 	var low_plateau: LevelTerrace = plugin._create_plateau(Vector3(-12, 0, -8), Vector3(-4, 0, -2))
 	check(
@@ -164,9 +164,7 @@ func run(editor_plugin: EditorPlugin) -> void:
 		neighbour.height == 1.0 and terrain.bake(),
 		terrain.last_error
 	)
-	var flat_floor: LevelTerrace = plugin._create_plateau(
-		Vector3(8, 0, 2), Vector3(12, 0, 6), true
-	)
+	var flat_floor: LevelTerrace = plugin._create_plateau(Vector3(8, 0, 2), Vector3(12, 0, 6), true)
 	flat_floor.surface_style = load("res://settings/surface_styles/stone.tres")
 	check(
 		"ctrl-drag keeps ground height for a stone floor",
@@ -191,8 +189,10 @@ func run(editor_plugin: EditorPlugin) -> void:
 	)
 	undo_last()
 	check("selected plateau height supports undo", hill.height == 2.0, hill.height)
-	low_plateau.height = 14
-	check("plateau height stops at 10 m", low_plateau.height == 10.0, low_plateau.height)
+	low_plateau.height = 99.6
+	check("high plateaus still snap to half metres", low_plateau.height == 99.5, low_plateau.height)
+	low_plateau.height = 104
+	check("plateau height stops at 100 m", low_plateau.height == 100.0, low_plateau.height)
 	low_plateau.height = 1.0
 	# Stairs: one click near a plateau edge attaches a flight down to the ground.
 	plugin.stair_width.value = 2
@@ -224,10 +224,7 @@ func run(editor_plugin: EditorPlugin) -> void:
 		"raising a plateau with stairs attached rebakes and lengthens the stairs",
 		(
 			terrain.bake()
-			and is_equal_approx(
-				_flat_length(stairs),
-				2.0 / LevelTerrain.STAIR_SLOPE
-			)
+			and is_equal_approx(_flat_length(stairs), 2.0 / LevelTerrain.STAIR_SLOPE)
 			and stairs.curve.get_point_position(1).is_equal_approx(Vector3(-8, 2, -2))
 		),
 		[terrain.last_error, stairs.curve.get_point_position(0), stairs.curve.get_point_position(1)]
@@ -235,13 +232,7 @@ func run(editor_plugin: EditorPlugin) -> void:
 	low_plateau.height = 1.0
 	check(
 		"lowering it again shortens the stairs",
-		(
-			terrain.bake()
-			and is_equal_approx(
-				_flat_length(stairs),
-				1.0 / LevelTerrain.STAIR_SLOPE
-			)
-		),
+		terrain.bake() and is_equal_approx(_flat_length(stairs), 1.0 / LevelTerrain.STAIR_SLOPE),
 		terrain.last_error
 	)
 	check(
@@ -300,7 +291,10 @@ func run(editor_plugin: EditorPlugin) -> void:
 		(
 			slope != null
 			and not slope.stairs
-			and slope.curve.get_point_position(0).distance_to(slope.curve.get_point_position(1)) > 2.2
+			and (
+				slope.curve.get_point_position(0).distance_to(slope.curve.get_point_position(1))
+				> 2.2
+			)
 			and terrain.bake()
 		),
 		terrain.last_error
@@ -329,7 +323,10 @@ func run(editor_plugin: EditorPlugin) -> void:
 	var patrol: Path3D = plugin.active_curve
 	check(
 		"patrol points drawn on a plateau keep its height",
-		patrol != null and is_equal_approx(patrol.to_global(patrol.curve.get_point_position(0)).y, 1.0),
+		(
+			patrol != null
+			and is_equal_approx(patrol.to_global(patrol.curve.get_point_position(0)).y, 1.0)
+		),
 		patrol.to_global(patrol.curve.get_point_position(0)) if patrol else null
 	)
 	plugin._set_tool(0)
@@ -364,9 +361,15 @@ func run(editor_plugin: EditorPlugin) -> void:
 	redo_last()
 	check(
 		"too steep a bridge is refused",
-		plugin._bridge_plan(
-			terrain, {"point": Vector2(0, 5), "height": 0.0}, {"point": Vector2(1.5, 5), "height": 3.0}
-		).has("error")
+		(
+			plugin
+			. _bridge_plan(
+				terrain,
+				{"point": Vector2(0, 5), "height": 0.0},
+				{"point": Vector2(1.5, 5), "height": 3.0}
+			)
+			. has("error")
+		)
 	)
 	# Water: a dragged square and a clicked river both sink the ground into a bed.
 	plugin._set_tool(7)
@@ -413,12 +416,20 @@ func run(editor_plugin: EditorPlugin) -> void:
 	plugin.water_shape.select(LevelWater.Shape.AREA)
 	var drag_camera := EditorInterface.get_editor_viewport_3d(0).get_camera_3d()
 	for attempt in 2:
-		var from_world := terrain.to_global(Vector3(-15 + attempt * 5, 0, 5))
-		var to_world := terrain.to_global(Vector3(-12 + attempt * 5, 0, 8))
+		var corners := _visible_ground_corners(drag_camera, terrain)
+		if corners.is_empty():
+			check("bare ground available for water drag", false)
+			continue
+		var from_world := terrain.to_global(corners[0])
+		var to_world := terrain.to_global(corners[1])
 		var before_count := 0
 		for child in terrain.get_children():
 			before_count += 1 if child is LevelWater else 0
-		_drag(drag_camera, drag_camera.unproject_position(from_world), drag_camera.unproject_position(to_world))
+		_drag(
+			drag_camera,
+			drag_camera.unproject_position(from_world),
+			drag_camera.unproject_position(to_world)
+		)
 		await wait_frames(3)
 		var newest: LevelWater
 		var count := 0
@@ -429,7 +440,7 @@ func run(editor_plugin: EditorPlugin) -> void:
 		var area := LevelTerrain.polygon_area(newest.outline()) if newest else 0.0
 		check(
 			"dragging water with real mouse events fills the whole square (%d)" % attempt,
-			count == before_count + 1 and area > 8.0,
+			count == before_count + 1 and is_equal_approx(area, 4.0),
 			[count - before_count, area]
 		)
 	# Click-click: a click without dragging sets one corner, a second click the other.
@@ -451,7 +462,10 @@ func run(editor_plugin: EditorPlugin) -> void:
 		var screen_b := drag_camera.unproject_position(terrain.to_global(corners[1]))
 		_drag(drag_camera, screen_a, screen_a)
 		check(
-			"a single click waits for the opposite corner (%s)" % ("water" if kind == 7 else "plateau"),
+			(
+				"a single click waits for the opposite corner (%s)"
+				% ("water" if kind == 7 else "plateau")
+			),
 			plugin.corner_pending and terrain.get_child_count() == before
 		)
 		var hover := InputEventMouseMotion.new()
@@ -465,11 +479,93 @@ func run(editor_plugin: EditorPlugin) -> void:
 				created = child
 		var outline_area := _curve_area(created) if created else 0.0
 		check(
-			"the second click finishes the whole rectangle (%s)" % ("water" if kind == 7 else "plateau"),
+			(
+				"the second click finishes the whole rectangle (%s)"
+				% ("water" if kind == 7 else "plateau")
+			),
 			not plugin.corner_pending and absf(outline_area - 4.0) < .01,
 			[created.name if created else null, outline_area, corners]
 		)
 	plugin._set_tool(0)
+	# Select tool: picking and moving builder pieces with what hangs off them.
+	check(
+		"clicking a plateau top picks that plateau",
+		plugin._region_node_at(terrain, Vector2(-6, -6)) == low_plateau
+	)
+	check(
+		"clicking water picks the water node",
+		plugin._region_node_at(terrain, Vector2(12.5, -7)) == pond
+	)
+	var bridge_end := bridge.curve.get_point_position(1)
+	plugin._begin_move(terrain, far_plateau, Vector2(-5, 6), 2.0)
+	plugin._update_move(terrain, Vector2(-3.2, 7.1))
+	plugin._end_move(terrain)
+	check(
+		"dragging a plateau moves it on the grid and its bridge end follows",
+		(
+			far_plateau.position.is_equal_approx(Vector3(2, 0, 1))
+			and bridge.curve.get_point_position(1).is_equal_approx(bridge_end + Vector3(2, 0, 1))
+			and terrain.bake()
+		),
+		[far_plateau.position, bridge.curve.get_point_position(1), terrain.last_error]
+	)
+	undo_last()
+	check(
+		"moving a plateau supports undo",
+		(
+			far_plateau.position == Vector3.ZERO
+			and bridge.curve.get_point_position(1).is_equal_approx(bridge_end)
+		)
+	)
+	var stairs_before := stairs.curve.duplicate() as Curve3D
+	var inset_before := inset.position
+	plugin._begin_move(terrain, low_plateau, Vector2(-6, -6), 1.0)
+	plugin._update_move(terrain, Vector2(-6, -5))
+	var carried: int = plugin.move_items.size()
+	plugin._end_move(terrain)
+	check(
+		"stairs anchored to a moved plateau move with it",
+		carried >= 3 and inset.position.is_equal_approx(inset_before + Vector3(0, 0, 1)),
+		[carried, inset.position]
+	)
+	undo_last()
+	plugin._begin_move(terrain, stairs, Vector2(-8, -1), 0.5)
+	plugin._update_move(terrain, Vector2(-6.2, -1.3))
+	plugin._end_move(terrain)
+	var high_end := stairs.to_global(stairs.curve.get_point_position(1))
+	check(
+		"stairs dragged on their own click back onto the plateau edge",
+		(
+			stairs.position.is_equal_approx(Vector3(2, 0, 0))
+			and is_equal_approx(high_end.z, -2.0)
+			and absf(high_end.x + 6.0) < .6
+			and terrain.bake()
+		),
+		[stairs.position, high_end, terrain.last_error]
+	)
+	undo_last()
+	check(
+		"snapping stairs supports undo",
+		(
+			stairs.position == Vector3.ZERO
+			and stairs.curve.get_point_position(1).is_equal_approx(
+				stairs_before.get_point_position(1)
+			)
+		)
+	)
+	await load("res://tests/level_builder_selection_checks.gd").new().run(
+		self,
+		terrain,
+		{
+			"plateau": low_plateau,
+			"hill": hill,
+			"stairs": stairs,
+			"bridge": bridge,
+			"water": pond,
+			"path": path_node
+		}
+	)
+	await load("res://tests/level_builder_scatter_checks.gd").new().run(self, terrain)
 	var ramp := stairs
 	# Replacing terrain must not free a node currently selected by editor gizmos.
 	EditorInterface.get_selection().clear()
@@ -543,6 +639,10 @@ func run(editor_plugin: EditorPlugin) -> void:
 		reopened.get_node("Enemies/RenamedEnemy").get("persistent_id") == first_id
 	)
 	check(
+		"save/reopen keeps scattered instances at their authored transforms",
+		_scattered_instances_match(props, reopened.get_node("Props"))
+	)
+	check(
 		"save/reopen keeps a stone floor at ground height",
 		reopened.get_node("Terrain/" + String(flat_floor.name)).height == 0
 	)
@@ -596,8 +696,36 @@ func run(editor_plugin: EditorPlugin) -> void:
 
 func _finish() -> void:
 	var file := FileAccess.open("res://captures/level_builder/editor_checks.json", FileAccess.WRITE)
-	file.store_string(JSON.stringify({"failures": failures, "checks": results}, "\t"))
+	file.store_string(
+		JSON.stringify(
+			{
+				"failures": failures,
+				"checks": results,
+				"frames_drawn": Engine.get_frames_drawn(),
+				"display_server": DisplayServer.get_name()
+			},
+			"\t"
+		)
+	)
 	plugin.get_tree().quit(1 if failures else 0)
+
+
+func _scattered_instances_match(original: Node, reopened: Node) -> bool:
+	if original.get_child_count() != reopened.get_child_count():
+		return false
+	var count := 0
+	for node in original.get_children():
+		if node.get_meta("level_asset_id", &"") != &"forest_flowers_blue":
+			continue
+		var saved := reopened.get_node_or_null(NodePath(String(node.name))) as Node3D
+		if (
+			saved == null
+			or saved.transform != node.transform
+			or saved.scene_file_path != node.scene_file_path
+		):
+			return false
+		count += 1
+	return count == 30
 
 
 ## Horizontal run of a two-point stair curve.
@@ -641,10 +769,23 @@ func _visible_ground_corners(camera: Camera3D, terrain: LevelTerrain) -> Array:
 			var b := Vector3(x + 2, 0, z + 2)
 			var ok := true
 			for corner in [a, b, Vector3(x + 1, 0, z + 1)]:
-				var hit: Variant = plugin._hit(camera, camera.unproject_position(terrain.to_global(corner)))
+				if plugin._region_node_at(terrain, Vector2(corner.x, corner.z)) != null:
+					ok = false
+					break
+				var hit: Variant = plugin._hit(
+					camera, camera.unproject_position(terrain.to_global(corner))
+				)
 				if hit == null or terrain.to_local(hit).distance_to(corner) > .05:
 					ok = false
 					break
-			if ok and LevelTerrain.height_under(Vector2(x + 1, z + 1), plugin._stair_context(terrain).plateaus) == 0.0:
+			if (
+				ok
+				and (
+					LevelTerrain.height_under(
+						Vector2(x + 1, z + 1), plugin._stair_context(terrain).plateaus
+					)
+					== 0.0
+				)
+			):
 				return [a, b]
 	return []

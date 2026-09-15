@@ -2,7 +2,7 @@
 
 De **Lantern Level Builder** is een Godot-editorplugin voor levels in een schone, Tunic-achtige stijl: vlakke grond, plateaus op vaste hoogten, trappen die in de klifrand aansluiten, paden en props. Open hem via **Level Builder** boven de 3D-weergave. Onderaan staat de assetbibliotheek: plaatjes met volledige namen, zoeken en categoriefilters. Rechts staat één dock **Level tools**:
 
-- bovenaan de gereedschappen **Selecteer · Plaats · Plateau · Trap · Brug · Water · Pad · Patrouille**, met alleen de instellingen van het gekozen gereedschap;
+- bovenaan de gereedschappen **Selecteer · Plaats · Strooi · Plateau · Trap · Brug · Water · Pad · Patrouille**, met alleen de instellingen van het gekozen gereedschap;
 - daaronder **hoogte en materiaal van de selectie** (grond, plateau of trap);
 - onderaan de levelacties: nieuw level, areasets, encounter, controleren en spelen.
 
@@ -18,9 +18,19 @@ De **Lantern Level Builder** is een Godot-editorplugin voor levels in een schone
 
 Werkende voorbeelden: `scenes/levels/BuilderForest.tscn`, `BuilderCave.tscn`, `BuilderCity.tscn`. Een render van de stijl maak je met `tools/level_builder/look_preview.gd` (zie Controles).
 
+## Selecteren en verplaatsen
+
+Kies **Selecteer** en wijs naar een plateau, trap, brug, water of pad. Een **witte omtrek** toont wat je gaat selecteren. Klikken selecteert de bewerkbare node; ook plateaumuren en schuine bruggen zijn aanklikbaar.
+
+- **Sleep** om over X/Z te verplaatsen. **Raster** bepaalt de stap; **0** geeft vrije beweging. Een klik zonder slepen wijzigt alleen de selectie.
+- **Plateau verplaatsen** neemt de aangesloten trappen mee en verplaatst de bruguiteinden die erop rusten. Bij gestapelde plateaus bepaalt het daadwerkelijke steunvlak welke verbinding meegaat.
+- **Een trap apart verplaatsen** past hem bij loslaten weer loodrecht op een nabije plateaurand, binnen 1,5 m en als de trap daar past.
+- **Undo/Redo** herstelt de hele verplaatsing, inclusief curvepunten en gekoppelde onderdelen. **Escape** tijdens slepen annuleert; wisselen van gereedschap of vensterfocus herstelt eveneens de beginstand. Loslaten buiten het viewport rondt de verplaatsing af.
+- Props en actors houden Godots selectie. **Alt+klik/sleep** geeft Godots eigen selectie, curvegrepen en verplaatsgereedschap voorrang. Ook water en bruggen vernieuwen na zo'n transformwijziging. **Delete** werkt via de gewone editorselectie.
+
 ## Plateaus
 
-- **Hoogte** loopt van 0,5 tot 10 m in stappen van 0,5 m. Elk plateau en elk trapeinde valt altijd op zo'n stap, zodat klifranden overal gelijk lopen. Die stap is vast; er is geen globale instelling die bestaande plateaus kan verschuiven.
+- **Hoogte** loopt van 0,5 tot 100 m in stappen van 0,5 m. Elk plateau en elk trapeinde valt altijd op zo'n stap, zodat klifranden overal gelijk lopen. Die stap is vast; er is geen globale instelling die bestaande plateaus kan verschuiven.
 - **Sleep een rechthoek** op het raster (**Raster**, standaard 1 m), of **klik twee hoeken**: een klik zonder slepen zet de eerste hoek, de preview volgt de muis en de tweede klik zet de tegenoverliggende hoek (Esc annuleert). Een gele lijn toont vooraf rand en hoogte.
 - **Ctrl** tijdens het slepen houdt de hoogte van de grond eronder: zo teken je een vlak met ander materiaal, bijvoorbeeld een stenen vloer.
 - **Rechthoeken tegen elkaar** op dezelfde hoogte vormen één plateau zonder muur ertussen; zo bouw je L- en U-vormen.
@@ -62,9 +72,9 @@ Kies **Water** en daarna de **Vorm**:
 - **Vierkant**: sleep een rechthoek of klik twee hoeken, net als bij een plateau. Versleep daarna de hoekpunten om de vorm aan te passen.
 - **Pad**: klik punten voor een rivier en druk **Esc** om af te ronden. **Breedte** bepaalt hoe breed de rivier is.
 
-De grond zakt vanzelf in tot **Diepte**, met zachte oevers. Het wateroppervlak ligt net onder de omliggende grond. De shader komt uit het test2-project (`shaders/level_water.gdshader`): kleur op diepte, lichtbreking, bewegende lichtpatronen op de bodem en schuim waar iets door het oppervlak steekt. Oevers, plateaumuren, rotsen en brugpalen krijgen die schuimrand dus automatisch. De speler en vijanden die door het water waden laten kringen achter; tot vier tegelijk per waterplas.
+De eerste klik bepaalt de hoogte van de plas of rivier. Klik je op een plateau van **10 m**, dan komt het water daar: standaard ligt het oppervlak op **9,88 m** en de diepe bodem op **9,4 m**. De grond zakt vanzelf in tot **Diepte**, met zachte oevers. De shader komt uit het test2-project (`shaders/level_water.gdshader`): kleur op diepte, lichtbreking, bewegende lichtpatronen op de bodem en schuim waar iets door het oppervlak steekt. Oevers, plateaumuren, rotsen en brugpalen krijgen die schuimrand dus automatisch. De speler en vijanden die door het water waden laten kringen achter; tot vier tegelijk per waterplas.
 
-Plateaus en trappen gaan altijd voor: een plateau in het water wordt een eiland met een muur tot op de bodem. Twee waterplassen die overlappen smelten samen. Water wordt afgeknipt op de rand van het terrein. Selecteer een **LevelWater** voor **Depth**, **Bank** (oeverbreedte), **Surface Drop** en **Ripples**; wijs een eigen **Surface Material** toe om één plas anders te laten ogen. Het water is ondiep en doorwaadbaar; er is geen zwemmen.
+Water vervangt grond op de aangeklikte hoogte en stopt bij de rand van het ondersteunende plateau of terrein. Hogere plateaus vormen eilanden; trappen behouden hun doorgang. Overlappende wateroppervlakken worden één keer getekend. Selecteer een **LevelWater** voor **Depth**, **Bank** (oeverbreedte), **Surface Drop** en **Ripples**; wijs een eigen **Surface Material** toe om één plas anders te laten ogen. De steunhoogte staat in **Transform → Position → Y**. Het water is ondiep en doorwaadbaar; er is geen zwemmen.
 
 ## Botsing
 
@@ -103,7 +113,23 @@ Voor speciaal ontworpen botsing kun je in Blender eenvoudige collisionmeshes met
 
 Na herimport van een geregistreerd model wordt uitsluitend **GeneratedCollision** opnieuw opgebouwd; handmatig toegevoegde sockets of andere nodes blijven behouden. Bij een geopende prefab wordt vervanging uitgesteld om onopgeslagen werk te beschermen. Sluit de prefab en kies **Vernieuwen** om de uitgestelde vernieuwing uit te voeren. Voor handmatig aangepaste collision: plaats die buiten GeneratedCollision en verwijder de automatisch gemaakte vormen. Bewerk nooit `.godot/imported`.
 
-Met **Plaats** zet een klik één exemplaar neer. Assets met **Scatter Allowed** (begroeiing) worden bij slepen gestrooid volgens **Penseel** en **Aantal**; Spacing, Scale Range en Random Yaw staan op de LevelAsset Resource. Een streek vormt één Undo-actie en paden blijven vrij. **Shift+slepen** wist met de builder geplaatste exemplaren van de gekozen asset.
+Met **Plaats** zet een klik één exemplaar op de aangeklikte plek.
+
+### Object-scatter: bloemen en andere props
+
+Kies bijvoorbeeld **Flowers Blue** of **Flowers Cream** in de bibliotheek: voor begroeiing opent automatisch **Strooi**. Voor andere props kun je zelf **Strooi** kiezen.
+
+1. Stel **Straal** in voor de grootte van het penseel.
+2. Kies **Aantal** per stempel en **Afstand** tussen objecten. Voor veel bloemen: bijvoorbeeld straal **2 m**, aantal **30**, afstand **0,4 m**.
+3. De gele cirkel toont het gebied. **Klik** voor één groep of **sleep** om een strook te vullen. Als de ruimte vol is, plaatst de builder minder exemplaren en meldt dat.
+
+Objecten volgen de grond en plateaus. **Hoogte +** bepaalt de plaatsingshoogte ten opzichte van dat oppervlak, in stappen van **0,5 m**: op een plateau van 10 m plaatst **0 m** op 10 m en **+2 m** op 12 m. Negatieve waarden laten objecten wat in de grond zakken. Dit veld werkt ook bij **Plaats**. Paden en patrouillepunten bewaren eveneens de aangeklikte oppervlaktehoogte.
+
+Met **Willekeurige hoek** draait ieder gestrooid object willekeurig om zijn verticale as; uitgeschakeld blijft de oorspronkelijke assetoriëntatie behouden. **Random Yaw** van de LevelAsset bepaalt de beginstand van deze schakelaar. Schaalvariatie volgt **Scale Range**; **Spacing** levert de beginwaarde voor Afstand. **Paden vrijhouden** staat standaard aan; water wordt overgeslagen. Actors en gameplayobjecten gebruiken **Plaats**.
+
+Vink **Overlap toestaan** aan om een nieuwe groep over bestaande assets heen te strooien. **Afstand** blijft instelbaar en geldt tussen alle nieuwe objecten binnen dezelfde klik of strooistreek. Zonder dit vinkje houdt de builder ook afstand tot eerder geplaatste assets. **Paden vrijhouden** blijft een aparte keuze; terreingrenzen en water worden nog steeds gecontroleerd.
+
+**Shift+slepen** toont een rood penseel en wist alleen geplaatste exemplaren van het gekozen type. Zowel een volledige strooi- als wisstreek vormt **één Undo-actie**, met Redo. Alle exemplaren zijn gewone opgeslagen scene-instances: je kunt ze daarna afzonderlijk selecteren, verplaatsen en verwijderen.
 
 ## Areasets, gameplay en saves
 

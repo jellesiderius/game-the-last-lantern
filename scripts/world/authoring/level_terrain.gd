@@ -47,7 +47,7 @@ var _wall_collision: SurfaceTool
 var _cells := Vector2i.ONE
 var _fallback_style: SurfaceStyle
 const EPS := .000001
-const MAX_HEIGHT := 10.0
+const MAX_HEIGHT := 100.0
 ## Every plateau and stair end snaps to this; fixed so no global edit re-snaps a level.
 const HEIGHT_STEP := .5
 const PATH_FRINGE := .6
@@ -176,7 +176,8 @@ func outlines() -> Array[Dictionary]:
 			var region: Dictionary = plateaus[i].duplicate()
 			region.polygon = piece
 			result.append(region)
-	# Water sits in the ground: plateaus, ramps and earlier water all cut it.
+	# Water replaces the clicked elevation, including plateau tops. Elevated water
+	# is clipped to supporting surfaces; ground water keeps raised land as islands.
 	var bounds := PackedVector2Array(
 		[-size / 2, Vector2(size.x / 2, -size.y / 2), size / 2, Vector2(-size.x / 2, size.y / 2)]
 	)
@@ -185,18 +186,14 @@ func outlines() -> Array[Dictionary]:
 		if not child is LevelWater:
 			continue
 		var clipped := Geometry2D.intersect_polygons(child.outline(), bounds)
-		if clipped.is_empty():
-			continue
-		var shore: PackedVector2Array = clipped[0]
-		for part in clipped:
-			if polygon_area(part) > polygon_area(shore):
-				shore = part
-		if Geometry2D.is_polygon_clockwise(shore):
-			shore.reverse()
-		waters.append(
-			{
+		for shore in clipped:
+			if polygon_area(shore) <= EPS:
+				continue
+			if Geometry2D.is_polygon_clockwise(shore):
+				shore.reverse()
+			var water := {
 				"polygon": shore,
-				"height": 0.0,
+				"height": child.elevation(),
 				"name": child.name,
 				"style": null,
 				"water": true,
@@ -204,30 +201,58 @@ func outlines() -> Array[Dictionary]:
 				"depth": child.depth,
 				"bank": child.bank
 			}
-		)
-	for i in waters.size():
-		var cutters: Array[PackedVector2Array] = []
-		for plateau in plateaus:
-			cutters.append(plateau.polygon)
-		for ramp in ramps:
-			cutters.append(ramp.polygon)
-		for j in i:
-			cutters.append(waters[j].polygon)
-		var pieces: Array[PackedVector2Array] = [waters[i].polygon]
-		for cutter in cutters:
-			var next: Array[PackedVector2Array] = []
-			for piece in pieces:
-				next.append_array(cut(piece, cutter))
-			pieces = next
+			var supported: Array[Dictionary] = []
+			if is_zero_approx(water.height):
+				var pieces: Array[PackedVector2Array] = [shore]
+				for obstacle in plateaus + ramps:
+					pieces = _cut_pieces(pieces, obstacle.polygon)
+				for piece in pieces:
+					var region: Dictionary = water.duplicate()
+					region.polygon = piece
+					supported.append(region)
+			for plateau in result:
+				if not is_equal_approx(plateau.height, water.height):
+					continue
+				for piece in Geometry2D.intersect_polygons(shore, plateau.polygon):
+					var region: Dictionary = water.duplicate()
+					region.polygon = piece
+					region.style = plateau.style
+					supported.append(region)
+			for region in supported:
+				var pieces: Array[PackedVector2Array] = [region.polygon]
+				for previous in waters:
+					pieces = _cut_pieces(pieces, previous.polygon)
+				for piece in pieces:
+					if polygon_area(piece) <= EPS:
+						continue
+					if Geometry2D.is_polygon_clockwise(piece):
+						piece.reverse()
+					var part: Dictionary = region.duplicate()
+					part.polygon = piece
+					waters.append(part)
+	var dry: Array[Dictionary] = []
+	for plateau in result:
+		var pieces: Array[PackedVector2Array] = [plateau.polygon]
+		for water in waters:
+			pieces = _cut_pieces(pieces, water.polygon)
 		for piece in pieces:
 			if polygon_area(piece) <= EPS:
 				continue
-			if Geometry2D.is_polygon_clockwise(piece):
-				piece.reverse()
-			var region: Dictionary = waters[i].duplicate()
+			var region: Dictionary = plateau.duplicate()
 			region.polygon = piece
-			result.append(region)
+			dry.append(region)
+	result = dry
+	result.append_array(waters)
 	result.append_array(ramps)
+	return result
+
+
+static func _cut_pieces(
+	pieces: Array[PackedVector2Array], cutter: PackedVector2Array
+) -> Array[PackedVector2Array]:
+	var result: Array[PackedVector2Array] = []
+	for piece in pieces:
+		result.append_array(cut(piece, cutter))
 	return result
 
 
@@ -252,7 +277,12 @@ static func cut(piece: PackedVector2Array, cutter: PackedVector2Array) -> Array[
 		Rect2(Vector2(center.x, box.position.y), Vector2(box.end.x - center.x, box.size.y))
 	]:
 		var rect := PackedVector2Array(
-			[half.position, Vector2(half.end.x, half.position.y), half.end, Vector2(half.position.x, half.end.y)]
+			[
+				half.position,
+				Vector2(half.end.x, half.position.y),
+				half.end,
+				Vector2(half.position.x, half.end.y)
+			]
 		)
 		for part in Geometry2D.intersect_polygons(piece, rect):
 			var kept := Geometry2D.clip_polygons(part, cutter)
@@ -355,12 +385,7 @@ func signature() -> String:
 	for region in regions:
 		region.style = region.style.signature() if region.style else ""
 	var data := [
-		"surface_styles_v7",
-		size,
-		resolution,
-		enclose_bounds,
-		regions,
-		style_for(null).signature()
+		"surface_styles_v7", size, resolution, enclose_bounds, regions, style_for(null).signature()
 	]
 	for child in get_children():
 		if child is LevelPath and child.curve:
@@ -543,6 +568,11 @@ func bake() -> bool:
 	own_generated(baked, scene_owner)
 	_surface_groups.clear()
 	baked_signature = current
+	for child in get_children():
+		if child is LevelWater:
+			child.rebuild()
+		elif child is LevelBoundary:
+			child.request_bake()
 	dirty = false
 	update_configuration_warnings()
 	if Engine.is_editor_hint() and is_inside_tree():
@@ -598,7 +628,12 @@ func _sync_ramp_heights() -> void:
 func _sync_bridge_heights() -> void:
 	var bridges: Array[LevelBridge] = []
 	for child in get_children():
-		if child is LevelBridge and child.follow_ground and child.curve and child.curve.point_count == 2:
+		if (
+			child is LevelBridge
+			and child.follow_ground
+			and child.curve
+			and child.curve.point_count == 2
+		):
 			bridges.append(child)
 	if bridges.is_empty():
 		return
@@ -725,8 +760,9 @@ func _bake_cliff_shadow(
 						continue
 					var here := 0.0
 					for o in regions.size():
-						if bounds[o].grow(.01).has_point(point) and Geometry2D.is_point_in_polygon(
-							point, regions[o].polygon
+						if (
+							bounds[o].grow(.01).has_point(point)
+							and Geometry2D.is_point_in_polygon(point, regions[o].polygon)
 						):
 							here = maxf(here, region_height(regions[o], point))
 					if here < region.height - EPS:
@@ -845,7 +881,9 @@ func _emit_steps(region: Dictionary) -> void:
 		var rear := low.lerp(high, float(i + 1) / steps)
 		var below := low_height + i * rise
 		var tread := below + rise
-		var corners := [front - side * half, front + side * half, rear + side * half, rear - side * half]
+		var corners := [
+			front - side * half, front + side * half, rear + side * half, rear - side * half
+		]
 		_step_quad(
 			surface,
 			settings,
@@ -938,7 +976,12 @@ func _emit_top(points: PackedVector2Array, region: Dictionary) -> float:
 			if region.has("ramp_start"):
 				var direction: Vector2 = region.ramp_end - region.ramp_start
 				var along := clampf(
-					(p - region.ramp_start).dot(direction) / maxf(.0001, direction.length_squared()), 0, 1
+					(
+						(p - region.ramp_start).dot(direction)
+						/ maxf(.0001, direction.length_squared())
+					),
+					0,
+					1
 				)
 				# The local steepness of the eased profile gives soft shading over the bend.
 				var gradient: Vector2 = (
@@ -993,7 +1036,7 @@ static func region_height(region: Dictionary, point: Vector2) -> float:
 	if region.has("water"):
 		# The bed eases down from the shore; distances use the whole shore line, so
 		# cutting the water around an island never raises a ridge through it.
-		return LevelWater.bed_height(region.shore, region.depth, region.bank, point)
+		return region.height + LevelWater.bed_height(region.shore, region.depth, region.bank, point)
 	if not region.has("ramp_start"):
 		return region.height
 	var direction: Vector2 = region.ramp_end - region.ramp_start
@@ -1124,10 +1167,26 @@ func _emit_sides(region: Dictionary, regions: Array[Dictionary]) -> void:
 				region_height(region, end)
 			)
 			var middle := (start + end) * .5
-			var top_a := side_height(region, middle) if region.get("stairs", false) else region_height(region, start)
-			var top_b := side_height(region, middle) if region.get("stairs", false) else region_height(region, end)
-			var low_a := side_height(adjacent, middle) if adjacent.get("stairs", false) else region_height(adjacent, start)
-			var low_b := side_height(adjacent, middle) if adjacent.get("stairs", false) else region_height(adjacent, end)
+			var top_a := (
+				side_height(region, middle)
+				if region.get("stairs", false)
+				else region_height(region, start)
+			)
+			var top_b := (
+				side_height(region, middle)
+				if region.get("stairs", false)
+				else region_height(region, end)
+			)
+			var low_a := (
+				side_height(adjacent, middle)
+				if adjacent.get("stairs", false)
+				else region_height(adjacent, start)
+			)
+			var low_b := (
+				side_height(adjacent, middle)
+				if adjacent.get("stairs", false)
+				else region_height(adjacent, end)
+			)
 			if top_a <= low_a + EPS and top_b <= low_b + EPS:
 				continue
 			# Created on first wall only: committing an empty SurfaceTool is an error.
@@ -1152,7 +1211,9 @@ func _emit_sides(region: Dictionary, regions: Array[Dictionary]) -> void:
 						0.0
 					)
 				else:
-					_emit_curb(surface, region, start, end, low_a, low_b, normal, wall_color, curb_color)
+					_emit_curb(
+						surface, region, start, end, low_a, low_b, normal, wall_color, curb_color
+					)
 				continue
 			# Plateau walls keep a rim of constant thickness. Where the drop becomes
 			# shallower than the rim (beside a slope) the rim is cut off square there
@@ -1377,7 +1438,10 @@ func _emit_curb(
 	# Square face where the curb stands clear of the slope (its low end); the high
 	# end meets the plateau flush and needs none.
 	var tangent := Vector3(end.x - start.x, 0, end.y - start.y).normalized()
-	for cap in [[start, start_in, top_a, low_a, inner_a, slope_a, -tangent], [end, end_in, top_b, low_b, inner_b, slope_b, tangent]]:
+	for cap in [
+		[start, start_in, top_a, low_a, inner_a, slope_a, -tangent],
+		[end, end_in, top_b, low_b, inner_b, slope_b, tangent]
+	]:
 		var outer_point: Vector2 = cap[0]
 		var inner_point: Vector2 = cap[1]
 		var top: float = cap[2]

@@ -39,12 +39,12 @@ extends Path3D
 	set(value):
 		width = value
 		_changed()
-@export_range(0, 10, .5, "suffix:m") var start_height: float:
+@export_range(0, 100, .5, "suffix:m") var start_height: float:
 	get:
 		return _point_height(0)
 	set(value):
 		_set_point_height(0, value)
-@export_range(0, 10, .5, "suffix:m") var end_height: float:
+@export_range(0, 100, .5, "suffix:m") var end_height: float:
 	get:
 		return _point_height(1)
 	set(value):

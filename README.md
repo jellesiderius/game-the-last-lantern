@@ -35,6 +35,8 @@ Open **Level Builder** boven de 3D-weergave. Onderaan kies je assets met kleine 
 
 Volledige uitleg: [LEVEL_BUILDER.md](docs/LEVEL_BUILDER.md). Voorbeelden: `BuilderForest.tscn`, `BuilderCave.tscn`, `BuilderCity.tscn`. Grot en stad zijn uitbreidbare startsets met bestaande assets.
 
+**Selecteer** maakt plateaus, trappen, bruggen, water en paden aanklikbaar en versleepbaar; aangesloten trappen en bruguiteinden volgen hun plateau met één Undo. Met **Strooi** schilder je groepen bloemen of andere props: straal, aantal, onderlinge afstand, willekeurige draaiing en plaatsingshoogte zijn instelbaar. Bloemassets openen dit gereedschap automatisch; **Plaats** blijft beschikbaar voor één exemplaar. Bouwhoogten lopen tot **100 m**, in stappen van **0,5 m**; water, assets en routes kunnen op verhoogde plateaus worden geplaatst.
+
 ## Besturing
 
 | Actie | PlayStation | PC |

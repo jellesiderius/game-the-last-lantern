@@ -38,7 +38,7 @@ const MAX_ACTORS := 4
 		surface_material = value
 		_changed()
 var _material: ShaderMaterial
-var _outline := PackedVector2Array()
+var _surface_polygons: Array[PackedVector2Array] = []
 var _motion := PackedFloat32Array([0, 0, 0, 0])
 var _queued := false
 
@@ -47,6 +47,12 @@ func _ready() -> void:
 	rebuild()
 	if Engine.is_editor_hint():
 		curve_changed.connect(_changed)
+		set_notify_transform(true)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED:
+		_changed()
 
 
 func _changed() -> void:
@@ -57,6 +63,18 @@ func _changed() -> void:
 		rebuild.call_deferred()
 	if Engine.is_editor_hint() and get_parent() is LevelTerrain:
 		get_parent().request_bake()
+
+
+## The node transform stores the clicked support height; old scenes default to zero.
+func elevation() -> float:
+	return snappedf(clampf(position.y, 0.0, LevelTerrain.MAX_HEIGHT), LevelTerrain.HEIGHT_STEP)
+
+
+func contains_surface(point: Vector2) -> bool:
+	for polygon in _surface_polygons:
+		if Geometry2D.is_point_in_polygon(point, polygon):
+			return true
+	return false
 
 
 ## Outline in the parent's X/Z space, counter-clockwise; empty when incomplete.
@@ -88,12 +106,16 @@ func outline() -> PackedVector2Array:
 
 ## Bed height relative to the surrounding ground: 0 at the shore, easing down to
 ## -depth over `bank` metres inside the outline.
-static func bed_height(shore: PackedVector2Array, bed_depth: float, bank_width: float, point: Vector2) -> float:
+static func bed_height(
+	shore: PackedVector2Array, bed_depth: float, bank_width: float, point: Vector2
+) -> float:
 	if shore.size() < 3 or not Geometry2D.is_point_in_polygon(point, shore):
 		return 0.0
 	var inside := INF
 	for i in shore.size():
-		var closest := Geometry2D.get_closest_point_to_segment(point, shore[i], shore[(i + 1) % shore.size()])
+		var closest := Geometry2D.get_closest_point_to_segment(
+			point, shore[i], shore[(i + 1) % shore.size()]
+		)
 		inside = minf(inside, point.distance_to(closest))
 	var t := clampf(inside / maxf(bank_width, .01), 0, 1)
 	return -bed_depth * t * t * (3.0 - 2.0 * t)
@@ -103,33 +125,37 @@ func rebuild() -> void:
 	_queued = false
 	var previous := get_node_or_null("Generated")
 	if previous:
+		if Engine.is_editor_hint():
+			var selection := EditorInterface.get_selection()
+			for selected in selection.get_selected_nodes():
+				if selected == previous or previous.is_ancestor_of(selected):
+					selection.remove_node(selected)
+					selection.add_node(self)
+					EditorInterface.edit_node(self)
 		remove_child(previous)
 		previous.queue_free()
-	_outline = outline()
-	# Never draw water beyond the terrain: there is no bed out there to look into.
+	_surface_polygons.clear()
 	var ground := get_parent() as LevelTerrain
-	if ground and _outline.size() >= 3:
-		var half := ground.size / 2
-		var clipped := Geometry2D.intersect_polygons(
-			_outline, PackedVector2Array([-half, Vector2(half.x, -half.y), half, Vector2(-half.x, half.y)])
-		)
-		_outline = PackedVector2Array()
-		for part in clipped:
-			if part.size() >= 3 and (_outline.is_empty() or LevelTerrain.polygon_area(part) > LevelTerrain.polygon_area(_outline)):
-				_outline = part
-	if _outline.size() < 3:
-		return
-	var indices := Geometry2D.triangulate_polygon(_outline)
-	if indices.is_empty():
+	if ground:
+		for region in ground.outlines():
+			if region.get("water", false) and region.name == name:
+				_surface_polygons.append(region.polygon)
+	else:
+		var polygon := outline()
+		if polygon.size() >= 3:
+			_surface_polygons.append(polygon)
+	if _surface_polygons.is_empty():
 		return
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var to_local := transform.affine_inverse()
-	for index in indices:
-		var point := _outline[index]
-		surface.set_normal(Vector3.UP)
-		surface.set_uv(point)
-		surface.add_vertex(to_local * Vector3(point.x, -surface_drop, point.y))
+	for polygon in _surface_polygons:
+		var indices := Geometry2D.triangulate_polygon(polygon)
+		for index in indices:
+			var point := polygon[index]
+			surface.set_normal(Vector3.UP)
+			surface.set_uv(point)
+			surface.add_vertex(to_local * Vector3(point.x, elevation() - surface_drop, point.y))
 	var source := surface_material
 	if source == null:
 		source = ShaderMaterial.new()
@@ -149,10 +175,17 @@ func rebuild() -> void:
 
 
 func _process(delta: float) -> void:
-	if Engine.is_editor_hint() or not ripples or _material == null or _outline.size() < 3:
+	if Engine.is_editor_hint() or not ripples or _material == null or _surface_polygons.is_empty():
 		return
 	var parent := get_parent() as Node3D
-	var surface_y := to_global(Vector3(0, -surface_drop, 0)).y
+	var surface_y: float = (
+		(
+			parent.to_global(Vector3(position.x, elevation() - surface_drop, position.z))
+			if parent
+			else global_position
+		)
+		. y
+	)
 	var candidates: Array[Node3D] = []
 	for node in get_tree().get_nodes_in_group("player"):
 		if node is Node3D:
@@ -167,7 +200,7 @@ func _process(delta: float) -> void:
 			break
 		var at := actor.global_position
 		var local := parent.to_local(at) if parent else at
-		if absf(at.y - surface_y) > 1.2 or not Geometry2D.is_point_in_polygon(Vector2(local.x, local.z), _outline):
+		if absf(at.y - surface_y) > 1.2 or not contains_surface(Vector2(local.x, local.z)):
 			continue
 		var speed := 0.0
 		if actor is CharacterBody3D:

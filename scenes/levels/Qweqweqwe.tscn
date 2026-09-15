@@ -4,30 +4,168 @@
 [ext_resource type="Resource" uid="uid://dofa8pe0djxlg" path="res://settings/areas/qweqweqwe.tres" id="2_h5kdk"]
 [ext_resource type="Resource" path="res://settings/area_sets/cave.tres" id="3_vicrk"]
 [ext_resource type="Script" uid="uid://clqcgbow6xpru" path="res://scripts/world/authoring/level_terrain.gd" id="4_faoir"]
+[ext_resource type="Script" uid="uid://cxwe78k8exu1i" path="res://scripts/world/authoring/level_terrace.gd" id="5_egb5d"]
 [ext_resource type="ArrayMesh" uid="uid://dv17u5vrmuise" path="res://scenes/levels/Qweqweqwe.terrain/Terrain.res" id="5_fqem5"]
 [ext_resource type="Shape3D" uid="uid://b4jsegewmjwul" path="res://scenes/levels/Qweqweqwe.terrain/Terrain_collision.res" id="6_aq7w7"]
+[ext_resource type="Script" uid="uid://gp1iqi0vqmvb" path="res://scripts/world/authoring/level_ramp.gd" id="6_sl807"]
 [ext_resource type="Script" uid="uid://baahi06eehkq4" path="res://scripts/world/scene_spawn_point.gd" id="7_rnexq"]
 [ext_resource type="Script" uid="uid://dnfqek7ev0jgq" path="res://scripts/world/checkpoint_anchor.gd" id="8_x2bci"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="9_h3l78"]
-[ext_resource type="Script" uid="uid://exdeqk8ee6ul" path="res://scripts/characters/player_controller.gd" id="10_wjn8q"]
-[ext_resource type="Resource" path="res://settings/player_movement.tres" id="11_x4far"]
-[ext_resource type="Resource" uid="uid://dudytmula46ut" path="res://settings/default_melee.tres" id="12_t4tj0"]
+[ext_resource type="Script" uid="uid://d1j1mr4q6x608" path="res://scripts/world/authoring/level_bridge.gd" id="9_sl807"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npcs/enemy/PlacedAcornGuard.tscn" id="10_h5kdk"]
+[ext_resource type="Script" uid="uid://bw7b1sbqmmdh5" path="res://scripts/world/authoring/enemy_patrol.gd" id="11_vicrk"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="13_x4o8l"]
-[ext_resource type="Script" uid="uid://c4wrfdoid0frl" path="res://scripts/ui/hud.gd" id="14_rliw0"]
 [ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="15_bu7vd"]
 [ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="16_73tw2"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_w6gys"]
+[sub_resource type="Curve3D" id="Curve3D_h5kdk"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 5, 0, -7, 0, 0, 0, 0, 0, 0, 9, 0, -7, 0, 0, 0, 0, 0, 0, 9, 0, 1, 0, 0, 0, 0, 0, 0, 5, 0, 1),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_vicrk"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 7, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, -0.33333337),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_faoir"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 5, 2, -3, 0, 0, 0, 0, 0, 0, 7.666667, 0, -3),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_fqem5"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 9, 0, -3, 0, 0, 0, 0, 0, 0, 7.6666665, 0, -3),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_aq7w7"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 7, 0, -7, 0, 0, 0, 0, 0, 0, 7, 0, -5.6666665),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_rnexq"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -5, 0, -7, 0, 0, 0, 0, 0, 0, 0, 0, -7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -5, 0, 0),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_wjn8q"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -5, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, -5, 0, 5),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_x2bci"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -11, 0, -6, 0, 0, 0, 0, 0, 0, -9, 0, -6, 0, 0, 0, 0, 0, 0, -9, 0, -1, 0, 0, 0, 0, 0, 0, -11, 0, -1),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_x4far"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -2, 2, 0, 0, 0, 0, 0, 0, 0, -2, 1, 3),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_t4tj0"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -5, 2, -3, 0, 0, 0, 0, 0, 0, -9, 3, -3),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_x4o8l"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -3, 0, 5, 0, 0, 0, 0, 0, 0, -3, 0, 7),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_rliw0"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 2.5648727, 0, 2, 0, 0, 0, 0, 0, 0, 2.5648727, 2, -0.66666675),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_bu7vd"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 2.794281, 0, 4, 0, 0, 0, 0, 0, 0, 1.4609476, 1, 4),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_73tw2"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.5390549, 0, 5, 0, 0, 0, 0, 0, 0, -0.5390549, 1, 3.6666665),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_w6gys"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -2, 0, -7, 0, 0, 0, 0, 0, 0, -2, 2, -4.333333),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_ikbsr"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -2, 0, -11.801672, 0, 0, 0, 0, 0, 0, 1, 0, -11.809358, 0, 0, 0, 0, 0, 0, 1, 0, -8, 0, 0, 0, 0, 0, 0, -2, 0, -8),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_h5kdk"]
 size = Vector3(0.5, 8, 25)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_ikbsr"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_vicrk"]
 size = Vector3(0.5, 8, 25)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_f23ex"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_faoir"]
 size = Vector3(25, 8, 0.5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_wxhq5"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_fqem5"]
 size = Vector3(25, 8, 0.5)
+
+[sub_resource type="Curve3D" id="Curve3D_h3l78"]
+resource_local_to_scene = true
+bake_interval = 0.3
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -7, 0, 5, 0, 0, 0, 0, 0, 0, -7, 0, -9),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
 
 [sub_resource type="Environment" id="Environment_wrvdo"]
 background_mode = 1
@@ -76,43 +214,178 @@ area_set = ExtResource("3_vicrk")
 [node name="Terrain" type="Node3D" parent="." unique_id=1716553250]
 script = ExtResource("4_faoir")
 area_set = ExtResource("3_vicrk")
-baked_signature = "9439f0c24c0e6d6655d828f094af1d33163f51b6a954ec9e3a0943db8c59e719"
+baked_signature = "0ac50ced303e19b0a285c04e38caeeaa0c8824c1e39db2dd6596b4cf0210e177"
 
-[node name="Baked" type="Node3D" parent="Terrain" unique_id=901144050]
+[node name="Plateau" type="Path3D" parent="Terrain" unique_id=1058853659]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.435128, 0, 1)
+curve = SubResource("Curve3D_h5kdk")
+script = ExtResource("5_egb5d")
+height = 2.0
+
+[node name="Trap" type="Path3D" parent="Terrain" unique_id=812918172]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 1)
+curve = SubResource("Curve3D_vicrk")
+script = ExtResource("6_sl807")
+stairs = true
+anchor_end = 0
+fit_length = true
+width = 2.0
+
+[node name="Trap2" type="Path3D" parent="Terrain" unique_id=1817532681]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 1)
+curve = SubResource("Curve3D_faoir")
+script = ExtResource("6_sl807")
+stairs = true
+anchor_end = 0
+fit_length = true
+width = 2.0
+start_height = 2.0
+
+[node name="Trap3" type="Path3D" parent="Terrain" unique_id=1741135325]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 1)
+curve = SubResource("Curve3D_fqem5")
+script = ExtResource("6_sl807")
+stairs = true
+anchor_end = 0
+fit_length = true
+width = 2.0
+
+[node name="Trap4" type="Path3D" parent="Terrain" unique_id=1709539128]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 1)
+curve = SubResource("Curve3D_aq7w7")
+script = ExtResource("6_sl807")
+stairs = true
+anchor_end = 0
+fit_length = true
+width = 2.0
+
+[node name="Plateau2" type="Path3D" parent="Terrain" unique_id=668201565]
+curve = SubResource("Curve3D_rnexq")
+script = ExtResource("5_egb5d")
+height = 2.0
+
+[node name="Plateau3" type="Path3D" parent="Terrain" unique_id=878368184]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7942772, 0, 0)
+curve = SubResource("Curve3D_wjn8q")
+script = ExtResource("5_egb5d")
+height = 1.0
+
+[node name="Plateau4" type="Path3D" parent="Terrain" unique_id=1318735702]
+curve = SubResource("Curve3D_x2bci")
+script = ExtResource("5_egb5d")
+height = 3.0
+
+[node name="Brug" type="Path3D" parent="Terrain" unique_id=301741315]
+curve = SubResource("Curve3D_x4far")
+script = ExtResource("9_sl807")
+
+[node name="Brug2" type="Path3D" parent="Terrain" unique_id=1956602272]
+curve = SubResource("Curve3D_t4tj0")
+script = ExtResource("9_sl807")
+
+[node name="Brug3" type="Path3D" parent="Terrain" unique_id=663763056]
+curve = SubResource("Curve3D_x4o8l")
+script = ExtResource("9_sl807")
+
+[node name="Trap5" type="Path3D" parent="Terrain" unique_id=1758250894]
+curve = SubResource("Curve3D_rliw0")
+script = ExtResource("6_sl807")
+stairs = true
+anchor_end = 0
+fit_length = true
+width = 2.0
+end_height = 2.0
+
+[node name="Trap6" type="Path3D" parent="Terrain" unique_id=454763898]
+curve = SubResource("Curve3D_bu7vd")
+script = ExtResource("6_sl807")
+stairs = true
+anchor_end = 0
+fit_length = true
+width = 2.0
+end_height = 1.0
+
+[node name="Trap7" type="Path3D" parent="Terrain" unique_id=156762597]
+curve = SubResource("Curve3D_73tw2")
+script = ExtResource("6_sl807")
+stairs = true
+anchor_end = 0
+fit_length = true
+width = 2.0
+end_height = 1.0
+
+[node name="Trap8" type="Path3D" parent="Terrain" unique_id=1044098434]
+curve = SubResource("Curve3D_w6gys")
+script = ExtResource("6_sl807")
+stairs = true
+anchor_end = 0
+fit_length = true
+width = 2.0
+end_height = 2.0
+
+[node name="Plateau5" type="Path3D" parent="Terrain" unique_id=1162208394]
+curve = SubResource("Curve3D_ikbsr")
+script = ExtResource("5_egb5d")
+height = 3.0
+
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=1366531178]
 metadata/level_builder_generated = true
 
-[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=966233817]
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=1971585842]
 mesh = ExtResource("5_fqem5")
 
-[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=1280244024]
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=332188160]
 collision_mask = 0
 
-[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1873610111]
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1832340302]
 shape = ExtResource("6_aq7w7")
 
-[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1905385797]
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=562529648]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.25, 3, 0)
-shape = SubResource("BoxShape3D_w6gys")
+shape = SubResource("BoxShape3D_h5kdk")
 
-[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1449786006]
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=400399101]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.25, 3, 0)
-shape = SubResource("BoxShape3D_ikbsr")
+shape = SubResource("BoxShape3D_vicrk")
 
-[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=140800225]
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=58447553]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -12.25)
-shape = SubResource("BoxShape3D_f23ex")
+shape = SubResource("BoxShape3D_faoir")
 
-[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1575522662]
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1716736140]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 12.25)
-shape = SubResource("BoxShape3D_wxhq5")
+shape = SubResource("BoxShape3D_fqem5")
 
 [node name="Props" type="Node3D" parent="." unique_id=941781671]
 
 [node name="Enemies" type="Node3D" parent="." unique_id=780805372]
 
+[node name="Eikelwacht" parent="Enemies" unique_id=1387726196 instance=ExtResource("10_h5kdk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, -3)
+persistent_id = &"enemy.0731f807c9a875b6d8cc8842cffb0e6b"
+metadata/level_asset_id = &"acorn_guard"
+metadata/identity_scene = "res://scenes/levels/Qweqweqwe.tscn"
+
+[node name="Eikelwacht2" parent="Enemies" unique_id=1095661965 instance=ExtResource("10_h5kdk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 3, -3)
+persistent_id = &"enemy.a19d2433f23f7ef26dfe4deae3206fd8"
+metadata/level_asset_id = &"acorn_guard"
+metadata/identity_scene = "res://scenes/levels/Qweqweqwe.tscn"
+
+[node name="Eikelwacht3" parent="Enemies" unique_id=2038959799 instance=ExtResource("10_h5kdk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 2, -3)
+persistent_id = &"enemy.09fdc44b981fd33dea926cc6090499c9"
+metadata/level_asset_id = &"acorn_guard"
+metadata/identity_scene = "res://scenes/levels/Qweqweqwe.tscn"
+
 [node name="Gameplay" type="Node3D" parent="." unique_id=1084854773]
 
 [node name="Routes" type="Node3D" parent="." unique_id=374473242]
+
+[node name="Patrouille" type="Path3D" parent="Routes" unique_id=298655607]
+curve = SubResource("Curve3D_h3l78")
+script = ExtResource("11_vicrk")
+enemy = NodePath("../../Enemies/Eikelwacht")
 
 [node name="Spawns" type="Node3D" parent="." unique_id=575702997]
 
@@ -126,14 +399,8 @@ script = ExtResource("8_x2bci")
 checkpoint_id = &"start.area.8af819dd84ea609aa902ad70cc03c133"
 area = ExtResource("2_h5kdk")
 
-[node name="Player" type="CharacterBody3D" parent="." unique_id=2088405752 instance=ExtResource("9_h3l78")]
+[node name="Player" parent="." unique_id=2088405752 instance=ExtResource("9_h3l78")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
-collision_layer = 2
-collision_mask = 5
-floor_snap_length = 0.15
-script = ExtResource("10_wjn8q")
-settings = ExtResource("11_x4far")
-moveset = ExtResource("12_t4tj0")
 
 [node name="CameraRig" type="Node3D" parent="." unique_id=1443375985]
 transform = Transform3D(0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76604444, -0.70710677, -0.5416752, 0.45451948, 0, 0, 0)
@@ -154,50 +421,25 @@ light_color = Color(0.6784314, 0.7882353, 0.8745098, 1)
 light_energy = 0.4
 shadow_enabled = true
 
-[node name="HUD" type="CanvasLayer" parent="." unique_id=466627760 instance=ExtResource("13_x4o8l")]
-script = ExtResource("14_rliw0")
+[node name="HUD" parent="." unique_id=466627760 instance=ExtResource("13_x4o8l")]
 
 [node name="DebugVolumes" type="MeshInstance3D" parent="." unique_id=1679863061]
 
 [node name="ImpactPool" type="Node3D" parent="." unique_id=1160681016]
 
-[node name="Spark0" type="GPUParticles3D" parent="ImpactPool" unique_id=602202533 instance=ExtResource("15_bu7vd")]
-cast_shadow = 0
-emitting = false
-amount = 9
-lifetime = 0.24
-one_shot = true
-explosiveness = 1.0
+[node name="Spark0" parent="ImpactPool" unique_id=602202533 instance=ExtResource("15_bu7vd")]
 process_material = SubResource("Process")
 draw_pass_1 = SubResource("SparkMesh")
 
-[node name="Spark1" type="GPUParticles3D" parent="ImpactPool" unique_id=108130067 instance=ExtResource("15_bu7vd")]
-cast_shadow = 0
-emitting = false
-amount = 9
-lifetime = 0.24
-one_shot = true
-explosiveness = 1.0
+[node name="Spark1" parent="ImpactPool" unique_id=108130067 instance=ExtResource("15_bu7vd")]
 process_material = SubResource("Process")
 draw_pass_1 = SubResource("SparkMesh")
 
-[node name="Spark2" type="GPUParticles3D" parent="ImpactPool" unique_id=1661139964 instance=ExtResource("15_bu7vd")]
-cast_shadow = 0
-emitting = false
-amount = 9
-lifetime = 0.24
-one_shot = true
-explosiveness = 1.0
+[node name="Spark2" parent="ImpactPool" unique_id=1661139964 instance=ExtResource("15_bu7vd")]
 process_material = SubResource("Process")
 draw_pass_1 = SubResource("SparkMesh")
 
-[node name="Spark3" type="GPUParticles3D" parent="ImpactPool" unique_id=1431926281 instance=ExtResource("15_bu7vd")]
-cast_shadow = 0
-emitting = false
-amount = 9
-lifetime = 0.24
-one_shot = true
-explosiveness = 1.0
+[node name="Spark3" parent="ImpactPool" unique_id=1431926281 instance=ExtResource("15_bu7vd")]
 process_material = SubResource("Process")
 draw_pass_1 = SubResource("SparkMesh")
 

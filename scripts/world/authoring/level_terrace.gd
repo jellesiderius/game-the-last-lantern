@@ -12,7 +12,7 @@ extends Path3D
 			surface_style.changed.connect(_changed)
 		_changed()
 ## Default stays 1.5: older levels saved plateaus without an explicit height.
-@export_range(0, 10, .5, "suffix:m") var height := 1.5:
+@export_range(0, 100, .5, "suffix:m") var height := 1.5:
 	set(value):
 		height = snappedf(clampf(value, 0.0, LevelTerrain.MAX_HEIGHT), LevelTerrain.HEIGHT_STEP)
 		_changed()

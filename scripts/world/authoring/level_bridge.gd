@@ -24,6 +24,11 @@ const WALL_HEIGHT := 1.2
 	set(value):
 		railings = value
 		_changed()
+## Rise of the centre above the straight line between the two endpoints.
+@export_range(0, 100, .5, "suffix:m") var arch_height := 0.0:
+	set(value):
+		arch_height = snappedf(clampf(value, 0, 100), .5)
+		_changed()
 ## Ends take the height of the plateau or ground they rest on.
 @export var follow_ground := true:
 	set(value):
@@ -44,6 +49,12 @@ func _ready() -> void:
 	rebuild()
 	if Engine.is_editor_hint():
 		curve_changed.connect(_changed)
+		set_notify_transform(true)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED:
+		_changed()
 
 
 func _changed() -> void:
@@ -63,11 +74,28 @@ func deck_line() -> Array[Vector3]:
 		return result
 	var a := curve.get_point_position(0)
 	var b := curve.get_point_position(1)
+	return make_deck_line(a, b, arch_height)
+
+
+## Smooth rise: horizontal tangent at both ends, symmetric crest in the middle.
+static func span_height(a: float, b: float, t: float, arch: float) -> float:
+	return lerpf(a, b, t) + arch * pow(sin(PI * t), 2)
+
+
+static func make_deck_line(a: Vector3, b: Vector3, arch: float) -> Array[Vector3]:
+	var result: Array[Vector3] = []
 	var flat := Vector3(b.x - a.x, 0, b.z - a.z)
 	if flat.length() < .1:
 		return result
 	var forward := flat.normalized()
-	result.append_array([a - forward * PAD, a, b, b + forward * PAD])
+	result.append(a - forward * PAD)
+	var steps := maxi(2, ceili(flat.length() / .3 / 2) * 2) if arch > 0 else 1
+	for i in steps + 1:
+		var t := float(i) / steps
+		var point := a.lerp(b, t)
+		point.y = span_height(a.y, b.y, t, arch)
+		result.append(point)
+	result.append(b + forward * PAD)
 	return result
 
 
@@ -75,6 +103,13 @@ func rebuild() -> void:
 	_queued = false
 	var previous := get_node_or_null("Generated")
 	if previous:
+		if Engine.is_editor_hint():
+			var selection := EditorInterface.get_selection()
+			for selected in selection.get_selected_nodes():
+				if selected == previous or previous.is_ancestor_of(selected):
+					selection.remove_node(selected)
+					selection.add_node(self)
+					EditorInterface.edit_node(self)
 		remove_child(previous)
 		previous.queue_free()
 	var line := deck_line()
@@ -84,7 +119,7 @@ func rebuild() -> void:
 	var side := Vector3(-forward.z, 0, forward.x)
 	var half := width / 2
 	var total := 0.0
-	for i in 3:
+	for i in line.size() - 1:
 		total += Vector2(line[i + 1].x - line[i].x, line[i + 1].z - line[i].z).length()
 	var raised: Array[Vector3] = []
 	for point in line:
@@ -101,7 +136,7 @@ func rebuild() -> void:
 	for sign in [-1.0, 1.0]:
 		var offset: Vector3 = side * sign * (half - .06)
 		# Side beams only under the span: on the pads they would cut into the plateau.
-		for i in [1]:
+		for i in range(1, line.size() - 2):
 			_beam(
 				visual,
 				raised[i] + offset + Vector3.DOWN * DECK_THICKNESS,
@@ -116,7 +151,7 @@ func rebuild() -> void:
 			for post in posts + 1:
 				var base := _along(raised, total * post / posts) + offset
 				_beam(visual, base, base + Vector3.UP * RAIL_HEIGHT, side, .06, .12, rail_color)
-			for i in 3:
+			for i in line.size() - 1:
 				_beam(
 					visual,
 					raised[i] + offset + Vector3.UP * RAIL_HEIGHT,
@@ -132,12 +167,19 @@ func rebuild() -> void:
 	visual.set_material(material)
 	# Collision: the smooth deck top plus invisible side walls.
 	var faces := PackedVector3Array()
-	for i in 3:
+	for i in line.size() - 1:
 		var p := line[i]
 		var q := line[i + 1]
 		faces.append_array(
 			PackedVector3Array(
-				[p - side * half, q - side * half, q + side * half, p - side * half, q + side * half, p + side * half]
+				[
+					p - side * half,
+					q - side * half,
+					q + side * half,
+					p - side * half,
+					q + side * half,
+					p + side * half
+				]
 			)
 		)
 		if railings:
@@ -146,7 +188,14 @@ func rebuild() -> void:
 				var lift := Vector3.UP * WALL_HEIGHT
 				faces.append_array(
 					PackedVector3Array(
-						[p + edge, q + edge, q + edge + lift, p + edge, q + edge + lift, p + edge + lift]
+						[
+							p + edge,
+							q + edge,
+							q + edge + lift,
+							p + edge,
+							q + edge + lift,
+							p + edge + lift
+						]
 					)
 				)
 	var shape := ConcavePolygonShape3D.new()
@@ -213,7 +262,9 @@ static func _beam(
 	]
 	var center := (from + to) * .5 + down * .5
 	var linear := color.srgb_to_linear()
-	for face in [[0, 1, 2, 3], [7, 6, 5, 4], [0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [3, 7, 4, 0]]:
+	for face in [
+		[0, 1, 2, 3], [7, 6, 5, 4], [0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [3, 7, 4, 0]
+	]:
 		var quad := [c[face[0]], c[face[1]], c[face[2]], c[face[3]]]
 		var normal: Vector3 = (quad[1] - quad[0]).cross(quad[2] - quad[0]).normalized()
 		var middle: Vector3 = (quad[0] + quad[1] + quad[2] + quad[3]) * .25
