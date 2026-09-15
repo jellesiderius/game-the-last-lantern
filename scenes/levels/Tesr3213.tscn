@@ -12,9 +12,7 @@
 [ext_resource type="Script" uid="uid://dnfqek7ev0jgq" path="res://scripts/world/checkpoint_anchor.gd" id="10_5cchq"]
 [ext_resource type="PackedScene" path="res://scenes/world/dungeons/Drempelpoort.tscn" id="10_tot7y"]
 [ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="11_1p3wq"]
-[ext_resource type="Script" uid="uid://bskgrs7a0fttt" path="res://scripts/dungeons/threshold_gate.gd" id="11_ubnjv"]
 [ext_resource type="Resource" uid="uid://mjgbkqw36j1b" path="res://settings/dungeons/test_123123.tres" id="12_rqekg"]
-[ext_resource type="Resource" path="res://settings/transitions/dungeon.tres" id="13_m0kdo"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="15_cu82u"]
 [ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="17_wlefr"]
 [ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="18_jrccp"]
@@ -132,7 +130,6 @@ camera_max = Vector2(7, 7)
 script = ExtResource("4_m0kdo")
 area_set = ExtResource("3_rqekg")
 room_walls = true
-room_look = null
 baked_signature = "f1a69e990554e80ff8c1426cd365bb572fdb7581f1683faeba9e46587d913c36"
 
 [node name="NaarBuiten" type="Area3D" parent="Terrain" unique_id=1610142651]
@@ -297,19 +294,16 @@ shape = SubResource("BoxShape3D_cu82u")
 
 [node name="Gameplay" type="Node3D" parent="." unique_id=1055828053]
 
-[node name="Drempelpoort" type="Area3D" parent="Gameplay" unique_id=494344725 instance=ExtResource("10_tot7y")]
+[node name="Drempelpoort" parent="Gameplay" unique_id=494344725 instance=ExtResource("10_tot7y")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2239188e-07, 0, 7.6000004)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("11_ubnjv")
 dungeon = ExtResource("12_rqekg")
 gate_id = &"gate.63da1d165e7dd8a5b2d85f3f0c0fd353"
 identity_scene = "res://scenes/levels/Tesr3213.tscn"
+return_point = NodePath("ReturnPoint")
+preview_completed = false
 target_scene = "res://scenes/levels/Test123123.tscn"
 target_spawn = &"DungeonEntrance"
 loading_title = "Test123123"
-settings = ExtResource("13_m0kdo")
-trigger_size = Vector3(1.5, 2.65, 0.55)
 
 [node name="Routes" type="Node3D" parent="." unique_id=1439900909]
 

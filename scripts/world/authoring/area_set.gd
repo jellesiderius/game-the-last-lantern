@@ -18,6 +18,8 @@ extends Resource
 @export_range(0, 3, .05) var sun_energy := 1.0
 @export var fog_color := Color("384f48")
 @export_range(0, .05, .001) var fog_density := .001
+## Overall brightness of the camera image (tonemap exposure).
+@export_range(.2, 3, .05) var exposure := 1.0
 
 
 static func discover() -> Array[AreaSet]:

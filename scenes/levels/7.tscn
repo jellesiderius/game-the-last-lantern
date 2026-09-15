@@ -37,17 +37,17 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_x2gpa"]
-size = Vector3(0.5, 8, 25)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_1qm1i"]
-size = Vector3(0.5, 8, 25)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_yjkb7"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_3tb56"]
 size = Vector3(25, 8, 0.5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_iof32"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_u017p"]
+size = Vector3(0.5, 8, 25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yx64e"]
 size = Vector3(25, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8gg3f"]
+size = Vector3(0.5, 8, 25)
 
 [sub_resource type="Environment" id="Environment_ju4wi"]
 background_mode = 1
@@ -99,7 +99,7 @@ camera_max = Vector2(7, 7)
 [node name="Terrain" type="Node3D" parent="." unique_id=244141835]
 script = ExtResource("4_u017p")
 area_set = ExtResource("3_3tb56")
-baked_signature = "13ce38b2c969d0fc0e8fc98b0b0ea1a597b2582c4e31509ad96240ee5a56eeb8"
+baked_signature = "96dddf6698b4d12363284ebe6e6399d8fff9dd50abf7557bb1f228527fe92e57"
 
 [node name="Vloervlak" type="Path3D" parent="Terrain" unique_id=953585789]
 curve = SubResource("Curve3D_4q2w8")
@@ -111,33 +111,33 @@ height = 0.0
 curve = SubResource("Curve3D_mywtu")
 script = ExtResource("7_yx64e")
 
-[node name="Baked" type="Node3D" parent="Terrain" unique_id=181088076]
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=301298250]
 metadata/level_builder_generated = true
 
-[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=1726235829]
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=682310427]
 mesh = ExtResource("5_yx64e")
 
-[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=1972552060]
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=1317972823]
 collision_mask = 0
 
-[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1160265801]
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1786845683]
 shape = ExtResource("6_8gg3f")
 
-[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=988165795]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.25, 3, 0)
-shape = SubResource("BoxShape3D_x2gpa")
-
-[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=160631513]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.25, 3, 0)
-shape = SubResource("BoxShape3D_1qm1i")
-
-[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1494353375]
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1550434018]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -12.25)
-shape = SubResource("BoxShape3D_yjkb7")
+shape = SubResource("BoxShape3D_3tb56")
 
-[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1790542427]
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1726762667]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.25, 3, 0)
+shape = SubResource("BoxShape3D_u017p")
+
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1402952076]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 12.25)
-shape = SubResource("BoxShape3D_iof32")
+shape = SubResource("BoxShape3D_yx64e")
+
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=2047262100]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.25, 3, 0)
+shape = SubResource("BoxShape3D_8gg3f")
 
 [node name="Props" type="Node3D" parent="." unique_id=319783917]
 

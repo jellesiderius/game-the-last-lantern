@@ -154,6 +154,11 @@ func outlines() -> Array[Dictionary]:
 			var end: Vector3 = child.transform * child.curve.get_point_position(1)
 			var a := Vector2(start.x, start.z)
 			var b := Vector2(end.x, end.z)
+			# An end lying exactly on a plateau edge makes the cut touch that edge, which
+			# leaves the doorway of the flight as a wall; overlap the edge a little instead.
+			var raw_a := a
+			a = _clear_of_edges(a, b, plateaus)
+			b = _clear_of_edges(b, raw_a, plateaus)
 			var side: Vector2 = (b - a).normalized().orthogonal() * child.width / 2
 			var points := PackedVector2Array([a - side, b - side, b + side, a + side])
 			if Geometry2D.is_polygon_clockwise(points):
@@ -176,6 +181,59 @@ func outlines() -> Array[Dictionary]:
 					"end_height": high
 				}
 			)
+	# A bridge that starts at a plateau edge squares that edge: a small landing at the
+	# plateau height on the plateau side of the bridge end, and the plateau cut away
+	# under the deck on the other side, so no corner of grass pokes through the planks
+	# when the bridge meets a bent or angled edge.
+	var landings: Array[Dictionary] = []
+	var bridge_cuts: Array[PackedVector2Array] = []
+	for child in get_children():
+		if not child is LevelBridge or not child.curve or child.curve.point_count != 2:
+			continue
+		var start: Vector3 = child.transform * child.curve.get_point_position(0)
+		var end: Vector3 = child.transform * child.curve.get_point_position(1)
+		var ends := [Vector2(start.x, start.z), Vector2(end.x, end.z)]
+		for i in 2:
+			var here: Vector2 = ends[i]
+			var there: Vector2 = ends[1 - i]
+			if here.distance_to(there) < 1.0:
+				continue
+			var top := ramp_end_height(here, there, plateaus)
+			if top <= EPS:
+				continue
+			var onward := (here - there).normalized()
+			# Only at an edge: well under the deck the land must already be lower.
+			if height_under(here - onward * 1.5, plateaus) >= top - EPS:
+				continue
+			# Only where that edge meets the bridge at a slant; a square edge needs nothing.
+			var nearest := INF
+			var edge_direction := Vector2.ZERO
+			for plateau in plateaus:
+				var outline: PackedVector2Array = plateau.polygon
+				for k in outline.size():
+					var a := outline[k]
+					var b := outline[(k + 1) % outline.size()]
+					var distance := here.distance_to(Geometry2D.get_closest_point_to_segment(here, a, b))
+					if distance < nearest and a.distance_to(b) > EPS:
+						nearest = distance
+						edge_direction = (b - a).normalized()
+			if nearest > 1.5 or absf(edge_direction.dot(onward)) < .17:
+				continue
+			var across: Vector2 = onward.orthogonal() * (float(child.width) / 2 + .2)
+			var front := here + onward * 1.0
+			var landing := PackedVector2Array([here - across, front - across, front + across, here + across])
+			if Geometry2D.is_polygon_clockwise(landing):
+				landing.reverse()
+			landings.append(
+				{"polygon": landing, "height": top, "name": String(child.name) + "Landing", "style": null, "landing": true}
+			)
+			var reach := minf(3.0, here.distance_to(there) * .45)
+			var far := here - onward * reach
+			var cut := PackedVector2Array([far - across, here - across, here + across, far + across])
+			if Geometry2D.is_polygon_clockwise(cut):
+				cut.reverse()
+			bridge_cuts.append(cut)
+	plateaus.append_array(landings)
 	# Higher plateaus and ramps cut into lower plateaus, so regions never overlap:
 	# a hill on a hill, or stairs set into a cliff.
 	var result: Array[Dictionary] = []
@@ -189,6 +247,8 @@ func outlines() -> Array[Dictionary]:
 				cutters.append(plateaus[j].polygon)
 		for ramp in ramps:
 			cutters.append(ramp.polygon)
+		if not plateaus[i].get("landing", false):
+			cutters.append_array(bridge_cuts)
 		var pieces: Array[PackedVector2Array] = [plateaus[i].polygon]
 		for cutter in cutters:
 			var next: Array[PackedVector2Array] = []
@@ -196,12 +256,23 @@ func outlines() -> Array[Dictionary]:
 				next.append_array(cut(piece, cutter))
 			pieces = next
 		for piece in pieces:
-			if polygon_area(piece) <= EPS:
+			# Cutting stairs or bridges into an edge that runs almost along them leaves
+			# hairline slivers; drop those, and doubled points, so one sliver never stops
+			# the whole bake.
+			var clean := PackedVector2Array()
+			for point in piece:
+				if clean.is_empty() or clean[-1].distance_to(point) > .005:
+					clean.append(point)
+			if clean.size() > 2 and clean[0].distance_to(clean[-1]) <= .005:
+				clean.remove_at(clean.size() - 1)
+			if clean.size() < 3 or polygon_area(clean) <= .01:
 				continue
-			if Geometry2D.is_polygon_clockwise(piece):
-				piece.reverse()
+			if Geometry2D.triangulate_polygon(clean).is_empty():
+				continue
+			if Geometry2D.is_polygon_clockwise(clean):
+				clean.reverse()
 			var region: Dictionary = plateaus[i].duplicate()
-			region.polygon = piece
+			region.polygon = clean
 			result.append(region)
 	# Water replaces the clicked elevation, including plateau tops. Elevated water
 	# is clipped to supporting surfaces; ground water keeps raised land as islands.
@@ -334,6 +405,20 @@ static func ramp_end_height(end: Vector2, other: Vector2, plateaus: Array[Dictio
 
 
 ## Highest plateau under a point, ignoring ramps; plain ground is 0.
+## Moves a flight end that sits on a plateau edge 5 cm further out, away from the other end.
+static func _clear_of_edges(point: Vector2, other: Vector2, plateaus: Array[Dictionary]) -> Vector2:
+	if point.distance_to(other) < .2:
+		return point
+	for plateau in plateaus:
+		var outline: PackedVector2Array = plateau.polygon
+		for k in outline.size():
+			var a := outline[k]
+			var b := outline[(k + 1) % outline.size()]
+			if point.distance_to(Geometry2D.get_closest_point_to_segment(point, a, b)) < .02:
+				return point + (point - other).normalized() * .05
+	return point
+
+
 static func height_under(point: Vector2, plateaus: Array[Dictionary]) -> float:
 	var height := 0.0
 	for plateau in plateaus:
@@ -1514,7 +1599,8 @@ func _emit_curb(
 func _door_openings() -> Array[Dictionary]:
 	var openings: Array[Dictionary] = []
 	for child in get_children():
-		if not child is LevelDoor:
+		# Doors set into a plateau wall never open the outer boundary.
+		if not child is LevelDoor or child.cliff_door:
 			continue
 		var p: Vector3 = child.position
 		var distances := [
@@ -1664,7 +1750,7 @@ func _emit_house_timber(surface: SurfaceTool, timber: Color) -> void:
 		for i in count + 1:
 			var along := -length / 2 + .08 + (length - .16) * i / count
 			# The north-west corner post belongs to the north wall.
-			var blocked := side == 3 and i == 0
+			var blocked: bool = side == 3 and i == 0
 			for opening in openings:
 				if opening.side == side and absf(opening.along - along) < opening.half + .1:
 					blocked = true

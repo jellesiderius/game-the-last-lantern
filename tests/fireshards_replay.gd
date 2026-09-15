@@ -323,6 +323,8 @@ func run() -> void:
 	)
 	var carried: int = Fireshards.total()
 	check("there are fireshards to lose", carried > 0, carried)
+	# Only resting at a Vuurlelie writes the save; picking up and dying do not.
+	var disk_before := JSON.stringify(SaveStore.read_slot(0))
 	await die()
 	var loss := Fireshards.pending_loss()
 	check("the wallet is emptied on death", Fireshards.total() == 0, Fireshards.total())
@@ -344,10 +346,7 @@ func run() -> void:
 		dropped_shards.size()
 	)
 	check("a dead player absorbs nothing", Fireshards.total() == 0 and not loss.is_empty())
-	check(
-		"the save keeps the lost fireshards",
-		int(SaveStore.read_slot(0).get("fire_shards", [])[0].get("amount", 0)) == carried
-	)
+	check("dying does not write the save", JSON.stringify(SaveStore.read_slot(0)) == disk_before)
 
 	# 3. After the respawn the player walks back to it and absorbs it.
 	await respawn()
@@ -382,9 +381,7 @@ func run() -> void:
 		Fireshards.total()
 	)
 	check("the absorbed loss leaves the world", live_shards().is_empty(), shard_report())
-	check(
-		"the save drops the absorbed loss", SaveStore.read_slot(0).get("fire_shards", []).is_empty()
-	)
+	check("absorbing fireshards does not write the save", JSON.stringify(SaveStore.read_slot(0)) == disk_before)
 
 	# 4. Dying right on top of your own respawn point must not hand the loss straight back:
 	# that pile waits until the player has stepped clear and walked back into it.
@@ -441,7 +438,7 @@ func run() -> void:
 	check("the loss is reported", reported("lost", lost_again))
 	await respawn()
 	check("those fireshards never return", live_shards().is_empty() and Fireshards.total() == 0)
-	check("the save keeps the empty wallet", int(SaveStore.read_slot(0).get("fireshards", 0)) == 0)
+	check("losing fireshards never writes the save", JSON.stringify(SaveStore.read_slot(0)) == disk_before)
 	var empty_counter: Label = arena.get_node("HUD/Root/Fireshards/Value")
 	check("the HUD counter shows an empty wallet", empty_counter.text == "0", empty_counter.text)
 

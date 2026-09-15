@@ -213,7 +213,7 @@ static func make_environment(kit: AreaSet) -> Environment:
 	env.reflected_light_source = 2
 	# ACES keeps the saturated, contrasty Tunic-like palette without washing out.
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
-	env.tonemap_exposure = 1.0
+	env.tonemap_exposure = kit.exposure
 	env.ssao_enabled = true
 	env.ssao_radius = .4
 	env.ssao_intensity = .7

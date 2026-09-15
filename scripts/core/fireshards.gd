@@ -97,7 +97,6 @@ func lose_to_death(at: Vector3) -> void:
 	if carried > 0:
 		_add_shard(carried, at, KIND_LOST)
 	fireshards_changed.emit(0)
-	_save()
 
 
 ## Called by the saved FireShard scene when the player reaches it. Returns the absorbed amount.
@@ -113,7 +112,6 @@ func absorb(id: String) -> int:
 	shards_collected.emit(amount)
 	fireshards_changed.emit(total())
 	_sync_shards()
-	_save()
 	return amount
 
 
@@ -210,8 +208,3 @@ func _player_died() -> void:
 
 func _process(_delta: float) -> void:
 	_check_scene()
-
-
-func _save() -> void:
-	if GameProgress.active_slot >= 0:
-		GameProgress.save(GameSession.player)

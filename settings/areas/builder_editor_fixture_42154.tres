@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WorldArea" format=3 uid="uid://b6s722nuewiy7"]
+
+[ext_resource type="Script" uid="uid://di1cc4m2874ms" path="res://scripts/world/world_area.gd" id="1_lfl8c"]
+
+[resource]
+script = ExtResource("1_lfl8c")
+code = &"area.0b7da1574c1c9b680ccf24c0235bb307"
+display_name = "Builder Editor Fixture 42154"
+scene_path = "res://scenes/levels/BuilderEditorFixture42154.tscn"

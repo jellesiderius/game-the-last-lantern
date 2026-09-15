@@ -177,11 +177,11 @@ Kamers zweven, zoals in Link's Awakening, in een donkere achtergrond. De noord- 
 
 Terrain → Kamer → **Room Look**: *Steen* gebruikt het klifmateriaal (dungeons), *Huis* is de look van ForestHouse: lichte muren met donkere balken en een ligger, lage houten muren vooraan, brede planken in drie tinten en een donkere fundering. Interieurs krijgen *Huis* automatisch; de kleuren komen uit de interieur-oppervlaktestijl (klifkleur = muur, randkleur = hout). Elke deur krijgt een vloerstuk naar buiten, hout in een huis en steen elders.
 
-**Deur**: beweeg naar een muur of de rand van de grond en klik. Stijl (opening, houten deur, stenen boog) en breedte staan in de gereedschapsopties. De muur krijgt vanzelf een gat met doorloop-botsing; de deur heeft een eigen aankomstpunt (`door_id`) binnen de kamer.
+**Deur**: beweeg naar een muur, een plateauwand of de rand van de grond en klik. In een plateauwand (minstens 2 m hoog) komt een stenen omlijsting rond een donkere opening; rood = te laag of te kort. Stijl (opening, houten deur, stenen boog) en breedte staan in de gereedschapsopties. De muur krijgt vanzelf een gat met doorloop-botsing; de deur heeft een eigen aankomstpunt (`door_id`) binnen de kamer.
 
 Selecteer een deur voor:
 - **Kies bestaande scene…** en daarna het aankomstpunt uit de lijst;
-- **Nieuwe kamer erachter…**: maakt een kamer met een deur terug, verbindt beide kanten en slaat alles op;
+- **Nieuwe scene erachter…**: maakt een **Level** (buiten, met de gekozen areaset en een open doorgang terug), Interieur of Dungeonkamer met een deur terug, verbindt beide kanten en slaat alles op. De terugdeur staat in de wand die dezelfde kant op kijkt als deze deur, zodat je in dezelfde richting doorloopt;
 - **Open doelscene**.
 
 Deuren naar een scene zonder kamermuren (buiten) krijgen **Outside Light**: een warme lichtbundel valt door de opening op de vloer. Deuren tussen kamers blijven donker met een zwak lichtje in de opening. Grotten gebruiken een Drempelpoort en hebben geen daglicht.
@@ -198,3 +198,23 @@ Godot --path . res://tests/TestHouseReplay.tscn
 ```
 
 Let op: de generators overschrijven die testscènes.
+
+## Deuren: stijlen en licht
+
+Stijlen: **Opening**, **Houten deur**, **Stenen boog**, **Grot** (ruwe rotsblokken) en **Poort** (bospoort). Buiten op de rand van de grond wordt een deur altijd een open doorgang (of Poort/Grot als die gekozen is); het pad loopt dan door de opening naar buiten. In een plateauwand kies je de wand zelf, de grond ervoor of de bovenrand.
+
+**Licht**: *Automatisch* geeft alleen licht in kamers (daglicht bij een deur naar buiten, een zwak lichtje naar een andere kamer). Buiten en in plateaus is er dan geen licht. *Aan* en *Uit* forceren het. Stijl en licht zijn ook te wijzigen als de deur geselecteerd is.
+
+## Bosopening in de level builder
+
+`scenes/levels/BosOpening.tscn` is de eerste bosarea, opnieuw gebouwd met de level builder: dezelfde plateaus (hoogtes afgerond op halve meters), het bospad, de vijver, alle 357 props uit `assets/environment/forest_layout.json`, de introductie op de stronk, drie Eikelwachters, Vuurlelie, Drempelpoort, Mos, wegwijzer en de uitgang. Opnieuw bouwen (overschrijft de scene):
+
+```sh
+Godot --headless --path . res://tools/level_builder/BuildForestOpening.tscn
+```
+
+Elk builder-level kan een introductie hebben: root → Introductie → **Entrance Sequence** en **Play Entrance**. De watervallen van het origineel zitten er nog niet in; New Game opent voorlopig nog `ForestOpening.tscn`.
+
+Elke deur heeft een eigen **Door Id**: aankomsten zoeken de deur op die code. Een gekopieerde deur houdt dezelfde code; de deur toont dan een waarschuwing. Geef hem een eigen code en pas de terugdeur in de andere scene aan. Nieuwe deuren krijgen altijd een ongebruikte code.
+
+Een ingezette trap op een geknikte plateaurand schuift met zijn voet naar buiten tot hij over zijn hele breedte vrij staat, zodat hij in de echte wand uitkomt. Terrain-stukken die bij het uitsnijden als haarlijntje overblijven worden weggelaten in plaats van de bake te blokkeren.

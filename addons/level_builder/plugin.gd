@@ -26,8 +26,10 @@ const TOOL_HINTS := [
 	"Vierkant: sleep een rechthoek. Pad: klik punten voor een rivier, Esc rondt af. De grond zakt vanzelf in met zachte oevers; schuim en kringen komen vanzelf.",
 	"Kies een prop en klik of sleep om te strooien. Straal bepaalt het gebied; Aantal en Afstand bepalen de dichtheid. Shift+slepen wist alleen dit type. Eén streek = één Undo.",
 	"Kies een prop. Sleep een rechte lijn, of klik hoekpunten en druk Enter om af te ronden. Esc annuleert. Doorgang blokkeren sluit ook de openingen tussen de props.",
-	"Beweeg naar een muur of de rand van de grond en klik: er komt een deur met aankomstpunt. Selecteer de deur om hem te verbinden met een bestaande scene of een nieuwe kamer erachter."
+	"Beweeg naar een muur, een plateauwand (minstens 2 m hoog) of de rand van de grond en klik: er komt een deur met aankomstpunt. Buiten op de rand wordt het een open doorgang. Selecteer de deur om hem te verbinden met een bestaande scene of een nieuwe kamer erachter."
 ]
+const DOOR_STYLES := ["Opening", "Houten deur", "Stenen boog", "Grot", "Poort"]
+const DOOR_LIGHTS := ["Automatisch", "Aan", "Uit"]
 const PREPARATION = preload("res://addons/level_builder/asset_preparation.gd")
 const FACTORY = preload("res://addons/level_builder/level_factory.gd")
 const CHECKS = preload("res://addons/level_builder/level_checks.gd")
@@ -100,6 +102,7 @@ var new_type := OptionButton.new()
 var new_connect := CheckBox.new()
 var door_style := OptionButton.new()
 var door_width := SpinBox.new()
+var door_light := OptionButton.new()
 var links_box := VBoxContainer.new()
 var links_signature := ""
 var room_dialog := ConfirmationDialog.new()
@@ -277,8 +280,11 @@ func _enter_tree() -> void:
 	_option("Vorm", water_shape, [Tool.WATER], body)
 	_option("Breedte", water_width, [Tool.WATER], body)
 	_option("Diepte", water_depth, [Tool.WATER], body)
-	for title in ["Opening", "Houten deur", "Stenen boog"]:
+	for title in DOOR_STYLES:
 		door_style.add_item(title)
+	for title in DOOR_LIGHTS:
+		door_light.add_item(title)
+	door_light.tooltip_text = "Automatisch: alleen licht in kamers. Buiten en in plateaus geen licht."
 	door_style.select(LevelDoor.Style.WOODEN_DOOR)
 	door_width.min_value = 1
 	door_width.max_value = 6
@@ -288,6 +294,7 @@ func _enter_tree() -> void:
 	door_width.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_option("Deurstijl", door_style, [Tool.DOOR], body)
 	_option("Deurbreedte", door_width, [Tool.DOOR], body)
+	_option("Licht", door_light, [Tool.DOOR], body)
 	_option("Straal", radius, [Tool.SCATTER], body)
 	_option("Aantal", amount, [Tool.SCATTER], body)
 	_option("Afstand", scatter_spacing, [Tool.SCATTER], body)
@@ -508,11 +515,21 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 		if door_ground == null or not event is InputEventMouse:
 			return EditorPlugin.AFTER_GUI_INPUT_PASS
 		var door_hit: Variant = _hit(camera, event.position, false)
+		# A plateau wall under the mouse wins over the edge of the ground.
+		var cliff := _cliff_door_plan_from_view(door_ground, camera, event.position)
 		if event is InputEventMouseMotion:
-			_update_door_preview(door_ground, door_hit)
+			if cliff.is_empty():
+				_update_door_preview(door_ground, door_hit)
+			else:
+				_update_cliff_door_preview(door_ground, cliff)
 			return EditorPlugin.AFTER_GUI_INPUT_PASS
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-			if event.pressed and door_hit != null:
+			if event.pressed and not cliff.is_empty():
+				if cliff.has("error"):
+					_note(cliff.error)
+				else:
+					_create_door(door_ground, cliff)
+			elif event.pressed and door_hit != null:
 				var door_local := door_ground.to_local(door_hit)
 				var plan := _door_plan(door_ground, Vector2(door_local.x, door_local.z))
 				if plan.is_empty():
@@ -1082,6 +1099,19 @@ func _plan_on_edge(
 	var run: float = maxf(edge.top - bottom, LevelTerrain.HEIGHT_STEP) / slope
 	var plan := {"width": width, "top": edge.top, "bottom": bottom, "inset": inset}
 	if inset:
+		# At a bent edge a corner of plateau can still lie in front of the flight. Slide
+		# the foot out until its whole width stands clear of the plateau, so the stairs
+		# run into the real cliff face instead of hiding behind a wedge of wall.
+		var foot_side: Vector2 = edge.tangent * (width / 2 - .01)
+		for step in 30:
+			var ahead: Vector2 = point + edge.outward * .08
+			var blocked := false
+			for sample in [ahead - foot_side, ahead, ahead + foot_side]:
+				if LevelTerrain.height_under(sample, context.plateaus) >= edge.top - LevelTerrain.EPS:
+					blocked = true
+			if not blocked:
+				break
+			point += edge.outward * .1
 		plan.low = point
 		plan.high = point - edge.outward * run
 	else:
@@ -1090,11 +1120,18 @@ func _plan_on_edge(
 	if edge.top - bottom < LevelTerrain.HEIGHT_STEP - LevelTerrain.EPS:
 		plan.error = "Hier is geen hoogteverschil."
 		return plan
-	# The flight must stay on the ground and on one level along its whole length.
+	# The flight must stay on the ground and on one level along its whole length,
+	# including its four corners: a flight set into a bent or angled plateau edge may
+	# not poke out through the neighbouring wall.
 	var expected: float = edge.top if inset else bottom
 	var side: Vector2 = edge.tangent * (width / 2 - .01)
-	for i in range(1, 6):
+	var tuck: Vector2 = (plan.high - plan.low).normalized() * .05
+	for i in range(0, 7):
 		var center: Vector2 = plan.low.lerp(plan.high, i / 6.0)
+		if i == 0:
+			center += tuck
+		elif i == 6:
+			center -= tuck
 		for sample in [center - side, center, center + side]:
 			if absf(sample.x) > ground.size.x / 2 or absf(sample.y) > ground.size.y / 2:
 				plan.error = "De trap valt buiten de grond."
@@ -1553,7 +1590,7 @@ func _pick_authoring(ground: LevelTerrain, camera: Camera3D, mouse: Vector2) -> 
 			}
 	for child in ground.get_children():
 		if (
-			not (child is LevelBridge or child is LevelWater or child is LevelBoundary)
+			not (child is LevelBridge or child is LevelWater or child is LevelBoundary or child is LevelDoor)
 			or not child.is_visible_in_tree()
 		):
 			continue
@@ -1562,6 +1599,9 @@ func _pick_authoring(ground: LevelTerrain, camera: Camera3D, mouse: Vector2) -> 
 			if child_hit.is_empty():
 				continue
 			var distance := origin.distance_to(child_hit.position)
+			# A door frame stands flush with its wall: let it win a near tie with the rock.
+			if child is LevelDoor:
+				distance -= .15
 			if distance >= nearest:
 				continue
 			nearest = distance
@@ -1931,10 +1971,131 @@ func _door_plan(ground: LevelTerrain, point: Vector2) -> Dictionary:
 	return {"side": side, "along": along}
 
 
+## A door in the plateau wall under the mouse: the wall face itself, the ground just in
+## front of it, or else the top edge nearest on screen (like picking stairs).
+## {cliff, point, outward, bottom, top, width, height}, "error" when it does not fit, or {}.
+func _cliff_door_plan_from_view(ground: LevelTerrain, camera: Camera3D, mouse: Vector2) -> Dictionary:
+	var context := _stair_context(ground)
+	var origin := ground.to_local(camera.project_ray_origin(mouse))
+	var direction := (ground.global_basis.inverse() * camera.project_ray_normal(mouse)).normalized()
+	var best := {}
+	var best_along := 0.0
+	var best_score := INF
+	for edge in context.edges:
+		var normal := Vector3(edge.outward.x, 0, edge.outward.y)
+		var start := Vector3(edge.a.x, 0, edge.a.y)
+		# The wall face: a vertical plane through the edge, facing out.
+		var facing := direction.dot(normal)
+		if facing < -.001:
+			var t := (start - origin).dot(normal) / facing
+			var hit := origin + direction * t
+			var along: float = (Vector2(hit.x, hit.z) - edge.a).dot(edge.tangent)
+			if t > 0 and along >= 0 and along <= edge.length:
+				var point: Vector2 = edge.a + edge.tangent * along
+				var bottom := LevelTerrain.height_under(point + edge.outward * .05, context.plateaus)
+				if hit.y >= bottom - .1 and hit.y <= edge.top + .1 and edge.top - bottom >= LevelTerrain.HEIGHT_STEP - LevelTerrain.EPS:
+					if t < best_score:
+						best_score = t
+						best = edge
+						best_along = along
+					continue
+		# The ground right in front of the wall.
+		var along_edge := 0.0
+		if absf(direction.y) > .001:
+			var foot: Vector2 = edge.a + edge.outward * .5
+			var low := LevelTerrain.height_under(foot + edge.tangent * edge.length / 2, context.plateaus)
+			var t_ground := (low - origin.y) / direction.y
+			if t_ground > 0:
+				var spot := origin + direction * t_ground
+				var flat := Vector2(spot.x, spot.z)
+				along_edge = (flat - edge.a).dot(edge.tangent)
+				var out: float = (flat - edge.a).dot(edge.outward)
+				if along_edge >= 0 and along_edge <= edge.length and out >= 0 and out <= 1.5:
+					var point: Vector2 = edge.a + edge.tangent * along_edge
+					if _edge_drops(context, edge, point) and t_ground + 1000.0 < best_score:
+						best_score = t_ground + 1000.0
+						best = edge
+						best_along = along_edge
+	if best.is_empty():
+		# Fallback: the top edge nearest on screen.
+		var nearest := STAIR_PICK_PIXELS * EditorInterface.get_editor_scale()
+		for edge in context.edges:
+			var a3 := ground.to_global(Vector3(edge.a.x, edge.top, edge.a.y))
+			var b3 := ground.to_global(Vector3(edge.b.x, edge.top, edge.b.y))
+			if camera.is_position_behind(a3) or camera.is_position_behind(b3):
+				continue
+			var sa := camera.unproject_position(a3)
+			var sb := camera.unproject_position(b3)
+			var closest := Geometry2D.get_closest_point_to_segment(mouse, sa, sb)
+			var distance := mouse.distance_to(closest)
+			var along: float = edge.length * closest.distance_to(sa) / maxf(sa.distance_to(sb), .001)
+			if distance >= nearest or not _edge_drops(context, edge, edge.a + edge.tangent * along):
+				continue
+			nearest = distance
+			best = edge
+			best_along = along
+	return {} if best.is_empty() else _cliff_door_on_edge(context, best, best_along)
+
+
+## Same as above for a terrain-space point near a plateau edge (tests and tools).
+func _cliff_door_plan(ground: LevelTerrain, point: Vector2) -> Dictionary:
+	var context := _stair_context(ground)
+	var nearest := STAIR_PICK_DISTANCE
+	var best := {}
+	var best_along := 0.0
+	for edge in context.edges:
+		var closest := Geometry2D.get_closest_point_to_segment(point, edge.a, edge.b)
+		if point.distance_to(closest) >= nearest or not _edge_drops(context, edge, closest):
+			continue
+		nearest = point.distance_to(closest)
+		best = edge
+		best_along = (closest - edge.a).dot(edge.tangent)
+	return {} if best.is_empty() else _cliff_door_on_edge(context, best, best_along)
+
+
+func _cliff_door_on_edge(context: Dictionary, edge: Dictionary, along: float) -> Dictionary:
+	var width := minf(door_width.value, edge.length - 1.2)
+	var grid := snap.value if snap.value > 0 else .5
+	var margin := width / 2 + .6
+	along = clampf(snappedf(along, grid), margin, edge.length - margin)
+	var point: Vector2 = edge.a + edge.tangent * along
+	var bottom := LevelTerrain.height_under(point + edge.outward * .05, context.plateaus)
+	var plan := {
+		"cliff": true,
+		"point": point,
+		"outward": edge.outward,
+		"bottom": bottom,
+		"top": edge.top,
+		"width": width,
+		"height": minf(2.3, edge.top - bottom - .3)
+	}
+	if width < 1.0:
+		plan.error = "Deze plateaurand is te kort voor een deur."
+	elif edge.top - bottom < 2.0 - LevelTerrain.EPS:
+		plan.error = "Het plateau is te laag voor een deur (minstens 2 m)."
+	return plan
+
+
+func _update_cliff_door_preview(ground: LevelTerrain, plan: Dictionary) -> void:
+	var base: Vector3 = Vector3(plan.point.x, plan.bottom, plan.point.y)
+	var across: Vector3 = Vector3(-plan.outward.y, 0, plan.outward.x) * plan.width / 2
+	var up: Vector3 = Vector3.UP * maxf(plan.height, .5)
+	var lines := PackedVector3Array(
+		[base - across, base - across + up, base + across, base + across + up, base - across + up, base + across + up]
+	)
+	_draw_preview(lines, Color(1, .3, .25) if plan.has("error") else Color(1, .85, .3), ground)
+
+
 func _unique_door_id(ground: Node, base: String) -> StringName:
+	# Unique both as node name and as door code: arrivals look doors up by code.
+	var used: Array[StringName] = []
+	var root := EditorInterface.get_edited_scene_root()
+	for node in (root if root else ground).find_children("*", "Area3D", true, false):
+		if node is LevelDoor:
+			used.append(node.door_id)
 	var candidate := base
 	var index := 2
-	while ground.has_node(NodePath(candidate)):
+	while ground.has_node(NodePath(candidate)) or StringName(candidate) in used:
 		candidate = base + str(index)
 		index += 1
 	return StringName(candidate)
@@ -1944,10 +2105,31 @@ func _create_door(ground: LevelTerrain, plan: Dictionary) -> LevelDoor:
 	var root := EditorInterface.get_edited_scene_root()
 	if root == null:
 		return null
+	# Outdoors on the edge of the ground a passage is an open gap or a gate, never a door.
+	var outdoor_edge: bool = not ground.room_walls and not plan.get("cliff", false)
+	var style: int = door_style.selected
+	if outdoor_edge and not style in [LevelDoor.Style.GATE, LevelDoor.Style.CAVE]:
+		style = LevelDoor.Style.OPENING
+	elif plan.get("cliff", false) and style in [LevelDoor.Style.GATE]:
+		style = LevelDoor.Style.STONE_ARCH
 	var door := FACTORY.add_door(
-		ground, root, plan.side, plan.along, _unique_door_id(ground, "Deur"), "", &"", door_style.selected
+		ground,
+		root,
+		plan.get("side", 0),
+		plan.get("along", 0.0),
+		_unique_door_id(ground, "Doorgang" if outdoor_edge else "Deur"),
+		"",
+		&"",
+		style
 	)
+	door.light = door_light.selected
 	door.width = door_width.value
+	if plan.get("cliff", false):
+		door.cliff_door = true
+		door.width = plan.width
+		door.height = plan.height
+		door.position = Vector3(plan.point.x, plan.bottom, plan.point.y) + Vector3(plan.outward.x, 0, plan.outward.y) * .02
+		door.rotation = Vector3(0, atan2(plan.outward.x, plan.outward.y), 0)
 	var undo := get_undo_redo()
 	undo.create_action("Deur")
 	undo.add_do_method(ground, "add_child", door, true)
@@ -2036,6 +2218,16 @@ func _scene_is_outside(path: String) -> bool:
 	return not "room_walls = true" in text
 
 
+func _set_door_property(door: LevelDoor, property: StringName, value: Variant) -> void:
+	if not is_instance_valid(door) or door.get(property) == value:
+		return
+	var undo := get_undo_redo()
+	undo.create_action("Deur aanpassen")
+	undo.add_do_property(door, property, value)
+	undo.add_undo_property(door, property, door.get(property))
+	undo.commit_action()
+
+
 func _link_door_to_scene(door: LevelDoor, path: String) -> void:
 	var ids := _scene_spawn_ids(path)
 	_set_door_link(door, path, ids[0] if not ids.is_empty() else &"Entrance")
@@ -2077,20 +2269,35 @@ func _create_room_behind(door: LevelDoor, title: String, kind: String, size: Vec
 		_note("Opslaan mislukt: " + error_string(error))
 		return ""
 	area.take_over_path(area_path)
-	var kit := load("res://settings/area_sets/%s.tres" % ("cave" if kind == "dungeon" else "interior")) as AreaSet
-	var root := FACTORY.create_room("interior", kit, area, size)
-	var ground := door.get_parent() as LevelTerrain
-	var side := _door_side(ground, door) if ground else 0
+	var root: Node3D
+	if kind == "outdoor":
+		# A new outdoor area with the kit chosen in the builder (forest by default).
+		var outdoor_kit := _kit() if _kit() and not _kit().id in [&"interior", &"cave"] else load("res://settings/area_sets/forest.tres") as AreaSet
+		root = FACTORY.create(outdoor_kit, area, size)
+	else:
+		var kit := load("res://settings/area_sets/%s.tres" % ("cave" if kind == "dungeon" else "interior")) as AreaSet
+		root = FACTORY.create_room("interior", kit, area, size)
+	# The player keeps walking the same way: they enter the new room through the wall
+	# that faces the way this door faces, so the doorway sits in the same corner of the
+	# screen on both sides, whether it is set into a room wall, a plateau or an edge.
+	var facing := Vector2(door.global_basis.z.x, door.global_basis.z.z).normalized()
+	var back_side := 0
+	var best := -INF
+	for candidate in 4:
+		var normal: Vector2 = [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)][candidate]
+		if normal.dot(facing) > best:
+			best = normal.dot(facing)
+			back_side = candidate
 	var back_id := StringName("Naar" + source.scene_file_path.get_file().get_basename())
 	FACTORY.add_door(
 		root.get_node("Terrain"),
 		root,
-		(side + 2) % 4,
+		back_side,
 		0,
 		back_id,
 		source.scene_file_path,
 		door.door_id,
-		LevelDoor.Style.STONE_ARCH if kind == "dungeon" else LevelDoor.Style.WOODEN_DOOR
+		LevelDoor.Style.OPENING if kind == "outdoor" else (LevelDoor.Style.STONE_ARCH if kind == "dungeon" else LevelDoor.Style.WOODEN_DOOR)
 	)
 	FACTORY.start_at_door(root, back_id)
 	error = FACTORY.save(root, path)
@@ -2738,12 +2945,13 @@ func _setup_dialogs() -> void:
 	new_name.custom_minimum_size = Vector2(380, 50)
 	new_dialog.confirmed.connect(_create_new)
 	EditorInterface.get_base_control().add_child(room_dialog)
-	room_dialog.title = "Nieuwe kamer achter deze deur"
+	room_dialog.title = "Nieuwe scene achter deze deur"
 	var room_box := VBoxContainer.new()
 	room_dialog.add_child(room_box)
-	room_name.placeholder_text = "Naam van de kamer"
+	room_name.placeholder_text = "Naam van de scene"
 	room_name.custom_minimum_size = Vector2(380, 40)
 	room_box.add_child(room_name)
+	room_kind.add_item("Level")
 	room_kind.add_item("Interieur")
 	room_kind.add_item("Dungeonkamer")
 	room_box.add_child(room_kind)
@@ -2762,7 +2970,7 @@ func _setup_dialogs() -> void:
 			_create_room_behind(
 				room_door,
 				room_name.text,
-				"dungeon" if room_kind.selected == 1 else "interior",
+				["outdoor", "interior", "dungeon"][room_kind.selected],
 				Vector2(room_width.value, room_depth.value)
 			)
 	)

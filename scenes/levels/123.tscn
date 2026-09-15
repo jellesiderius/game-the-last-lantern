@@ -1,0 +1,232 @@
+[gd_scene format=3 uid="uid://bvovmrjq7irrx"]
+
+[ext_resource type="Script" uid="uid://dahr67yknirj2" path="res://scripts/world/authoring/authored_level.gd" id="1_kfvgt"]
+[ext_resource type="Resource" uid="uid://coc3r3pqrmrqs" path="res://settings/areas/123.tres" id="2_5muf7"]
+[ext_resource type="Resource" path="res://settings/area_sets/interior.tres" id="3_gt6hs"]
+[ext_resource type="Script" uid="uid://clqcgbow6xpru" path="res://scripts/world/authoring/level_terrain.gd" id="4_xdm38"]
+[ext_resource type="Script" uid="uid://bdqke76lmtwec" path="res://scripts/world/authoring/level_door.gd" id="5_o5rf2"]
+[ext_resource type="Resource" path="res://settings/transitions/door.tres" id="6_fr0fh"]
+[ext_resource type="Script" uid="uid://baahi06eehkq4" path="res://scripts/world/scene_spawn_point.gd" id="7_67m3o"]
+[ext_resource type="ArrayMesh" uid="uid://bl6orxsqyt0tl" path="res://scenes/levels/123.terrain/Terrain.res" id="8_iem3d"]
+[ext_resource type="Shape3D" uid="uid://ddjmewbx2doli" path="res://scenes/levels/123.terrain/Terrain_collision.res" id="9_oawbr"]
+[ext_resource type="Script" uid="uid://dnfqek7ev0jgq" path="res://scripts/world/checkpoint_anchor.gd" id="10_phyrh"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="11_bise0"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="15_sjutc"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="17_fi0uc"]
+[ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="18_8efc5"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_36b5i"]
+resource_local_to_scene = true
+size = Vector3(2.6, 3, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_45jkr"]
+size = Vector3(11, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vmau2"]
+size = Vector3(0.5, 8, 4.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qpvt1"]
+size = Vector3(0.5, 8, 4.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_61mjk"]
+size = Vector3(11, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lcrm3"]
+size = Vector3(0.5, 8, 11)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_t02hv"]
+size = Vector3(1.6, 0.2, 2.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q1c6c"]
+size = Vector3(0.5, 8, 2.6)
+
+[sub_resource type="Environment" id="Environment_h67uo"]
+background_mode = 1
+background_color = Color(0.025, 0.055, 0.05, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.56, 0.69, 0.63, 1)
+ambient_light_energy = 0.55
+reflected_light_source = 2
+tonemap_mode = 3
+tonemap_exposure = 1.3
+ssao_enabled = true
+ssao_radius = 0.4
+ssao_intensity = 0.7
+glow_enabled = true
+glow_intensity = 0.35
+fog_light_color = Color(0.21960784, 0.30980393, 0.28235295, 1)
+fog_density = 0.0
+
+[sub_resource type="ParticleProcessMaterial" id="Process"]
+emission_shape = 1
+emission_sphere_radius = 0.025
+direction = Vector3(0, 1, 0)
+spread = 140.0
+initial_velocity_min = 0.8
+initial_velocity_max = 2.0
+gravity = Vector3(0, -3, 0)
+scale_min = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+shading_mode = 0
+albedo_color = Color(1, 0.2, 0.4, 1)
+
+[sub_resource type="SphereMesh" id="SparkMesh"]
+material = SubResource("Material")
+radius = 0.024
+height = 0.048
+radial_segments = 8
+rings = 4
+
+[node name="123" type="Node3D" unique_id=1121209407]
+script = ExtResource("1_kfvgt")
+area = ExtResource("2_5muf7")
+area_set = ExtResource("3_gt6hs")
+spawn_position = Vector3(3.6, 0, -6.119594e-08)
+camera_min = Vector2(-1, -1)
+camera_max = Vector2(1, 1)
+
+[node name="Terrain" type="Node3D" parent="." unique_id=982007615]
+script = ExtResource("4_xdm38")
+area_set = ExtResource("3_gt6hs")
+size = Vector2(10, 10)
+room_walls = true
+wall_height = 2.6
+cutaway_height = 0.5
+room_look = 1
+baked_signature = "afe15855ac2c5a29f441f741b90c4a70a5a8eeb41694a443a91335e663b75f84"
+
+[node name="NaarTrest123" type="Area3D" parent="Terrain" unique_id=986096650]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 5, 0, 0)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_o5rf2")
+door_id = &"NaarTrest123"
+target_scene = "res://scenes/levels/Trest123.tscn"
+target_spawn = &"Doorgang"
+settings = ExtResource("6_fr0fh")
+trigger_size = Vector3(2.6, 3, 1.2)
+
+[node name="Shape" type="CollisionShape3D" parent="Terrain/NaarTrest123" unique_id=297373481]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_36b5i")
+
+[node name="Arrival" type="Marker3D" parent="Terrain/NaarTrest123" unique_id=768805574]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 1.4)
+script = ExtResource("7_67m3o")
+spawn_id = &"NaarTrest123"
+
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=2063206508]
+metadata/level_builder_generated = true
+
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=2096543164]
+mesh = ExtResource("8_iem3d")
+
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=1399611598]
+collision_mask = 0
+
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1773433525]
+shape = ExtResource("9_oawbr")
+
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=923765101]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -5.25)
+shape = SubResource("BoxShape3D_45jkr")
+
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=263241602]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 3, -3.4)
+shape = SubResource("BoxShape3D_vmau2")
+
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=132754781]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 3, 3.4)
+shape = SubResource("BoxShape3D_qpvt1")
+
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=563250051]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5.25)
+shape = SubResource("BoxShape3D_61mjk")
+
+[node name="Boundary5" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1760880207]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.25, 3, 0)
+shape = SubResource("BoxShape3D_lcrm3")
+
+[node name="Doorway6" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=203420426]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, -0.1, 0)
+shape = SubResource("BoxShape3D_t02hv")
+
+[node name="Doorway7" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=136914328]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.85, 3, 0)
+shape = SubResource("BoxShape3D_q1c6c")
+
+[node name="Props" type="Node3D" parent="." unique_id=326110641]
+
+[node name="Enemies" type="Node3D" parent="." unique_id=1150032740]
+
+[node name="Gameplay" type="Node3D" parent="." unique_id=1113797191]
+
+[node name="Routes" type="Node3D" parent="." unique_id=1442733032]
+
+[node name="Spawns" type="Node3D" parent="." unique_id=1056622680]
+
+[node name="Entrance" type="Marker3D" parent="Spawns" unique_id=2014483132]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 0, -6.119594e-08)
+script = ExtResource("7_67m3o")
+
+[node name="StartCheckpoint" type="Marker3D" parent="Spawns" unique_id=1488687349]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 0, -6.119594e-08)
+script = ExtResource("10_phyrh")
+checkpoint_id = &"start.area.361f7d02b26b034be67b9e4f2ff71fa6"
+area = ExtResource("2_5muf7")
+
+[node name="Player" parent="." unique_id=1032567860 instance=ExtResource("11_bise0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6, 0, -6.119594e-08)
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=549768303]
+transform = Transform3D(0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76604444, -0.70710677, -0.5416752, 0.45451948, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=475759235]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
+projection = 1
+current = true
+size = 11.0
+far = 160.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=65415230]
+environment = SubResource("Environment_h67uo")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=499639871]
+transform = Transform3D(0.8480481, 0.43408445, -0.3039492, 0, 0.57357645, 0.81915206, 0.52991927, -0.69468033, 0.48642042, 0, 0, 0)
+light_color = Color(1, 0.88, 0.68, 1)
+light_energy = 0.6
+shadow_enabled = true
+
+[node name="HUD" parent="." unique_id=1578211277 instance=ExtResource("15_sjutc")]
+
+[node name="DebugVolumes" type="MeshInstance3D" parent="." unique_id=555743220]
+
+[node name="ImpactPool" type="Node3D" parent="." unique_id=1773923547]
+
+[node name="Spark0" parent="ImpactPool" unique_id=312022962 instance=ExtResource("17_fi0uc")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark1" parent="ImpactPool" unique_id=869730108 instance=ExtResource("17_fi0uc")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark2" parent="ImpactPool" unique_id=1000650398 instance=ExtResource("17_fi0uc")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark3" parent="ImpactPool" unique_id=758221616 instance=ExtResource("17_fi0uc")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="." unique_id=857254011]
+stream = ExtResource("18_8efc5")
+volume_db = -8.0
+max_distance = 30.0
+
+[node name="RoomLight" type="OmniLight3D" parent="." unique_id=416538784]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 2.6, -1.5)
+light_color = Color(1, 0.72, 0.4, 1)
+shadow_enabled = true
+omni_range = 7.5

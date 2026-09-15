@@ -15,21 +15,21 @@
 [ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="15_hnpvx"]
 [ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="16_4ia7d"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_edh87"]
-size = Vector3(25, 8, 0.5)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_tylob"]
-size = Vector3(0.5, 8, 25)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_g1sew"]
-size = Vector3(25, 8, 0.5)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_abr8h"]
-size = Vector3(0.5, 8, 25)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_7kjs8"]
 resource_local_to_scene = true
 size = Vector3(2.6, 3, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pc6mr"]
+size = Vector3(25, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dnnqv"]
+size = Vector3(0.5, 8, 25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f3bug"]
+size = Vector3(25, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7h2bu"]
+size = Vector3(0.5, 8, 25)
 
 [sub_resource type="Environment" id="Environment_aqvxn"]
 background_mode = 1
@@ -80,35 +80,7 @@ camera_max = Vector2(7, 7)
 [node name="Terrain" type="Node3D" parent="." unique_id=1812392114]
 script = ExtResource("4_ykomt")
 area_set = ExtResource("3_7h2bu")
-baked_signature = "f9605f844824090dc25e1cc351fa6685355dbdb10d52147f46d655f3c0b775b1"
-
-[node name="Baked" type="Node3D" parent="Terrain" unique_id=1843477248]
-metadata/level_builder_generated = true
-
-[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=833163988]
-mesh = ExtResource("5_c8rl6")
-
-[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=1739656730]
-collision_mask = 0
-
-[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1199311798]
-shape = ExtResource("6_ixpar")
-
-[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=842316798]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -12.25)
-shape = SubResource("BoxShape3D_edh87")
-
-[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=134742304]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.25, 3, 0)
-shape = SubResource("BoxShape3D_tylob")
-
-[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1085487902]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 12.25)
-shape = SubResource("BoxShape3D_g1sew")
-
-[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=997992446]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.25, 3, 0)
-shape = SubResource("BoxShape3D_abr8h")
+baked_signature = "745aecee5c655cdc977964963a2d23db46b9e23b897b9edb50d609c3706965a4"
 
 [node name="Deur" type="Area3D" parent="Terrain" unique_id=1921532785]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
@@ -129,6 +101,34 @@ shape = SubResource("BoxShape3D_7kjs8")
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 1.4)
 script = ExtResource("7_4wfo4")
 spawn_id = &"Deur"
+
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=1998919171]
+metadata/level_builder_generated = true
+
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=521649613]
+mesh = ExtResource("5_c8rl6")
+
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=414043532]
+collision_mask = 0
+
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=607143045]
+shape = ExtResource("6_ixpar")
+
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=33442618]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -12.25)
+shape = SubResource("BoxShape3D_pc6mr")
+
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1455423674]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.25, 3, 0)
+shape = SubResource("BoxShape3D_dnnqv")
+
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=119533974]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 12.25)
+shape = SubResource("BoxShape3D_f3bug")
+
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1684487281]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.25, 3, 0)
+shape = SubResource("BoxShape3D_7h2bu")
 
 [node name="Props" type="Node3D" parent="." unique_id=1085328495]
 

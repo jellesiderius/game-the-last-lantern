@@ -43,7 +43,9 @@ void fragment() {
 	// shadows and cliff contact shading provide the depth.
 	float broad = noise(pos * .09) * .6 + noise(pos * .23) * .4;
 	if (has_ground_texture) {
-		ground *= texture(ground_texture, UV).rgb;
+		// Like the original forest ground: the painted tile, tinted by the ground colour,
+		// under a soft cloud of lighter and darker grass.
+		ground *= texture(ground_texture, UV).rgb * mix(.82, 1.16, noise(UV * 2.4));
 	} else if (ground_pattern == 1) {
 		ground *= mix(.92, 1.07, broad);
 		ground = mix(ground, ground * vec3(1.07, 1.05, .85), smoothstep(.55, .8, broad) * .45);
@@ -54,6 +56,32 @@ void fragment() {
 		float width = max(fwidth(tiled.x), fwidth(tiled.y));
 		float slab = smoothstep(.012 - width, .025 + width, min(edge.x, edge.y));
 		ground *= mix(.78, 1.0, slab) * (.95 + .08 * hash(floor(tiled)));
+	} else if (ground_pattern == 5) {
+		// Grass like the original forest: warm yellow-green and cooler blue-green
+		// drifting through each other, broken into irregular metre-sized patches with
+		// a few lighter sunny spots, so a field never reads as one flat colour.
+		vec2 p = UV * 0.85;
+		vec2 cell = floor(p);
+		float nearest = 8.0;
+		vec2 id = cell;
+		for (int y = -1; y <= 1; y++) {
+			for (int x = -1; x <= 1; x++) {
+				vec2 n = cell + vec2(float(x), float(y));
+				vec2 point = n + vec2(hash(n + .7), hash(n + 3.9)) * .8 + .1;
+				float d = distance(p, point);
+				if (d < nearest) {
+					nearest = d;
+					id = n;
+				}
+			}
+		}
+		float drift = noise(UV * .07) * .65 + noise(UV * .19 + 4.0) * .35;
+		vec3 warm = ground * vec3(1.1, 1.06, .86);
+		vec3 cool = ground * vec3(.9, 1.0, 1.05);
+		ground = mix(cool, warm, smoothstep(.3, .72, drift));
+		float patch = hash(id);
+		ground *= .93 + .12 * patch;
+		ground = mix(ground, ground * vec3(1.08, 1.06, .92), step(.88, patch) * .5);
 	} else if (ground_pattern == 4) {
 		// Floorboards like the Forest house: half-metre wide planks running the length
 		// of the room in three alternating tones with a dark seam between them.
@@ -68,7 +96,8 @@ void fragment() {
 		ground *= mix(.94, 1.04, broad);
 	}
 	if (has_path_texture) {
-		path *= texture(path_texture, UV).rgb;
+		// The painted sand blended halfway towards the path colour, as in the forest.
+		path = mix(texture(path_texture, UV).rgb, path_color.rgb, .48) * mix(.94, 1.035, noise(UV * 6.0));
 	} else {
 		path *= mix(.95, 1.04, noise(pos * .35));
 	}

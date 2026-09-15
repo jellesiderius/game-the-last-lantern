@@ -1,0 +1,4 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://tools/level_builder/tmp/capture_opening.gd" id="Capture"]
+[node name="CaptureOpening" type="Node"]
+script = ExtResource("Capture")

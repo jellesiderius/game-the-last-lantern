@@ -568,6 +568,47 @@ func run(editor_plugin: EditorPlugin) -> void:
 	await load("res://tests/level_builder_scatter_checks.gd").new().run(self, terrain)
 	# Doors and rooms: a doorway on the ground edge, a new room behind it, the link list.
 	plugin._set_tool(LevelBuilderToolDoor())
+	# A door set into the wall of a tall plateau.
+	var previous_height: float = plugin.plateau_height.value
+	plugin.plateau_height.value = 3.0
+	var cliff_plateau: LevelTerrace = plugin._create_plateau(Vector3(2, 0, -10), Vector3(8, 0, -6))
+	plugin.plateau_height.value = previous_height
+	terrain.bake()
+	var cliff_plan: Dictionary = plugin._cliff_door_plan(terrain, Vector2(5, -5.8))
+	check(
+		"hovering a tall plateau wall plans a door in it",
+		cliff_plan.get("cliff", false) and not cliff_plan.has("error") and cliff_plan.height > 1.9,
+		cliff_plan
+	)
+	var cliff_door: LevelDoor = plugin._create_door(terrain, cliff_plan) if cliff_plan.get("cliff", false) and not cliff_plan.has("error") else null
+	check(
+		"the plateau door stands against the wall, facing out, arrival in front",
+		(
+			cliff_door != null
+			and cliff_door.cliff_door
+			and absf(cliff_door.position.z + 6.0) < .1
+			and cliff_door.get_node("Arrival").global_position.z > cliff_door.global_position.z + 1.0
+			and terrain.bake()
+		),
+		[cliff_door.position if cliff_door else null, terrain.last_error]
+	)
+	if cliff_door:
+		# Clicking the doorway in the rock selects the door, not the plateau around it.
+		cliff_door._rebuild()
+		var pick_camera := EditorInterface.get_editor_viewport_3d(0).get_camera_3d()
+		var door_screen := pick_camera.unproject_position(cliff_door.to_global(Vector3(0, 1.1, .2)))
+		var door_pick: Dictionary = plugin._pick_authoring(terrain, pick_camera, door_screen)
+		check(
+			"clicking a door in a plateau wall selects the door",
+			door_pick.get("node") == cliff_door,
+			door_pick.get("node")
+		)
+		terrain.remove_child(cliff_door)
+		cliff_door.free()
+	if cliff_plateau:
+		cliff_plateau.get_parent().remove_child(cliff_plateau)
+		cliff_plateau.free()
+	terrain.bake()
 	var door_plan: Dictionary = plugin._door_plan(terrain, Vector2(3, -terrain.size.y / 2 + .4))
 	check("hovering near a ground edge plans a doorway on it", door_plan.get("side") == 0, door_plan)
 	var edge_door: LevelDoor = plugin._create_door(terrain, door_plan)
@@ -583,6 +624,26 @@ func run(editor_plugin: EditorPlugin) -> void:
 		),
 		terrain.last_error
 	)
+	var gap_open := false
+	for body in terrain.find_children("*", "CollisionShape3D", true, false):
+		if String(body.name).begins_with("Doorway"):
+			gap_open = true
+	check(
+		"outdoors a door on the ground edge is an open passage through the boundary",
+		edge_door != null and edge_door.style == LevelDoor.Style.OPENING and String(edge_door.name).begins_with("Doorgang") and gap_open,
+		[edge_door.style if edge_door else null, gap_open]
+	)
+	edge_door._rebuild()
+	var dark_outside: bool = not edge_door.has_node("Frame/PassageGlow") and not edge_door.has_node("Frame/Sunbeam")
+	edge_door.light = LevelDoor.LightMode.ON
+	edge_door._rebuild()
+	check(
+		"doors outdoors show no light unless Licht is set to Aan",
+		dark_outside and edge_door.has_node("Frame/PassageGlow"),
+		dark_outside
+	)
+	edge_door.light = LevelDoor.LightMode.AUTO
+	edge_door._rebuild()
 	EditorInterface.save_scene()
 	await wait_frames(10)
 	var room_title := "Builder Kamer %d" % OS.get_process_id()

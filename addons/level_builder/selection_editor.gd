@@ -111,6 +111,14 @@ func _door_controls() -> void:
 		else "Nog niet verbonden."
 	)
 	add_child(summary)
+	for field in [["style", plugin.DOOR_STYLES, "Stijl"], ["light", plugin.DOOR_LIGHTS, "Licht"]]:
+		var picker := OptionButton.new()
+		picker.tooltip_text = field[2]
+		for title in field[1]:
+			picker.add_item(field[2] + ": " + title)
+		picker.select(door.get(field[0]))
+		picker.item_selected.connect(func(index): plugin._set_door_property(door, field[0], index))
+		add_child(picker)
 	if not door.target_scene.is_empty():
 		var spawns: Array[StringName] = plugin._scene_spawn_ids(door.target_scene)
 		if not spawns.is_empty():
@@ -133,7 +141,7 @@ func _door_controls() -> void:
 			plugin.link_dialog.popup_centered_ratio(.6)
 	)
 	_action(
-		"Nieuwe kamer erachter…",
+		"Nieuwe scene erachter…",
 		func():
 			plugin.room_door = door
 			plugin.room_name.text = ""

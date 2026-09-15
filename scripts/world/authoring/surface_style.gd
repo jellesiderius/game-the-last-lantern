@@ -25,7 +25,7 @@ extends Resource
 	set(value):
 		texture_scale = value
 		emit_changed()
-@export_enum("Effen", "Gras", "Steen", "Aarde", "Planken") var pattern := 1:
+@export_enum("Effen", "Gras", "Steen", "Aarde", "Planken", "Facetgras") var pattern := 1:
 	set(value):
 		pattern = value
 		emit_changed()
@@ -34,8 +34,9 @@ extends Resource
 	set(value):
 		cliff_color = value
 		emit_changed()
-## Stone blocks for cliffs and dungeon walls, or smooth plaster for interiors.
-@export_enum("Blokken", "Glad") var cliff_pattern := 0:
+## Stone blocks for dungeon walls, smooth plaster for interiors, or natural rock
+## faces for plateaus outdoors.
+@export_enum("Blokken", "Glad", "Rots") var cliff_pattern := 0:
 	set(value):
 		cliff_pattern = value
 		emit_changed()

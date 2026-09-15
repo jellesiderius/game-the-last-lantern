@@ -8,13 +8,36 @@ uniform float cliff_texture_scale = 2.0;
 // Procedural chunky stone blocks, used until a real cliff texture is assigned.
 uniform float block_height = 0.5;
 uniform float block_length = 1.0;
-// 0 = stone blocks, 1 = smooth plaster (interiors).
+// 0 = stone blocks, 1 = smooth plaster (interiors), 2 = faceted natural rock.
 uniform int cliff_pattern = 0;
 varying vec3 world_pos;
 varying vec3 world_normal;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+// Nearest and second-nearest cell point: irregular rock faces and their cracks.
+vec4 voronoi(vec2 p) {
+	vec2 cell = floor(p);
+	float first = 8.0;
+	float second = 8.0;
+	vec2 id = cell;
+	for (int y = -1; y <= 1; y++) {
+		for (int x = -1; x <= 1; x++) {
+			vec2 neighbour = cell + vec2(float(x), float(y));
+			vec2 point = neighbour + vec2(hash(neighbour + 0.7), hash(neighbour + 3.9)) * 0.8 + 0.1;
+			float d = distance(p, point);
+			if (d < first) {
+				second = first;
+				first = d;
+				id = neighbour;
+			} else if (d < second) {
+				second = d;
+			}
+		}
+	}
+	return vec4(id, first, second);
 }
 
 void vertex() {
@@ -24,12 +47,24 @@ void vertex() {
 
 void fragment() {
 	vec3 n = abs(world_normal);
-	float wx = n.x / max(n.x + n.z, 0.0001);
-	// World-space mapping: blocks keep their size regardless of wall height.
-	float along = mix(world_pos.x, world_pos.z, wx);
+	// Distance along the wall itself, whatever its direction: the pattern keeps its
+	// size on diagonal walls instead of stretching between the x and z axes.
+	vec2 flat_normal = world_normal.xz;
+	vec2 tangent = length(flat_normal) > 0.0001 ? normalize(vec2(-flat_normal.y, flat_normal.x)) : vec2(1.0, 0.0);
+	float along = dot(world_pos.xz, tangent);
 	vec3 color = COLOR.rgb;
 	if (UV2.x < 0.5) {
-		if (cliff_pattern == 1 && !has_cliff_texture) {
+		if (cliff_pattern == 2 && !has_cliff_texture) {
+			// Natural rock like the original forest banks: large flat facets of uneven
+			// size, each tilted towards the sun differently, with soft dark cracks.
+			vec2 rock = vec2(along * 0.45, world_pos.y * 0.7);
+			vec4 v = voronoi(rock);
+			float crack = smoothstep(0.0, 0.05 + fwidth(v.w - v.z) * 1.5, v.w - v.z);
+			vec3 lean = vec3(hash(v.xy + 1.3), hash(v.xy + 7.1) * 0.5, hash(v.xy + 4.2)) - 0.5;
+			NORMAL = normalize(NORMAL + (VIEW_MATRIX * vec4(lean * 0.35, 0.0)).xyz);
+			color *= 0.94 + 0.12 * hash(v.xy + 9.4);
+			color = mix(color * 0.88, color, crack);
+		} else if (cliff_pattern == 1 && !has_cliff_texture) {
 			color *= 0.96 + 0.05 * hash(floor(vec2(along, world_pos.y) * 3.0));
 		} else if (has_cliff_texture) {
 			color *= texture(cliff_texture, vec2(along, -world_pos.y) / cliff_texture_scale).rgb;

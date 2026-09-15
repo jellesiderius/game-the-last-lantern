@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WorldArea" format=3 uid="uid://dkj3nogmgrnol"]
+
+[ext_resource type="Script" uid="uid://di1cc4m2874ms" path="res://scripts/world/world_area.gd" id="1_p8yfv"]
+
+[resource]
+script = ExtResource("1_p8yfv")
+code = &"area.a5d9c45a68a6f7f31082fa6ff23937d7"
+display_name = "Test in rots"
+scene_path = "res://scenes/levels/TestInRots.tscn"
