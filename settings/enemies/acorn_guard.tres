@@ -109,4 +109,5 @@ path_update_interval = 0.08
 alternate_orbit_after_attack = true
 patrol_offsets = PackedVector3Array(0.65, 0, 0.25, -0.45, 0, -0.4, 0, 0, 0)
 post_attack_cooldown = 0.16
+fireshard_reward = 60
 retaliation_window = 1.5

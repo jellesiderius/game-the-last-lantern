@@ -2,6 +2,8 @@ class_name PlayerCharacter
 extends CharacterBody3D
 signal state_changed(next: String)
 signal entrance_finished
+## Emitted once when the last health point is lost; the respawn menu stays authored elsewhere.
+signal died
 var entrance: EntranceSequence
 var entrance_launched := false
 var entrance_landed := false
@@ -57,7 +59,7 @@ signal landed(impact_speed: float)
 
 func _enter_tree() -> void:
 	if is_node_ready():
-		GameSession.player = self
+		GameSession.register_player(self)
 	definition = GameSession.selected_character
 	if definition and definition.movement:
 		settings = definition.movement.duplicate()
@@ -202,12 +204,12 @@ func finish_rest_action() -> void:
 
 func _exit_tree() -> void:
 	if GameSession.player == self:
-		GameSession.player = null
+		GameSession.register_player(null)
 
 
 func _ready() -> void:
 	add_to_group("player")
-	GameSession.player = self
+	GameSession.register_player(self)
 	GameProgress.apply_stats(self)
 	input_device = InputRouter.kind
 	visual.weapon.swing_connected.connect(_on_melee_connected)
@@ -770,11 +772,14 @@ func _begin_fall() -> void:
 
 
 func _finish_action() -> void:
-	if state == "roll" and (
-		action_time >= settings.roll_duration
-		or (
-			roll_attack_queued
-			and action_time >= settings.roll_duration - settings.roll_attack_cancel
+	if (
+		state == "roll"
+		and (
+			action_time >= settings.roll_duration
+			or (
+				roll_attack_queued
+				and action_time >= settings.roll_duration - settings.roll_attack_cancel
+			)
 		)
 	):
 		roll_cooldown = settings.roll_recovery
@@ -831,6 +836,9 @@ func receive_hit(amount: float, id: int, origin: Vector3, _force := 1.0) -> bool
 	locked_direction.y = 0
 	if health.current <= 0:
 		_enter("dead", "death")
+		# After the state settles: a wisp dropped at the death spot must not be absorbed
+		# by the body that just fell.
+		died.emit()
 	else:
 		_enter("hurt", "hurt")
 	return true

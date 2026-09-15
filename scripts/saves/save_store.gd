@@ -9,7 +9,13 @@ const MAX_BYTES := 8 * 1024 * 1024
 
 func _init() -> void:
 	# Replays get their own disposable directory; they cannot touch a player's slots.
-	for flag in ["--intro-replay", "--loading-replay", "--checkpoint-replay", "--save-replay"]:
+	for flag in [
+		"--intro-replay",
+		"--loading-replay",
+		"--checkpoint-replay",
+		"--save-replay",
+		"--fireshards-replay"
+	]:
 		if flag in OS.get_cmdline_user_args():
 			directory = "user://save_tests/run_%d" % OS.get_process_id()
 	for arg in OS.get_cmdline_user_args():
@@ -34,7 +40,7 @@ func _read(path: String) -> Dictionary:
 	if envelope.get("checksum", "") != payload.sha256_text():
 		return {}
 	var data: Variant = JSON.parse_string(payload)
-	return data if SaveSchema.valid(data) else {}
+	return SaveSchema.normalize(data) if SaveSchema.valid(data) else {}
 
 
 func inspect_slot(slot: int) -> Dictionary:
@@ -72,13 +78,13 @@ func _write_file(path: String, text: String) -> bool:
 
 func write_slot(slot: int, snapshot: Dictionary, create_only := false) -> Dictionary:
 	last_error = ""
-	if slot < 0 or slot >= SaveSchema.SLOT_COUNT or not SaveSchema.valid(snapshot):
+	var saved := SaveSchema.normalize(snapshot.duplicate(true))
+	if slot < 0 or slot >= SaveSchema.SLOT_COUNT or not SaveSchema.valid(saved):
 		return _failure("Dit spel kan niet worden opgeslagen: de savegegevens zijn ongeldig.")
 	if create_only and inspect_slot(slot).state != "empty":
 		return _failure("Dit slot is al bezet. Kies het om te laden of verwijder het eerst.")
 	if DirAccess.make_dir_recursive_absolute(directory) != OK:
 		return _failure("Opslaan is niet gelukt. De opslagmap is niet beschikbaar.")
-	var saved := snapshot.duplicate(true)
 	saved.last_saved_unix = Time.get_unix_time_from_system()
 	var payload := JSON.stringify(saved)
 	var envelope := JSON.stringify({"payload": payload, "checksum": payload.sha256_text()})

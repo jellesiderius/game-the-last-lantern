@@ -26,4 +26,5 @@ attack = SubResource("Melee")
 patrol_offsets = null
 archetype_priority = 1.35
 tint = Color(0.31, 0.18, 0.4, 1)
+fireshard_reward = 140
 retaliation_hits = 2

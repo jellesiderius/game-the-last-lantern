@@ -33,6 +33,9 @@ func _ready() -> void:
 		add_child(load("res://tests/forest_preview.gd").new())
 	elif "--forest-replay" in OS.get_cmdline_user_args():
 		add_child(load("res://tests/forest_replay.gd").new())
+	elif "--fireshards-replay" in OS.get_cmdline_user_args():
+		# Added to the root because the death/respawn check reloads this level.
+		get_tree().root.add_child.call_deferred(load("res://tests/fireshards_replay.gd").new())
 
 
 func _physics_process(delta: float) -> void:

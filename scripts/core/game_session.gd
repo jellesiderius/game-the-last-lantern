@@ -1,5 +1,6 @@
 extends Node
 ## Selection persists across level restart; no character-specific combat logic lives here.
+signal player_registered(player: PlayerCharacter)
 var characters: Array[CharacterDefinition] = [preload("res://settings/characters/red_panda.tres")]
 var selected_character: CharacterDefinition
 ## The live player while it is inside the tree. Cheaper and clearer than a group lookup per tick.
@@ -22,6 +23,14 @@ func select_character(id: String) -> bool:
 			selected_character = character
 			return true
 	return false
+
+
+## One place to publish the live player so services can subscribe without polling.
+func register_player(player: PlayerCharacter) -> void:
+	if self.player == player:
+		return
+	self.player = player
+	player_registered.emit(player)
 
 
 func _ready() -> void:

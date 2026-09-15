@@ -13,6 +13,21 @@ var pause_panel: GamePauseMenu
 var ability_hint_until := 0.0
 var menu_reason := ""
 var hint: Label
+var shard_value: Label
+var shard_group: HBoxContainer
+var shard_feedback := Color.WHITE
+var shard_feedback_until := 0.0
+## The readout only appears around a change, climbs to the new total instead of snapping,
+## and fades away again. Any message on top of that would be noise.
+var shard_display := 0.0
+var shard_from := 0.0
+var shard_target := 0
+var shard_elapsed := 0.0
+var shard_duration := 0.0
+var shard_show_time := INF
+const SHARD_FADE_IN := .12
+const SHARD_HOLD := 2.2
+const SHARD_FADE_OUT := .6
 @onready var arena = get_parent()
 @onready var input_hint: RichTextLabel = $Root/InputHint
 @onready var context_prompt: RichTextLabel = $Root/ContextPrompt
@@ -40,10 +55,15 @@ func _ready() -> void:
 	)
 	InputRouter.controller_disconnected.connect(_controller_disconnected)
 	arena.get_node("Player").ranged_loadout.selection_denied.connect(_ability_denied)
+	shard_value = $Root/Fireshards/Value
+	shard_group = $Root/Fireshards
+	shard_group.visible = false
+	Fireshards.fireshards_changed.connect(_shards_changed)
+	_set_shards(Fireshards.total(), true)
 	hint = $Root/Hint
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	var p = arena.player
 	if not is_instance_valid(p):
 		return
@@ -57,6 +77,7 @@ func _process(_delta: float) -> void:
 	if magic_feedback == Color.RED:
 		magic_meter.position.x += sin(GameClock.elapsed * 90) * 3 * feedback
 	magic_hint.visible = GameClock.elapsed < magic_hint_until
+	_update_shards(delta)
 	charge.value = (
 		p.charge_amount
 		if p.state == "charge"
@@ -103,7 +124,10 @@ func _process(_delta: float) -> void:
 	elif not menu_visible and pause_panel.visible:
 		pause_panel.close()
 	var overlays_allowed: bool = (
-		not menu_visible and not Dialogue.active and not SceneTransit.active and not Checkpoints.active
+		not menu_visible
+		and not Dialogue.active
+		and not SceneTransit.active
+		and not Checkpoints.active
 	)
 	var interaction: Interactable = p.interaction.target
 	input_hint.visible = overlays_allowed and p.state != "entrance"
@@ -216,6 +240,55 @@ func _magic_denied() -> void:
 	magic_feedback = Color.RED
 	magic_hint_until = GameClock.elapsed + 1.5
 	magic_hint.text = "MELEE TO REFILL"
+
+
+func _update_shards(delta: float) -> void:
+	var feedback := clampf((shard_feedback_until - GameClock.elapsed) / .3, 0, 1)
+	shard_value.modulate = Color.WHITE.lerp(shard_feedback, feedback)
+	if shard_display != float(shard_target):
+		shard_elapsed = minf(shard_elapsed + delta, shard_duration)
+		var progress := clampf(shard_elapsed / maxf(shard_duration, .01), 0, 1)
+		var eased := 1.0 - pow(1.0 - progress, 3.0)
+		shard_display = lerpf(shard_from, float(shard_target), eased)
+		if progress >= 1.0:
+			shard_display = float(shard_target)
+	_set_text(shard_value, str(roundi(shard_display)))
+	var alpha := _shard_alpha(delta)
+	shard_group.visible = alpha > .01
+	shard_group.modulate.a = alpha
+
+
+## Fades the readout in, holds it long enough to read the climb, then fades it out again.
+func _shard_alpha(delta: float) -> float:
+	if is_inf(shard_show_time):
+		return 0.0
+	shard_show_time += delta
+	if shard_show_time < SHARD_FADE_IN:
+		return shard_show_time / SHARD_FADE_IN
+	if shard_show_time < SHARD_FADE_IN + SHARD_HOLD:
+		return 1.0
+	var fading := shard_show_time - SHARD_FADE_IN - SHARD_HOLD
+	return clampf(1.0 - fading / SHARD_FADE_OUT, 0.0, 1.0)
+
+
+func _shards_changed(total: int) -> void:
+	_set_shards(total)
+	shard_show_time = 0.0
+	shard_feedback = Color(1.7, 1.55, 1.15)
+	shard_feedback_until = GameClock.elapsed + .3
+
+
+## A new total starts a fresh climb from whatever is on screen right now. A scene load or a
+## fresh HUD snaps instead, otherwise arriving would look like a gain.
+func _set_shards(total: int, snap := false) -> void:
+	shard_from = float(total) if snap else shard_display
+	shard_target = total
+	shard_elapsed = 0.0
+	# Calm but still snappy: roughly 0,65 s over 60 shards, capped for huge piles.
+	shard_duration = clampf(.22 + absf(float(total) - shard_from) * .007, .3, 1.2)
+	if snap:
+		shard_display = float(total)
+	_set_text(shard_value, str(roundi(shard_display)))
 
 
 func _health_changed(current: float, maximum: float) -> void:

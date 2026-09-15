@@ -29,6 +29,8 @@ Deze Mac gebruikt **Forward+ via Metal**, met MSAA/TAA, omgevingslicht, schaduwe
 
 Rustpunten, drie onafhankelijke spellen en bewerkbare checkpointinstellingen: [VUURLELIE.md](docs/VUURLELIE.md). Continue verschijnt pas zodra een save bestaat. Alleen **Rusten** herstelt meters, vernieuwt vijanden en slaat op; plaatsnemen opent uitsluitend het menu. Een klein lantaarnicoon bevestigt een geslaagde save.
 
+Verslagen vijanden laten fireshards achter als kleine vuurvliegjes; loop erheen en het personage zuigt ze op. Ga je dood, dan valt je hele voorraad op de plek van overlijden. Sterf je nog eens voordat je ze hebt opgeraapt, dan zijn ze definitief weg. De beloning staat per vijandprofiel én per geplaatste vijand in de Inspector. Zie [FIRESHARDS.md](docs/FIRESHARDS.md).
+
 ## Zelf levels maken
 
 Open **Level Builder** boven de 3D-weergave. Onderaan kies je assets met kleine modelpreviews; rechts staan **Bouwen**, **Bewerken** en **Level**. Via Level → Nieuw level kies je een areaset en eigen breedte/diepte. Paden blijven glad bij elke grondresolutie; ramps hebben versleepbare hoogtepunten en kunnen met één knop een aansluitend plateau krijgen. Assets nemen hun opgeslagen collision mee.

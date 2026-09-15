@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/health_first_empty.svg" id="health_first_empty"]
 [ext_resource type="Texture2D" path="res://assets/ui/health_last_full.svg" id="health_last_full"]
 [ext_resource type="Texture2D" path="res://assets/ui/health_last_empty.svg" id="health_last_empty"]
+[ext_resource type="Texture2D" path="res://assets/ui/fireshard.svg" id="shard_icon"]
 [ext_resource type="PackedScene" path="res://scenes/ui/InteractionPrompt.tscn" id="InteractionPrompt"]
 [ext_resource type="Script" path="res://scripts/ui/lock_marker.gd" id="LockMarker"]
 [sub_resource type="StyleBoxFlat" id="ChargeBack"]
@@ -190,6 +191,37 @@ theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.85,0.86,0.8,0.85)
 
 [node name="InteractionPrompt" parent="Root" instance=ExtResource("InteractionPrompt")]
+
+[node name="Fireshards" type="HBoxContainer" parent="Root"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 28.0
+offset_right = -28.0
+offset_bottom = 60.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="Icon" type="TextureRect" parent="Root/Fireshards"]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("shard_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Value" type="Label" parent="Root/Fireshards"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 21
+theme_override_colors/font_color = Color(1,0.87,0.55,1)
+theme_override_colors/font_shadow_color = Color(0.04,0.05,0.04,0.9)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+text = "0"
 
 [node name="LockMarker" type="Control" parent="Root"]
 visible = false

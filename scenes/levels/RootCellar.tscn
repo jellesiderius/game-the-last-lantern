@@ -1,186 +1,247 @@
-[gd_scene format=3]
-[ext_resource type="Script" path="res://scripts/dungeons/dungeon_room.gd" id="World"]
-[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="Player"]
-[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="HUD"]
-[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="Spark"]
-[ext_resource type="AudioStream" path="res://assets/audio/impact.wav" id="Sound"]
-[ext_resource type="PackedScene" path="res://scenes/world/dungeons/DungeonExit.tscn" id="Exit"]
-[ext_resource type="PackedScene" path="res://scenes/world/dungeons/Drempelpoort.tscn" id="Gate"]
-[ext_resource type="Script" path="res://scripts/world/scene_spawn_point.gd" id="Spawn"]
+[gd_scene format=3 uid="uid://duqmd5ukokbau"]
+
 [ext_resource type="Resource" path="res://settings/dungeons/root_cellar.tres" id="Dungeon"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npcs/enemy/AcornGuard.tscn" id="Enemy"]
+[ext_resource type="PackedScene" uid="uid://giov2vvtj7od" path="res://scenes/actors/npcs/enemy/AcornGuard.tscn" id="Enemy"]
+[ext_resource type="PackedScene" path="res://scenes/world/dungeons/DungeonExit.tscn" id="Exit"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="HUD"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="Player"]
+[ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="Sound"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="Spark"]
+[ext_resource type="Script" uid="uid://baahi06eehkq4" path="res://scripts/world/scene_spawn_point.gd" id="Spawn"]
+[ext_resource type="Script" uid="uid://k0jh5s68xqs5" path="res://scripts/dungeons/dungeon_room.gd" id="World"]
+
 [sub_resource type="Environment" id="Environment"]
 background_mode = 1
-background_color = Color(0.045,0.066,0.068,1)
+background_color = Color(0.045, 0.066, 0.068, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.58,0.67,0.72,1)
+ambient_light_color = Color(0.58, 0.67, 0.72, 1)
 ambient_light_energy = 0.65
+reflected_light_source = 2
 tonemap_mode = 2
 ssao_enabled = true
 glow_enabled = true
 glow_intensity = 0.75
-reflected_light_source = 2
+
 [sub_resource type="StandardMaterial3D" id="FloorMaterial"]
-albedo_color = Color(0.31,0.30,0.23,1)
+albedo_color = Color(0.31, 0.3, 0.23, 1)
 roughness = 0.91
-[sub_resource type="StandardMaterial3D" id="WallMaterial"]
-albedo_color = Color(0.27,0.28,0.20,1)
-roughness = 0.88
+
 [sub_resource type="BoxMesh" id="Foundation"]
-size = Vector3(14,0.5,18)
+size = Vector3(14, 0.5, 18)
+
 [sub_resource type="BoxShape3D" id="FloorShape"]
-size = Vector3(14,0.5,18)
+size = Vector3(14, 0.5, 18)
+
+[sub_resource type="StandardMaterial3D" id="WallMaterial"]
+albedo_color = Color(0.27, 0.28, 0.2, 1)
+roughness = 0.88
+
 [sub_resource type="BoxMesh" id="SideWall"]
-size = Vector3(0.65,2.5,18)
+size = Vector3(0.65, 2.5, 18)
+
 [sub_resource type="BoxShape3D" id="SideShape"]
-size = Vector3(0.65,2.5,18)
+size = Vector3(0.65, 2.5, 18)
+
 [sub_resource type="BoxMesh" id="EndWall"]
-size = Vector3(14,2.5,0.65)
+size = Vector3(14, 2.5, 0.65)
+
 [sub_resource type="BoxShape3D" id="EndShape"]
-size = Vector3(14,2.5,0.65)
+size = Vector3(14, 2.5, 0.65)
+
 [sub_resource type="BoxMesh" id="CutawayWall"]
-size = Vector3(14,0.55,0.65)
+size = Vector3(14, 0.55, 0.65)
+
 [sub_resource type="CylinderMesh" id="Column"]
 top_radius = 0.43
-bottom_radius = 0.5
 height = 2.25
 radial_segments = 8
+
 [sub_resource type="CylinderShape3D" id="ColumnShape"]
-radius = 0.47
 height = 2.25
-[node name="RootCellar" type="Node3D"]
+radius = 0.47
+
+[node name="RootCellar" type="Node3D" unique_id=62878509]
 script = ExtResource("World")
-spawn_position = Vector3(0,0,4.7)
-camera_min = Vector2(-2.5,-4.2)
-camera_max = Vector2(2.5,4.3)
 dungeon = ExtResource("Dungeon")
-required_enemies = Array[NodePath]([NodePath("Wachter1"),NodePath("Wachter2")])
-[node name="Player" parent="." instance=ExtResource("Player")]
-position = Vector3(0,0,4.7)
-[node name="CameraRig" type="Node3D" parent="."]
-transform = Transform3D(0.7071069,-0.54167527,0.4545192,0,0.64278734,0.7660447,-0.70710665,-0.54167545,0.45451936,0,0.65,4)
-[node name="Camera3D" type="Camera3D" parent="CameraRig"]
-position = Vector3(0,0,30)
+required_enemies = Array[NodePath]([NodePath("Wachter1"), NodePath("Wachter2")])
+spawn_position = Vector3(0, 0, 4.7)
+camera_min = Vector2(-2.5, -4.2)
+camera_max = Vector2(2.5, 4.3)
+
+[node name="Player" parent="." unique_id=395462730 instance=ExtResource("Player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.7)
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=1724757871]
+transform = Transform3D(0.7071069, -0.54167527, 0.4545192, 0, 0.64278734, 0.7660447, -0.70710665, -0.54167545, 0.45451936, 0, 0.65, 4)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=608072688]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
 projection = 1
 current = true
 size = 13.0
 far = 120.0
-[node name="Sun" type="DirectionalLight3D" parent="."]
-rotation_degrees = Vector3(-55,-32,0)
-light_color = Color(1,0.88,0.7,1)
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1159752946]
+transform = Transform3D(0.8480481, 0.43408445, -0.3039492, 0, 0.57357645, 0.81915206, 0.52991927, -0.69468033, 0.48642042, 0, 0, 0)
+light_color = Color(1, 0.88, 0.7, 1)
 light_energy = 0.75
 shadow_enabled = true
 shadow_blur = 2.0
 directional_shadow_max_distance = 70.0
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=414361220]
 environment = SubResource("Environment")
-[node name="HUD" parent="." instance=ExtResource("HUD")]
-[node name="DebugVolumes" type="MeshInstance3D" parent="."]
-[node name="ImpactPool" type="Node3D" parent="."]
-[node name="Spark0" parent="ImpactPool" instance=ExtResource("Spark")]
-[node name="Spark1" parent="ImpactPool" instance=ExtResource("Spark")]
-[node name="Spark2" parent="ImpactPool" instance=ExtResource("Spark")]
-[node name="Spark3" parent="ImpactPool" instance=ExtResource("Spark")]
-[node name="ImpactSound" type="AudioStreamPlayer3D" parent="."]
+
+[node name="HUD" parent="." unique_id=301986644 instance=ExtResource("HUD")]
+
+[node name="DebugVolumes" type="MeshInstance3D" parent="." unique_id=2079852325]
+
+[node name="ImpactPool" type="Node3D" parent="." unique_id=683876618]
+
+[node name="Spark0" parent="ImpactPool" unique_id=1546278776 instance=ExtResource("Spark")]
+
+[node name="Spark1" parent="ImpactPool" unique_id=770001902 instance=ExtResource("Spark")]
+
+[node name="Spark2" parent="ImpactPool" unique_id=2139071503 instance=ExtResource("Spark")]
+
+[node name="Spark3" parent="ImpactPool" unique_id=1464361353 instance=ExtResource("Spark")]
+
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="." unique_id=672479956]
 stream = ExtResource("Sound")
 volume_db = -8.0
 max_distance = 30.0
-[node name="DungeonEntrance" type="Marker3D" parent="."]
-position = Vector3(0,0,4.7)
+
+[node name="DungeonEntrance" type="Marker3D" parent="." unique_id=364968821]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.7)
 script = ExtResource("Spawn")
 spawn_id = &"DungeonEntrance"
-[node name="Floor" type="StaticBody3D" parent="."]
-position = Vector3(0,-0.25,0)
-[node name="Mesh" type="MeshInstance3D" parent="Floor"]
-mesh = SubResource("Foundation")
+
+[node name="Floor" type="StaticBody3D" parent="." unique_id=1291193130]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Floor" unique_id=574961776]
 material_override = SubResource("FloorMaterial")
-[node name="Shape" type="CollisionShape3D" parent="Floor"]
+mesh = SubResource("Foundation")
+
+[node name="Shape" type="CollisionShape3D" parent="Floor" unique_id=57933984]
 shape = SubResource("FloorShape")
-[node name="WestWall" type="StaticBody3D" parent="."]
-position = Vector3(-7,1.25,0)
-[node name="Mesh" type="MeshInstance3D" parent="WestWall"]
-mesh = SubResource("SideWall")
+
+[node name="WestWall" type="StaticBody3D" parent="." unique_id=1784818871]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1.25, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="WestWall" unique_id=1867136208]
 material_override = SubResource("WallMaterial")
-[node name="Shape" type="CollisionShape3D" parent="WestWall"]
-shape = SubResource("SideShape")
-[node name="EastWall" type="StaticBody3D" parent="."]
-position = Vector3(7,1.25,0)
-[node name="Mesh" type="MeshInstance3D" parent="EastWall"]
 mesh = SubResource("SideWall")
-material_override = SubResource("WallMaterial")
-[node name="Shape" type="CollisionShape3D" parent="EastWall"]
+
+[node name="Shape" type="CollisionShape3D" parent="WestWall" unique_id=1221336907]
 shape = SubResource("SideShape")
-[node name="NorthWall" type="StaticBody3D" parent="."]
-position = Vector3(0,1.25,-9)
-[node name="Mesh" type="MeshInstance3D" parent="NorthWall"]
+
+[node name="EastWall" type="StaticBody3D" parent="." unique_id=1563561613]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1.25, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="EastWall" unique_id=64403143]
+material_override = SubResource("WallMaterial")
+mesh = SubResource("SideWall")
+
+[node name="Shape" type="CollisionShape3D" parent="EastWall" unique_id=1538836283]
+shape = SubResource("SideShape")
+
+[node name="NorthWall" type="StaticBody3D" parent="." unique_id=2073732472]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, -9)
+
+[node name="Mesh" type="MeshInstance3D" parent="NorthWall" unique_id=890336207]
+material_override = SubResource("WallMaterial")
 mesh = SubResource("EndWall")
-material_override = SubResource("WallMaterial")
-[node name="Shape" type="CollisionShape3D" parent="NorthWall"]
+
+[node name="Shape" type="CollisionShape3D" parent="NorthWall" unique_id=1818385617]
 shape = SubResource("EndShape")
-[node name="SouthWall" type="StaticBody3D" parent="."]
-position = Vector3(0,0.275,9)
-[node name="Mesh" type="MeshInstance3D" parent="SouthWall"]
+
+[node name="SouthWall" type="StaticBody3D" parent="." unique_id=1673878790]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.275, 9)
+
+[node name="Mesh" type="MeshInstance3D" parent="SouthWall" unique_id=1433356867]
+material_override = SubResource("WallMaterial")
 mesh = SubResource("CutawayWall")
-material_override = SubResource("WallMaterial")
-[node name="Shape" type="CollisionShape3D" parent="SouthWall"]
+
+[node name="Shape" type="CollisionShape3D" parent="SouthWall" unique_id=1311143983]
 shape = SubResource("EndShape")
-[node name="Uitgang" parent="." instance=ExtResource("Exit")]
-position = Vector3(0,0,6.5)
-rotation_degrees = Vector3(0,180,0)
+
+[node name="Uitgang" parent="." unique_id=1975735384 instance=ExtResource("Exit")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 6.5)
 dungeon = ExtResource("Dungeon")
-[node name="Wachter1" parent="." instance=ExtResource("Enemy")]
-position = Vector3(-1.8,0,-1)
+
+[node name="Wachter1" parent="." unique_id=981290747 instance=ExtResource("Enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 0, -1)
 respawn_rule = 1
 persistent_id = &"dungeon.root_cellar.guard1"
-[node name="Wachter2" parent="." instance=ExtResource("Enemy")]
-position = Vector3(1.8,0,-3.0)
+metadata/identity_scene = "res://scenes/levels/RootCellar.tscn"
+
+[node name="Wachter2" parent="." unique_id=324643984 instance=ExtResource("Enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0, -3)
 respawn_rule = 1
 persistent_id = &"dungeon.root_cellar.guard2"
-[node name="Column0" type="StaticBody3D" parent="."]
-position = Vector3(-5,1.125,-6)
-[node name="Mesh" type="MeshInstance3D" parent="Column0"]
-mesh = SubResource("Column")
+metadata/identity_scene = "res://scenes/levels/RootCellar.tscn"
+
+[node name="Column0" type="StaticBody3D" parent="." unique_id=2140059457]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.125, -6)
+
+[node name="Mesh" type="MeshInstance3D" parent="Column0" unique_id=767561948]
 material_override = SubResource("WallMaterial")
-[node name="Shape" type="CollisionShape3D" parent="Column0"]
+mesh = SubResource("Column")
+
+[node name="Shape" type="CollisionShape3D" parent="Column0" unique_id=1381083715]
 shape = SubResource("ColumnShape")
-[node name="Lamp" type="OmniLight3D" parent="Column0"]
-position = Vector3(0,1.2,0)
-light_color = Color(1,0.65,0.25,1)
+
+[node name="Lamp" type="OmniLight3D" parent="Column0" unique_id=755072673]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+light_color = Color(1, 0.65, 0.25, 1)
 light_energy = 0.8
 omni_range = 4.0
-[node name="Column1" type="StaticBody3D" parent="."]
-position = Vector3(5,1.125,-6)
-[node name="Mesh" type="MeshInstance3D" parent="Column1"]
-mesh = SubResource("Column")
+
+[node name="Column1" type="StaticBody3D" parent="." unique_id=1899640451]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.125, -6)
+
+[node name="Mesh" type="MeshInstance3D" parent="Column1" unique_id=1295388587]
 material_override = SubResource("WallMaterial")
-[node name="Shape" type="CollisionShape3D" parent="Column1"]
+mesh = SubResource("Column")
+
+[node name="Shape" type="CollisionShape3D" parent="Column1" unique_id=75651426]
 shape = SubResource("ColumnShape")
-[node name="Lamp" type="OmniLight3D" parent="Column1"]
-position = Vector3(0,1.2,0)
-light_color = Color(1,0.65,0.25,1)
+
+[node name="Lamp" type="OmniLight3D" parent="Column1" unique_id=1614328306]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+light_color = Color(1, 0.65, 0.25, 1)
 light_energy = 0.8
 omni_range = 4.0
-[node name="Column2" type="StaticBody3D" parent="."]
-position = Vector3(-5,1.125,2)
-[node name="Mesh" type="MeshInstance3D" parent="Column2"]
-mesh = SubResource("Column")
+
+[node name="Column2" type="StaticBody3D" parent="." unique_id=1220904985]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.125, 2)
+
+[node name="Mesh" type="MeshInstance3D" parent="Column2" unique_id=999833844]
 material_override = SubResource("WallMaterial")
-[node name="Shape" type="CollisionShape3D" parent="Column2"]
+mesh = SubResource("Column")
+
+[node name="Shape" type="CollisionShape3D" parent="Column2" unique_id=386641955]
 shape = SubResource("ColumnShape")
-[node name="Lamp" type="OmniLight3D" parent="Column2"]
-position = Vector3(0,1.2,0)
-light_color = Color(1,0.65,0.25,1)
+
+[node name="Lamp" type="OmniLight3D" parent="Column2" unique_id=2055994850]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9032974, -0.7769501, 0)
+light_color = Color(1, 0.6509804, 0.2509804, 1)
 light_energy = 0.8
 omni_range = 4.0
-[node name="Column3" type="StaticBody3D" parent="."]
-position = Vector3(5,1.125,2)
-[node name="Mesh" type="MeshInstance3D" parent="Column3"]
-mesh = SubResource("Column")
+
+[node name="Column3" type="StaticBody3D" parent="." unique_id=345939143]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.125, 2)
+
+[node name="Mesh" type="MeshInstance3D" parent="Column3" unique_id=1824410208]
 material_override = SubResource("WallMaterial")
-[node name="Shape" type="CollisionShape3D" parent="Column3"]
+mesh = SubResource("Column")
+
+[node name="Shape" type="CollisionShape3D" parent="Column3" unique_id=573633311]
 shape = SubResource("ColumnShape")
-[node name="Lamp" type="OmniLight3D" parent="Column3"]
-position = Vector3(0,1.2,0)
-light_color = Color(1,0.65,0.25,1)
+
+[node name="Lamp" type="OmniLight3D" parent="Column3" unique_id=459367744]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+light_color = Color(1, 0.65, 0.25, 1)
 light_energy = 0.8
 omni_range = 4.0

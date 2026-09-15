@@ -1,5 +1,13 @@
 # Huidige stand — 15 september 2026
 
+## Fireshards: opraapbare valuta per vijand
+
+Verslagen vijanden laten hun beloning als een klein hoopje vuurvliegjes op de grond liggen. De speler moet er zelf naartoe lopen; het personage toont het hoopje kort, laat het rijzen en zuigt het daarna in circa 0,5 s op. Pas bij die absorptie worden de punten bijgeschreven. Sterft de speler, dan valt de hele voorraad op de sterfplek; een tweede dood voordat die is opgeraapt wist het oudere verlies definitief, terwijl hoopjes van verslagen vijanden blijven liggen. Een dood lichaam zuigt nooit iets op, en een verlies onder het respawnpunt bindt pas nadat de speler er weg is en er weer in loopt.
+
+De beloning is per vijand instelbaar op twee plekken: het profiel (`EnemySettings` → **Fireshards** → **Fireshard Reward**; eikelwacht 60, Bruiser 140, trainingsdoel 0) en het geplaatste exemplaar (`Damageable` → **Fireshards** → **Fireshard Reward Override**, `-1` houdt het profiel). `Fireshards.reward_for()` is de enige plek met die regel. De HUD toont rechtsboven alleen rond een verandering een vuurscherficoontje met teller: fade-in, circa 2,2 s zichtbaar, fade-out, en het getal loopt rustig naar het nieuwe totaal (120 → 180 in ongeveer 1,1 s). Er staat geen "+60"/"-60" meer bij. De hoopjes zijn bewust subtiel: kleine vuurvliegjes zonder getal erboven.
+
+Gericht gecontroleerd in **Forward+ Metal** met `--fireshards-replay --fps=60` in het echte ForestOpening met een wegwerp-saveslot: **64 checks geslaagd, 1198 echte renderframes**, inclusief de migratie van souls-era saves, de beloning pas bij absorberen, absorptie door echt naar het hoopje te lopen, de override per instantie, een kill bovenop de speler, het opkomen en wegzakken van de teller, een dood bovenop het respawnpunt dat niet meteen wordt teruggegeven, verlies bij dood, oprapen na een echte `Checkpoints.respawn_player()`, het wissen van een oud verlies bij een tweede dood en de save-round-trip. Rapport en beelden: `captures/fireshards/`. Geen brede karakter-/combatsuites uitgevoerd. Regels, contract en instellingen: [FIRESHARDS.md](FIRESHARDS.md).
+
 ## Level Builder: 100 m, plaatsen op hoogte en strooiopties
 
 Plateaus en trapeinden lopen nu tot **100 m**, met de bestaande **0,5 m**-stap in de builder, selectievelden, Inspector en setters. Plaatsingsklikken gebruiken de zichtbare gebakken geometrie. Water op een plateau bewaart de aangeklikte hoogte: op 10 m liggen het standaardoppervlak en de bodem op respectievelijk 9,88 en 9,4 m. Oppervlak en bodem worden op dezelfde ondersteunende grond afgeknipt; hogere eilanden en trappen blijven vrij. Assets, paden en patrouilles bewaren eveneens hun aangeklikte hoogte.

@@ -48,6 +48,9 @@ extends Resource
 @export var post_attack_cooldown := 0.25
 @export var archetype_priority := 1.0
 @export var tint := Color(0.456, 0.110, 0.061)
+@export_group("Fireshards")
+## Fireshards left behind once when this enemy is defeated; 0 keeps practice targets worthless.
+@export_range(0, 100000, 1) var fireshard_reward := 0
 @export_group("Souls-like pressure")
 ## Uncommitted hits within the window that trigger an armored counterattack; 0 disables it.
 @export_range(0, 8, 1) var retaliation_hits := 3

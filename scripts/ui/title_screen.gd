@@ -38,9 +38,10 @@ func _ready() -> void:
 		if arg in room_reviews:
 			get_tree().change_scene_to_file.call_deferred("res://scenes/levels/PrototypeRoom.tscn")
 			return
-	if "--forest-replay" in OS.get_cmdline_user_args():
-		get_tree().change_scene_to_file.call_deferred(new_game_scene)
-		return
+	for flag in ["--forest-replay", "--fireshards-replay"]:
+		if flag in OS.get_cmdline_user_args():
+			get_tree().change_scene_to_file.call_deferred(new_game_scene)
+			return
 	resized.connect(_fit_artwork)
 	_fit_artwork()
 	_refresh_continue()

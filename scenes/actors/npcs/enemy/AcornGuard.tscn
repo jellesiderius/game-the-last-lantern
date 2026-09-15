@@ -1,62 +1,81 @@
-[gd_scene format=3]
-[ext_resource type="Script" path="res://scripts/components/damageable.gd" id="Actor"]
-[ext_resource type="Script" path="res://scripts/components/health.gd" id="Health"]
-[ext_resource type="Script" path="res://scripts/ai/enemy_brain.gd" id="Brain"]
-[ext_resource type="Script" path="res://scripts/ai/skinned_enemy_visual.gd" id="Presenter"]
-[ext_resource type="Resource" path="res://settings/enemies/acorn_guard.tres" id="Settings"]
+[gd_scene format=3 uid="uid://giov2vvtj7od"]
+
+[ext_resource type="Script" uid="uid://br27j4p26vnet" path="res://scripts/components/damageable.gd" id="Actor"]
+[ext_resource type="Script" uid="uid://s7l7a5oenom2" path="res://scripts/ai/enemy_brain.gd" id="Brain"]
+[ext_resource type="Script" uid="uid://bd1c765lxn6rj" path="res://scripts/components/health.gd" id="Health"]
+[ext_resource type="Script" uid="uid://b57t7q2iuiqgg" path="res://scripts/ai/skinned_enemy_visual.gd" id="Presenter"]
+[ext_resource type="Resource" uid="uid://67hb7j45jl4y" path="res://settings/enemies/acorn_guard.tres" id="Settings"]
+[ext_resource type="Shader" uid="uid://blu4hmrwt2uai" path="res://shaders/enemy_telegraph.gdshader" id="TelegraphShader"]
 [ext_resource type="PackedScene" path="res://scenes/assets/characters/acorn_guard/Visual.tscn" id="Visual"]
-[ext_resource type="Shader" path="res://shaders/enemy_telegraph.gdshader" id="TelegraphShader"]
+
 [sub_resource type="CapsuleShape3D" id="Body"]
 radius = 0.25
-height = 0.90
+height = 0.9
+
 [sub_resource type="SphereShape3D" id="CapHurtbox"]
-radius = 0.30
+radius = 0.3
+
 [sub_resource type="ShaderMaterial" id="TelegraphMaterial"]
 resource_local_to_scene = true
+render_priority = 0
 shader = ExtResource("TelegraphShader")
+shader_parameter/progress = 0.0
+shader_parameter/reach = 1.32
+shader_parameter/half_angle = 1.13
+shader_parameter/active = false
+
 [sub_resource type="PlaneMesh" id="TelegraphMesh"]
-size = Vector2(2.1,2.1)
-[node name="AcornGuard" type="CharacterBody3D" groups=["acorn_guards"]]
+size = Vector2(2.1, 2.1)
+
+[node name="AcornGuard" type="CharacterBody3D" unique_id=2622433 groups=["acorn_guards"]]
+collision_layer = 4
+collision_mask = 7
 script = ExtResource("Actor")
 enemy = true
 label_text = "Eikelwacht"
-collision_layer = 4
-collision_mask = 7
-[node name="Collision" type="CollisionShape3D" parent="."]
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1551748682]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 shape = SubResource("Body")
-position = Vector3(0,0.45,0)
-[node name="Health" type="Node" parent="."]
+
+[node name="Health" type="Node" parent="." unique_id=1518985593]
 script = ExtResource("Health")
 maximum = 6.0
-[node name="Hurtbox" type="Area3D" parent="."]
+
+[node name="Hurtbox" type="Area3D" parent="." unique_id=1628372003]
 collision_layer = 8
 collision_mask = 0
 monitoring = false
-[node name="Shape" type="CollisionShape3D" parent="Hurtbox"]
+
+[node name="Shape" type="CollisionShape3D" parent="Hurtbox" unique_id=416961725]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 shape = SubResource("Body")
-position = Vector3(0,0.45,0)
-[node name="ExtraHurtbox" type="Area3D" parent="."]
+
+[node name="ExtraHurtbox" type="Area3D" parent="." unique_id=403956579]
 collision_layer = 8
 collision_mask = 0
 monitoring = false
-[node name="Shape" type="CollisionShape3D" parent="ExtraHurtbox"]
+
+[node name="Shape" type="CollisionShape3D" parent="ExtraHurtbox" unique_id=1873923446]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.71, 0)
 shape = SubResource("CapHurtbox")
-position = Vector3(0,0.71,0)
-[node name="TargetVisual" parent="." instance=ExtResource("Visual")]
+
+[node name="TargetVisual" parent="." unique_id=611190817 instance=ExtResource("Visual")]
 script = ExtResource("Presenter")
-walk_cycle_speed = 1.05
-[node name="HealthLabel" type="Label3D" parent="."]
+
+[node name="HealthLabel" type="Label3D" parent="." unique_id=273489898]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
 visible = false
-position = Vector3(0,1.2,0)
-billboard = 1
-font_size = 32
 pixel_size = 0.003
-[node name="Brain" type="Node" parent="."]
+billboard = 1
+
+[node name="Brain" type="Node" parent="." unique_id=1726337589]
 script = ExtResource("Brain")
 settings = ExtResource("Settings")
-[node name="Telegraph" type="MeshInstance3D" parent="."]
+
+[node name="Telegraph" type="MeshInstance3D" parent="." unique_id=1887882306]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 visible = false
-position = Vector3(0,0.02,0)
-mesh = SubResource("TelegraphMesh")
 material_override = SubResource("TelegraphMaterial")
 cast_shadow = 0
+mesh = SubResource("TelegraphMesh")

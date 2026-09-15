@@ -5,6 +5,10 @@ extends CharacterBody3D
 @export var persistent_id: StringName
 
 @export var label_text := "TRAINING"
+@export_group("Fireshards")
+## Set this per placed enemy in the Inspector. -1 keeps the archetype value from EnemySettings.
+@export var fireshard_reward_override := -1
+@export_group("")
 var spawn_position := Vector3.ZERO
 var last_ids: Dictionary = {}
 var reset_time := 0.0
@@ -87,6 +91,10 @@ func receive_hit(amount: float, id: int, origin: Vector3, force := 1.0) -> bool:
 	knockback.y = 0
 	_update_label()
 	if health.current <= 0:
+		var reward := Fireshards.reward_for(self)
+		if reward > 0:
+			# The fireshards stay on the ground until the player walks over and absorbs them.
+			Fireshards.drop_from_enemy(reward, global_position + Vector3.UP * .35)
 		if not persistent_id.is_empty():
 			if respawn_rule == 2:
 				GameProgress.set_world_flag("enemy:" + String(persistent_id))
