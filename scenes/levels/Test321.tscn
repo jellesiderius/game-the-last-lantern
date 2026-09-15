@@ -266,31 +266,31 @@ curve = SubResource("Curve3D_m2db5")
 script = ExtResource("5_tca86")
 height = 1.0
 
-[node name="Baked" type="Node3D" parent="Terrain" unique_id=1612491876]
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=1820872076]
 metadata/level_builder_generated = true
 
-[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=480552736]
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=1001984551]
 mesh = ExtResource("5_bq1ms")
 
-[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=1084944427]
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=1940346868]
 collision_mask = 0
 
-[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=2040176001]
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=248241623]
 shape = ExtResource("6_62vcn")
 
-[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=864954982]
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=2121156515]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.25, 3, 0)
 shape = SubResource("BoxShape3D_62vcn")
 
-[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1412832008]
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=2140424654]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.25, 3, 0)
 shape = SubResource("BoxShape3D_ypo54")
 
-[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1714719416]
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1043728918]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -12.25)
 shape = SubResource("BoxShape3D_fah1d")
 
-[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=959996959]
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=625918803]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 12.25)
 shape = SubResource("BoxShape3D_587xv")
 
