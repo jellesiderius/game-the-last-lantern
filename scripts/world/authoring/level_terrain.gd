@@ -39,7 +39,36 @@ var dirty := false
 var bake_delay := 0.0
 var _paths: Array[Dictionary] = []
 var _surface_groups := {}
+var _cliff_groups := {}
+var _step_groups := {}
+var _stair_collision: SurfaceTool
+var _wall_collision: SurfaceTool
+## Ground cell counts of the last bake; walls beside curved slopes split on this grid.
+var _cells := Vector2i.ONE
+var _fallback_style: SurfaceStyle
 const EPS := .000001
+const MAX_HEIGHT := 10.0
+## Every plateau and stair end snaps to this; fixed so no global edit re-snaps a level.
+const HEIGHT_STEP := .5
+const PATH_FRINGE := .6
+## Height of one visible step; the collision stays a smooth slope underneath.
+const STAIR_RISE := .25
+## Rise per metre of run for builder stairs and plain slopes.
+const STAIR_SLOPE := .75
+const RAMP_SLOPE := .45
+## Older ramps are only stretched once they would pass this slope.
+const MAX_RAMP_SLOPE := .9
+## Steepest walkable bridge deck.
+const BRIDGE_SLOPE := .6
+## Generated surfaces snap to a 0.1 mm grid (inverse cell size).
+const GRID_INV := 10000.0
+## Stone curb along the sides of slopes (visual only).
+const CURB_HEIGHT := .12
+## Fraction of a slope's run eased at each end, and the steepest slope easing may reach.
+const SLOPE_EASE := .35
+## Enemies climb up to about 40 degrees; slopes already that steep stay linear.
+const SLOPE_EASE_LIMIT := .8
+const CURB_WIDTH := .2
 
 
 func _ready() -> void:
@@ -72,11 +101,7 @@ func _notification(what: int) -> void:
 
 
 func outlines() -> Array[Dictionary]:
-	for child in get_children():
-		if child is LevelRamp:
-			child.ensure_point_heights()
-			child.sync_connection()
-	var result: Array[Dictionary] = []
+	var plateaus: Array[Dictionary] = []
 	for child in get_children():
 		if child is LevelTerrace and child.curve:
 			var points := PackedVector2Array()
@@ -87,16 +112,17 @@ func outlines() -> Array[Dictionary]:
 				points.remove_at(points.size() - 1)
 			if Geometry2D.is_polygon_clockwise(points):
 				points.reverse()
-			result.append(
+			plateaus.append(
 				{
 					"polygon": points,
-					"height": child.height + child.position.y,
+					"height": snap_height(child.height + child.position.y),
 					"name": child.name,
 					"style": child.surface_style
 				}
 			)
-		elif child is LevelRamp and child.curve and child.curve.point_count == 2:
-			child.ensure_point_heights()
+	var ramps: Array[Dictionary] = []
+	for child in get_children():
+		if child is LevelRamp and child.curve and child.curve.point_count == 2:
 			var start: Vector3 = child.transform * child.curve.get_point_position(0)
 			var end: Vector3 = child.transform * child.curve.get_point_position(1)
 			var a := Vector2(start.x, start.z)
@@ -105,19 +131,175 @@ func outlines() -> Array[Dictionary]:
 			var points := PackedVector2Array([a - side, b - side, b + side, a + side])
 			if Geometry2D.is_polygon_clockwise(points):
 				points.reverse()
-			result.append(
+			var low := snap_height(start.y)
+			var high := snap_height(end.y)
+			if child.follow_ground:
+				low = ramp_end_height(a, b, plateaus)
+				high = ramp_end_height(b, a, plateaus)
+			ramps.append(
 				{
 					"polygon": points,
-					"height": maxf(start.y, end.y),
+					"height": maxf(low, high),
 					"name": child.name,
 					"style": child.surface_style,
+					"stairs": child.stairs,
 					"ramp_start": a,
 					"ramp_end": b,
-					"start_height": start.y,
-					"end_height": end.y
+					"start_height": low,
+					"end_height": high
 				}
 			)
+	# Higher plateaus and ramps cut into lower plateaus, so regions never overlap:
+	# a hill on a hill, or stairs set into a cliff.
+	var result: Array[Dictionary] = []
+	for i in plateaus.size():
+		var cutters: Array[PackedVector2Array] = []
+		for j in plateaus.size():
+			if (
+				plateaus[j].height > plateaus[i].height
+				or (j < i and is_equal_approx(plateaus[j].height, plateaus[i].height))
+			):
+				cutters.append(plateaus[j].polygon)
+		for ramp in ramps:
+			cutters.append(ramp.polygon)
+		var pieces: Array[PackedVector2Array] = [plateaus[i].polygon]
+		for cutter in cutters:
+			var next: Array[PackedVector2Array] = []
+			for piece in pieces:
+				next.append_array(cut(piece, cutter))
+			pieces = next
+		for piece in pieces:
+			if polygon_area(piece) <= EPS:
+				continue
+			if Geometry2D.is_polygon_clockwise(piece):
+				piece.reverse()
+			var region: Dictionary = plateaus[i].duplicate()
+			region.polygon = piece
+			result.append(region)
+	# Water sits in the ground: plateaus, ramps and earlier water all cut it.
+	var bounds := PackedVector2Array(
+		[-size / 2, Vector2(size.x / 2, -size.y / 2), size / 2, Vector2(-size.x / 2, size.y / 2)]
+	)
+	var waters: Array[Dictionary] = []
+	for child in get_children():
+		if not child is LevelWater:
+			continue
+		var clipped := Geometry2D.intersect_polygons(child.outline(), bounds)
+		if clipped.is_empty():
+			continue
+		var shore: PackedVector2Array = clipped[0]
+		for part in clipped:
+			if polygon_area(part) > polygon_area(shore):
+				shore = part
+		if Geometry2D.is_polygon_clockwise(shore):
+			shore.reverse()
+		waters.append(
+			{
+				"polygon": shore,
+				"height": 0.0,
+				"name": child.name,
+				"style": null,
+				"water": true,
+				"shore": shore,
+				"depth": child.depth,
+				"bank": child.bank
+			}
+		)
+	for i in waters.size():
+		var cutters: Array[PackedVector2Array] = []
+		for plateau in plateaus:
+			cutters.append(plateau.polygon)
+		for ramp in ramps:
+			cutters.append(ramp.polygon)
+		for j in i:
+			cutters.append(waters[j].polygon)
+		var pieces: Array[PackedVector2Array] = [waters[i].polygon]
+		for cutter in cutters:
+			var next: Array[PackedVector2Array] = []
+			for piece in pieces:
+				next.append_array(cut(piece, cutter))
+			pieces = next
+		for piece in pieces:
+			if polygon_area(piece) <= EPS:
+				continue
+			if Geometry2D.is_polygon_clockwise(piece):
+				piece.reverse()
+			var region: Dictionary = waters[i].duplicate()
+			region.polygon = piece
+			result.append(region)
+	result.append_array(ramps)
 	return result
+
+
+## Removes cutter from piece. A cutter fully inside would leave a hole, which the
+## mesher cannot express, so the piece is split through the cutter first.
+static func cut(piece: PackedVector2Array, cutter: PackedVector2Array) -> Array[PackedVector2Array]:
+	var result: Array[PackedVector2Array] = []
+	var clipped := Geometry2D.clip_polygons(piece, cutter)
+	if not _has_hole(clipped):
+		result.append_array(clipped)
+		return result
+	var center := Vector2.ZERO
+	for point in cutter:
+		center += point
+	center /= cutter.size()
+	var box := Rect2(piece[0], Vector2.ZERO)
+	for point in piece:
+		box = box.expand(point)
+	box = box.grow(1)
+	for half in [
+		Rect2(box.position, Vector2(center.x - box.position.x, box.size.y)),
+		Rect2(Vector2(center.x, box.position.y), Vector2(box.end.x - center.x, box.size.y))
+	]:
+		var rect := PackedVector2Array(
+			[half.position, Vector2(half.end.x, half.position.y), half.end, Vector2(half.position.x, half.end.y)]
+		)
+		for part in Geometry2D.intersect_polygons(piece, rect):
+			var kept := Geometry2D.clip_polygons(part, cutter)
+			if not _has_hole(kept):
+				result.append_array(kept)
+	return result
+
+
+static func _has_hole(parts: Array[PackedVector2Array]) -> bool:
+	for i in parts.size():
+		for j in parts.size():
+			if i != j and Geometry2D.is_point_in_polygon(parts[i][0], parts[j]):
+				return true
+	return false
+
+
+## Height for a ramp end, sampled just beyond the end (away from the other end).
+## Ends usually sit exactly on a plateau edge, where "on the point" is ambiguous:
+## beyond the high end is the plateau, beyond the low end is the ground below.
+static func ramp_end_height(end: Vector2, other: Vector2, plateaus: Array[Dictionary]) -> float:
+	return height_under(end + (end - other).normalized() * .05, plateaus)
+
+
+## Highest plateau under a point, ignoring ramps; plain ground is 0.
+static func height_under(point: Vector2, plateaus: Array[Dictionary]) -> float:
+	var height := 0.0
+	for plateau in plateaus:
+		if Geometry2D.is_point_in_polygon(point, plateau.polygon):
+			height = maxf(height, plateau.height)
+	return height
+
+
+func snap_height(value: float) -> float:
+	return snappedf(maxf(0.0, value), HEIGHT_STEP)
+
+
+## One fallback chain: region style, then terrain style, then the area set default.
+func style_for(region_style: SurfaceStyle) -> SurfaceStyle:
+	if region_style:
+		return region_style
+	if surface_style:
+		return surface_style
+	if area_set and area_set.default_surface:
+		return area_set.default_surface
+	if _fallback_style == null:
+		_fallback_style = SurfaceStyle.new()
+	return _fallback_style
 
 
 func validate() -> PackedStringArray:
@@ -173,24 +355,13 @@ func signature() -> String:
 	for region in regions:
 		region.style = region.style.signature() if region.style else ""
 	var data := [
-		"surface_styles_v6",
+		"surface_styles_v7",
 		size,
 		resolution,
 		enclose_bounds,
 		regions,
-		surface_style.signature() if surface_style else ""
+		style_for(null).signature()
 	]
-	if area_set:
-		data.append(
-			[
-				area_set.ground_color,
-				area_set.path_color,
-				area_set.cliff_color,
-				area_set.texture_scale,
-				area_set.ground_texture.resource_path if area_set.ground_texture else "",
-				area_set.path_texture.resource_path if area_set.path_texture else ""
-			]
-		)
 	for child in get_children():
 		if child is LevelPath and child.curve:
 			data.append(
@@ -201,6 +372,8 @@ func signature() -> String:
 
 func bake() -> bool:
 	dirty = false
+	_sync_ramp_heights()
+	_sync_bridge_heights()
 	var errors := validate()
 	if not errors.is_empty():
 		last_error = "\n".join(errors)
@@ -240,6 +413,7 @@ func bake() -> bool:
 	var cell_size := maxf(resolution, sqrt(size.x * size.y / 65536.0))
 	var nx := ceili(size.x / cell_size)
 	var nz := ceili(size.y / cell_size)
+	_cells = Vector2i(nx, nz)
 	for z in nz:
 		for x in nx:
 			var a := Vector2(-size.x / 2 + x * size.x / nx, -size.y / 2 + z * size.y / nz)
@@ -273,38 +447,43 @@ func bake() -> bool:
 		)
 		update_configuration_warnings()
 		return false
-	var mask := _bake_path_mask()
+	var mask := _bake_path_mask(regions)
+	# The visual mesh shows real steps; the collision mesh keeps stairs as slopes.
 	var mesh := ArrayMesh.new()
+	var collision_mesh := ArrayMesh.new()
 	for style in _surface_groups:
-		var settings: Resource = style if style else surface_style if surface_style else area_set
-		var material := ShaderMaterial.new()
-		material.shader = preload("res://shaders/level_ground.gdshader")
-		for key in ["ground_color", "path_color", "ground_texture", "path_texture"]:
-			material.set_shader_parameter(key, settings.get(key))
-		material.set_shader_parameter("has_ground_texture", settings.ground_texture != null)
-		material.set_shader_parameter("has_path_texture", settings.path_texture != null)
-		material.set_shader_parameter(
-			"ground_pattern", settings.pattern if settings is SurfaceStyle else 0
-		)
-		material.set_shader_parameter("path_mask", mask)
-		material.set_shader_parameter("has_path_mask", true)
-		_surface_groups[style].set_material(material)
+		_surface_groups[style].set_material(_ground_material(style_for(style), mask))
 		_surface_groups[style].commit(mesh)
-	if not regions.is_empty():
-		var sides := SurfaceTool.new()
-		sides.begin(Mesh.PRIMITIVE_TRIANGLES)
-		for region in regions:
-			var settings: Resource = (
-				region.style if region.style else surface_style if surface_style else area_set
-			)
-			sides.set_color(settings.cliff_color.srgb_to_linear())
-			_emit_sides(sides, region, regions)
-		var rock := StandardMaterial3D.new()
-		rock.vertex_color_use_as_albedo = true
-		rock.roughness = .95
-		rock.cull_mode = BaseMaterial3D.CULL_DISABLED
-		sides.set_material(rock)
-		sides.commit(mesh)
+		_surface_groups[style].commit(collision_mesh)
+	_step_groups.clear()
+	for region in regions:
+		if region.get("stairs", false):
+			_emit_steps(region)
+	for style in _step_groups:
+		_step_groups[style].set_material(_ground_material(style_for(style), mask))
+		_step_groups[style].commit(mesh)
+	_step_groups.clear()
+	if _stair_collision:
+		_stair_collision.commit(collision_mesh)
+		_stair_collision = null
+	_cliff_groups.clear()
+	for region in regions:
+		_emit_sides(region, regions)
+	for style in _cliff_groups:
+		var settings := style_for(style)
+		var cliff := ShaderMaterial.new()
+		cliff.shader = preload("res://shaders/level_cliff.gdshader")
+		cliff.set_shader_parameter("cliff_texture", settings.cliff_texture)
+		cliff.set_shader_parameter("has_cliff_texture", settings.cliff_texture != null)
+		cliff.set_shader_parameter("cliff_texture_scale", settings.cliff_texture_scale)
+		cliff.set_shader_parameter("block_height", HEIGHT_STEP)
+		_cliff_groups[style].set_material(cliff)
+		_cliff_groups[style].commit(mesh)
+	_cliff_groups.clear()
+	# Collision walls follow the smooth surfaces: no step sawtooth, rim or caps to snag on.
+	if _wall_collision:
+		_wall_collision.commit(collision_mesh)
+		_wall_collision = null
 	var baked := Node3D.new()
 	baked.name = "Baked"
 	baked.set_meta("level_builder_generated", true)
@@ -319,7 +498,7 @@ func bake() -> bool:
 	baked.add_child(body)
 	var shape := CollisionShape3D.new()
 	shape.name = "SurfaceShape"
-	shape.shape = mesh.create_trimesh_shape()
+	shape.shape = collision_mesh.create_trimesh_shape()
 	body.add_child(shape)
 	if enclose_bounds:
 		var boundary_height := 8.0
@@ -371,7 +550,80 @@ func bake() -> bool:
 	return true
 
 
-func _bake_path_mask() -> ImageTexture:
+## Ground-following ramps store the heights they currently resolve to, so gizmos,
+## navigation and anything reading the curve see the real ends. Their length is
+## refitted to the rise first: stairs attached to a plateau that is raised or
+## lowered grow or shrink from their anchored end instead of turning too steep.
+func _sync_ramp_heights() -> void:
+	for pass_index in 2:
+		for region in outlines():
+			if not region.has("ramp_start"):
+				continue
+			var ramp := get_node_or_null(NodePath(String(region.name))) as LevelRamp
+			if ramp == null or not ramp.follow_ground or ramp.curve == null:
+				continue
+			var edited := ramp.curve.duplicate() as Curve3D
+			var changed := false
+			if pass_index == 0:
+				var anchor := clampi(ramp.anchor_end, 0, 1)
+				var fixed := edited.get_point_position(anchor)
+				var free := edited.get_point_position(1 - anchor)
+				var run := Vector2(free.x - fixed.x, free.z - fixed.z)
+				var rise := absf(region.end_height - region.start_height)
+				var wanted := run.length()
+				if ramp.fit_length and rise > EPS:
+					wanted = rise / (STAIR_SLOPE if ramp.stairs else RAMP_SLOPE)
+				elif rise / maxf(run.length(), .001) > MAX_RAMP_SLOPE:
+					wanted = rise / MAX_RAMP_SLOPE
+				if run.length() > .001 and absf(wanted - run.length()) > .001:
+					var moved := run.normalized() * wanted
+					free.x = fixed.x + moved.x
+					free.z = fixed.z + moved.y
+					edited.set_point_position(1 - anchor, free)
+					changed = true
+			else:
+				for i in 2:
+					var point := edited.get_point_position(i)
+					var height: float = region.start_height if i == 0 else region.end_height
+					var wanted_y := height - ramp.position.y
+					if not is_equal_approx(point.y, wanted_y):
+						point.y = wanted_y
+						edited.set_point_position(i, point)
+						changed = true
+			if changed:
+				ramp.curve = edited
+
+
+## Bridges that follow the ground keep each deck end on the plateau (or ground) it rests on.
+func _sync_bridge_heights() -> void:
+	var bridges: Array[LevelBridge] = []
+	for child in get_children():
+		if child is LevelBridge and child.follow_ground and child.curve and child.curve.point_count == 2:
+			bridges.append(child)
+	if bridges.is_empty():
+		return
+	var plateaus: Array[Dictionary] = []
+	for region in outlines():
+		if not region.has("ramp_start"):
+			plateaus.append(region)
+	for bridge in bridges:
+		var a: Vector3 = bridge.transform * bridge.curve.get_point_position(0)
+		var b: Vector3 = bridge.transform * bridge.curve.get_point_position(1)
+		var ends := [Vector2(a.x, a.z), Vector2(b.x, b.z)]
+		var edited := bridge.curve.duplicate() as Curve3D
+		var changed := false
+		for i in 2:
+			var point := edited.get_point_position(i)
+			var wanted := ramp_end_height(ends[i], ends[1 - i], plateaus) - bridge.position.y
+			if not is_equal_approx(point.y, wanted):
+				point.y = wanted
+				edited.set_point_position(i, point)
+				changed = true
+		if changed:
+			bridge.curve = edited
+
+
+func _bake_path_mask(regions: Array[Dictionary]) -> ImageTexture:
 	# A filtered mask follows the exact curve distances, independently of mesh cells.
 	# Rasterize only each segment's footprint; empty ground costs no distance work.
 	var pixels_per_meter := minf(32, 2048.0 / maxf(size.x, size.y))
@@ -380,7 +632,7 @@ func _bake_path_mask() -> ImageTexture:
 	)
 	var pixel_size := size / Vector2(dimensions)
 	var data := PackedByteArray()
-	data.resize(dimensions.x * dimensions.y)
+	data.resize(dimensions.x * dimensions.y * 2)
 	for path in _paths:
 		var source: PackedVector2Array = path.points
 		var points := PackedVector2Array([source[0]])
@@ -397,7 +649,7 @@ func _bake_path_mask() -> ImageTexture:
 			points.append(source[-1])
 		var feather := maxf(path.soft, maxf(pixel_size.x, pixel_size.y) * 2)
 		var radius: float = path.width / 2
-		var outer := radius + feather / 2
+		var outer := radius + maxf(feather / 2, PATH_FRINGE)
 		for segment in maxi(1, points.size() - 1):
 			var a := points[segment]
 			var b := points[mini(segment + 1, points.size() - 1)]
@@ -411,20 +663,76 @@ func _bake_path_mask() -> ImageTexture:
 			)
 			for y in range(low.y, high.y + 1):
 				for x in range(low.x, high.x + 1):
-					var index := y * dimensions.x + x
+					var index := (y * dimensions.x + x) * 2
 					if data[index] == 255:
 						continue
 					var point := (Vector2(x, y) + Vector2(.5, .5)) * pixel_size - size / 2
 					var distance := point.distance_to(
 						Geometry2D.get_closest_point_to_segment(point, a, b)
 					)
-					var weight := roundi(
-						(1 - smoothstep(radius - feather / 2, outer, distance)) * 255
+					# 0.5 exactly at the path border; the outer half fades over the fringe.
+					var coverage := (
+						1.0 - .5 * smoothstep(radius - feather / 2, radius, distance)
+						if distance < radius
+						else .5 * (1.0 - smoothstep(radius, outer, distance))
 					)
+					var weight := roundi(coverage * 255)
 					data[index] = maxi(data[index], weight)
-	var mask := Image.create_from_data(dimensions.x, dimensions.y, false, Image.FORMAT_R8, data)
+	data = _bake_cliff_shadow(data, dimensions, pixel_size, regions)
+	var mask := Image.create_from_data(dimensions.x, dimensions.y, false, Image.FORMAT_RG8, data)
 	mask.generate_mipmaps()
 	return ImageTexture.create_from_image(mask)
+
+
+## Green channel: a soft shadow on lower ground along every plateau edge.
+func _bake_cliff_shadow(
+	data: PackedByteArray, dimensions: Vector2i, pixel_size: Vector2, regions: Array[Dictionary]
+) -> PackedByteArray:
+	var reach := 1.3
+	var bounds: Array[Rect2] = []
+	for region in regions:
+		var box := Rect2(region.polygon[0], Vector2.ZERO)
+		for point in region.polygon:
+			box = box.expand(point)
+		bounds.append(box)
+	for r in regions.size():
+		var region: Dictionary = regions[r]
+		if region.has("ramp_start"):
+			continue
+		var polygon: PackedVector2Array = region.polygon
+		for edge in polygon.size():
+			var a := polygon[edge]
+			var b := polygon[(edge + 1) % polygon.size()]
+			var low := (
+				Vector2i(((a.min(b) - Vector2.ONE * reach + size / 2) / pixel_size).floor())
+				. max(Vector2i.ZERO)
+			)
+			var high := (
+				Vector2i(((a.max(b) + Vector2.ONE * reach + size / 2) / pixel_size).ceil())
+				. min(dimensions - Vector2i.ONE)
+			)
+			for y in range(low.y, high.y + 1):
+				for x in range(low.x, high.x + 1):
+					var point := (Vector2(x, y) + Vector2(.5, .5)) * pixel_size - size / 2
+					var distance := point.distance_to(
+						Geometry2D.get_closest_point_to_segment(point, a, b)
+					)
+					if distance >= reach:
+						continue
+					var index := (y * dimensions.x + x) * 2 + 1
+					var weight := roundi(pow(1 - distance / reach, 1.4) * 255)
+					if weight <= data[index] or Geometry2D.is_point_in_polygon(point, polygon):
+						continue
+					var here := 0.0
+					for o in regions.size():
+						if bounds[o].grow(.01).has_point(point) and Geometry2D.is_point_in_polygon(
+							point, regions[o].polygon
+						):
+							here = maxf(here, region_height(regions[o], point))
+					if here < region.height - EPS:
+						data[index] = weight
+	# Packed arrays are copied into functions; hand the result back explicitly.
+	return data
 
 
 func save_baked_resources(scene_path: String) -> Error:
@@ -472,17 +780,153 @@ func path_weight(point: Vector2) -> float:
 	return weight
 
 
+func _ground_material(settings: SurfaceStyle, mask: Texture2D) -> ShaderMaterial:
+	var material := ShaderMaterial.new()
+	material.shader = preload("res://shaders/level_ground.gdshader")
+	for key in ["ground_color", "path_color", "ground_texture", "path_texture"]:
+		material.set_shader_parameter(key, settings.get(key))
+	material.set_shader_parameter("has_ground_texture", settings.ground_texture != null)
+	material.set_shader_parameter("has_path_texture", settings.path_texture != null)
+	material.set_shader_parameter("ground_pattern", settings.pattern)
+	material.set_shader_parameter("texture_scale", settings.texture_scale)
+	# Steps are cut stone: a lighter version of the cliff, not the (grassy) lip colour.
+	material.set_shader_parameter("stair_color", settings.cliff_color.lightened(.18))
+	material.set_shader_parameter("path_mask", mask)
+	material.set_shader_parameter("has_path_mask", true)
+	return material
+
+
+static func stair_steps(region: Dictionary) -> int:
+	return maxi(1, roundi(absf(region.end_height - region.start_height) / STAIR_RISE))
+
+
+## Surface height for walls: stairs report the tread above a point, others their plane.
+static func side_height(region: Dictionary, point: Vector2) -> float:
+	if not region.get("stairs", false):
+		return region_height(region, point)
+	var run: Vector2 = region.ramp_end - region.ramp_start
+	var t := clampf((point - region.ramp_start).dot(run) / maxf(.0001, run.length_squared()), 0, 1)
+	var steps := stair_steps(region)
+	var k := clampi(floori(t * steps), 0, steps - 1)
+	return maxf(
+		lerpf(region.start_height, region.end_height, float(k) / steps),
+		lerpf(region.start_height, region.end_height, float(k + 1) / steps)
+	)
+
+
+## Treads and risers for one flight, climbing from its low end to its high end.
+func _emit_steps(region: Dictionary) -> void:
+	var style: SurfaceStyle = region.get("style")
+	if not _step_groups.has(style):
+		var created := SurfaceTool.new()
+		created.begin(Mesh.PRIMITIVE_TRIANGLES)
+		created.set_custom_format(0, SurfaceTool.CUSTOM_RGBA_FLOAT)
+		_step_groups[style] = created
+	var surface: SurfaceTool = _step_groups[style]
+	var settings := style_for(style)
+	var low: Vector2 = region.ramp_start
+	var high: Vector2 = region.ramp_end
+	var low_height: float = region.start_height
+	var high_height: float = region.end_height
+	if low_height > high_height:
+		var swap := low
+		low = high
+		high = swap
+		low_height = region.end_height
+		high_height = region.start_height
+	var direction := (high - low).normalized()
+	var side := direction.orthogonal()
+	var half := absf((region.polygon[0] - low).dot(side))
+	var steps := stair_steps(region)
+	var rise := (high_height - low_height) / steps
+	var back := Vector3(-direction.x, 0, -direction.y)
+	for i in steps:
+		var front := low.lerp(high, float(i) / steps)
+		var rear := low.lerp(high, float(i + 1) / steps)
+		var below := low_height + i * rise
+		var tread := below + rise
+		var corners := [front - side * half, front + side * half, rear + side * half, rear - side * half]
+		_step_quad(
+			surface,
+			settings,
+			[
+				Vector3(corners[0].x, below, corners[0].y),
+				Vector3(corners[1].x, below, corners[1].y),
+				Vector3(corners[1].x, tread, corners[1].y),
+				Vector3(corners[0].x, tread, corners[0].y)
+			],
+			back,
+			true
+		)
+		_step_quad(
+			surface,
+			settings,
+			[
+				Vector3(corners[0].x, tread, corners[0].y),
+				Vector3(corners[1].x, tread, corners[1].y),
+				Vector3(corners[2].x, tread, corners[2].y),
+				Vector3(corners[3].x, tread, corners[3].y)
+			],
+			Vector3.UP,
+			false
+		)
+
+
+func _step_quad(
+	surface: SurfaceTool, settings: SurfaceStyle, vertices: Array, normal: Vector3, riser: bool
+) -> void:
+	for index in _front_order(vertices, normal):
+		var vertex: Vector3 = vertices[index]
+		var flat := Vector2(vertex.x, vertex.z)
+		surface.set_normal(normal)
+		surface.set_color(Color.BLACK)
+		surface.set_custom(0, Color(1, 1.0 if riser else 0.0, 0, 0))
+		surface.set_uv(flat / settings.texture_scale)
+		surface.set_uv2(flat / size + Vector2(.5, .5))
+		surface.add_vertex(vertex)
+
+
+## Triangle indices for a quad, wound so its front face looks along normal.
+static func _front_order(vertices: Array, normal: Vector3) -> Array:
+	var first: Vector3 = vertices[1] - vertices[0]
+	var second: Vector3 = vertices[2] - vertices[0]
+	# Godot treats clockwise (seen from the front) as the front face.
+	if first.cross(second).dot(normal) > 0:
+		return [0, 2, 1, 0, 3, 2]
+	return [0, 1, 2, 0, 2, 3]
+
+
 func _emit_top(points: PackedVector2Array, region: Dictionary) -> float:
 	var area := polygon_area(points)
 	if points.size() < 3 or area <= EPS:
 		return 0.0
+	# Snap to a 0.1 mm grid: clipped neighbours then share exact vertices, and
+	# slivers collapse to nothing instead of surviving as zero-area float faces.
+	var snapped := PackedVector2Array()
+	for point in points:
+		var grid := (point * GRID_INV).round() / GRID_INV
+		if snapped.is_empty() or grid != snapped[snapped.size() - 1]:
+			snapped.append(grid)
+	if snapped.size() > 1 and snapped[0] == snapped[snapped.size() - 1]:
+		snapped.remove_at(snapped.size() - 1)
+	if snapped.size() < 3:
+		return area
+	points = snapped
 	var style: SurfaceStyle = region.get("style")
-	if not _surface_groups.has(style):
-		var top := SurfaceTool.new()
-		top.begin(Mesh.PRIMITIVE_TRIANGLES)
-		_surface_groups[style] = top
-	var surface: SurfaceTool = _surface_groups[style]
-	var settings: Resource = style if style else surface_style if surface_style else area_set
+	var surface: SurfaceTool
+	if region.get("stairs", false):
+		# Stairs are drawn as steps by _emit_steps; their slope is only walked on.
+		if _stair_collision == null:
+			_stair_collision = SurfaceTool.new()
+			_stair_collision.begin(Mesh.PRIMITIVE_TRIANGLES)
+		surface = _stair_collision
+	else:
+		if not _surface_groups.has(style):
+			var top := SurfaceTool.new()
+			top.begin(Mesh.PRIMITIVE_TRIANGLES)
+			_surface_groups[style] = top
+		surface = _surface_groups[style]
+	var settings := style_for(style)
 	for i in range(1, points.size() - 1):
 		# Clipping exactly on a cell edge can repeat a vertex or leave a collinear
 		# fan triangle. Such faces cause spurious capsule recovery on steep ramps.
@@ -493,9 +937,14 @@ func _emit_top(points: PackedVector2Array, region: Dictionary) -> float:
 			var normal := Vector3.UP
 			if region.has("ramp_start"):
 				var direction: Vector2 = region.ramp_end - region.ramp_start
+				var along := clampf(
+					(p - region.ramp_start).dot(direction) / maxf(.0001, direction.length_squared()), 0, 1
+				)
+				# The local steepness of the eased profile gives soft shading over the bend.
 				var gradient: Vector2 = (
 					direction
 					* (region.end_height - region.start_height)
+					* ramp_profile(region, along).y
 					/ direction.length_squared()
 				)
 				normal = Vector3(-gradient.x, 1, -gradient.y).normalized()
@@ -541,64 +990,469 @@ static func clip_half_plane(
 static func region_height(region: Dictionary, point: Vector2) -> float:
 	if region.is_empty():
 		return 0.0
+	if region.has("water"):
+		# The bed eases down from the shore; distances use the whole shore line, so
+		# cutting the water around an island never raises a ridge through it.
+		return LevelWater.bed_height(region.shore, region.depth, region.bank, point)
 	if not region.has("ramp_start"):
 		return region.height
 	var direction: Vector2 = region.ramp_end - region.ramp_start
 	var t := clampf(
 		(point - region.ramp_start).dot(direction) / maxf(.0001, direction.length_squared()), 0, 1
 	)
-	return lerpf(region.start_height, region.end_height, t)
+	return lerpf(region.start_height, region.end_height, ramp_profile(region, t).x)
 
 
-func _emit_sides(surface: SurfaceTool, region: Dictionary, regions: Array[Dictionary]) -> void:
+## Normalised height (x) and relative steepness (y) along a ramp at t in 0..1.
+## Slopes without treads ease in and out at both ends, so they meet the plateau and
+## the ground tangentially instead of folding at a hard crease; stairs stay linear.
+static func ramp_profile(region: Dictionary, t: float) -> Vector2:
+	if region.get("stairs", false):
+		return Vector2(t, 1.0)
+	var run: float = (region.ramp_end - region.ramp_start).length()
+	var average := absf(region.end_height - region.start_height) / maxf(run, .001)
+	# Easing steepens the middle; keep that below the walkable limit.
+	var blend := clampf(1.0 - average / SLOPE_EASE_LIMIT, 0.0, SLOPE_EASE)
+	if blend <= .001:
+		return Vector2(t, 1.0)
+	var middle := 1.0 / (1.0 - blend)
+	if t < blend:
+		return Vector2(middle * t * t / (2.0 * blend), middle * t / blend)
+	if t > 1.0 - blend:
+		var rest := 1.0 - t
+		return Vector2(1.0 - middle * rest * rest / (2.0 * blend), middle * rest / blend)
+	return Vector2(middle * (t - blend * .5), middle)
+
+
+func _emit_sides(region: Dictionary, regions: Array[Dictionary]) -> void:
+	var style: SurfaceStyle = region.get("style")
+	var settings := style_for(style)
+	var wall_color := settings.cliff_color.srgb_to_linear()
+	var rim_color := settings.cliff_rim_color.srgb_to_linear()
+	var curb_color := settings.cliff_color.lightened(.15).srgb_to_linear()
+	var rim_height := settings.cliff_rim_height
+	var overhang := rim_height * .5
+	var bevel := rim_height * .35
 	var points: PackedVector2Array = region.polygon
+	# Mitred corner offsets keep the overhanging rim closed around every corner.
+	var count := points.size()
+	var normals := PackedVector2Array()
+	for e in count:
+		var span := points[(e + 1) % count] - points[e]
+		normals.append(Vector2(span.y, -span.x).normalized())
+	var miters := PackedVector2Array()
+	for v in count:
+		var bisector := (normals[(v - 1 + count) % count] + normals[v]).normalized()
+		if bisector.is_zero_approx():
+			bisector = normals[v]
+		miters.append(bisector / maxf(bisector.dot(normals[v]), .5))
 	for edge in points.size():
 		var a := points[edge]
 		var b := points[(edge + 1) % points.size()]
 		var line := b - a
 		if line.length_squared() < EPS:
 			continue
+		# The first and last riser already close a flight's low and high ends;
+		# only its sides get walls.
+		if region.get("stairs", false):
+			var run: Vector2 = region.ramp_end - region.ramp_start
+			if absf(line.normalized().dot(run.normalized())) < .5:
+				continue
 		var splits: Array[float] = [0.0, 1.0]
+		# Pieces of one plateau (split around a hill or stairs) are neighbours too,
+		# so compare by identity, not by name.
 		for other in regions:
-			if other.name == region.name:
+			if is_same(other, region):
 				continue
 			for p in other.polygon:
 				if p.distance_to(Geometry2D.get_closest_point_to_segment(p, a, b)) < .0001:
 					var t: float = clampf((p - a).dot(line) / line.length_squared(), 0, 1)
 					if not t in splits:
 						splits.append(t)
+		# Walls beside stairs follow the step profile, so split them at every step.
+		for other in regions:
+			if not other.get("stairs", false):
+				continue
+			var run: Vector2 = other.ramp_end - other.ramp_start
+			var across := run.normalized().orthogonal()
+			var half := absf((other.polygon[0] - other.ramp_start).dot(across)) + .01
+			var denominator := line.dot(run)
+			if absf(denominator) < EPS:
+				continue
+			var steps := stair_steps(other)
+			for k in range(1, steps):
+				var boundary: Vector2 = other.ramp_start + run * (float(k) / steps)
+				var t := (boundary - a).dot(run) / denominator
+				if t <= 0 or t >= 1 or t in splits:
+					continue
+				if absf((a + line * t - boundary).dot(across)) <= half:
+					splits.append(t)
+		# Beside a curved slope, walls split on the ground's own cell grid so their top
+		# edge matches the surface vertex for vertex: no gaps and no straight chords.
+		if _near_eased_ramp(a, b, regions):
+			for axis in 2:
+				var span: float = line[axis]
+				if absf(span) < EPS:
+					continue
+				for k in range(1, _cells[axis]):
+					var grid_line: float = -size[axis] / 2 + k * size[axis] / _cells[axis]
+					var t: float = (grid_line - a[axis]) / span
+					if t > EPS and t < 1 - EPS and not t in splits:
+						splits.append(t)
 		splits.sort()
+		# CCW X/Z polygon: its right-hand side is outside.
+		var out := Vector2(line.y, -line.x).normalized()
+		var normal := Vector3(out.x, 0, out.y)
 		for i in range(splits.size() - 1):
 			var start := a.lerp(b, splits[i])
 			var end := a.lerp(b, splits[i + 1])
-			# CCW X/Z polygon: its right-hand side is outside.
-			var outside := (start + end) * .5 + Vector2(line.y, -line.x).normalized() * .001
+			var outside := (start + end) * .5 + out * .001
 			var adjacent := {}
 			for other in regions:
 				if (
-					other.name != region.name
+					not is_same(other, region)
 					and Geometry2D.is_point_in_polygon(outside, other.polygon)
 				):
 					adjacent = other
 					break
-			var top_a := region_height(region, start)
-			var top_b := region_height(region, end)
-			var low_a := region_height(adjacent, start)
-			var low_b := region_height(adjacent, end)
+			_collision_wall(
+				start,
+				end,
+				region_height(adjacent, start),
+				region_height(adjacent, end),
+				region_height(region, start),
+				region_height(region, end)
+			)
+			var middle := (start + end) * .5
+			var top_a := side_height(region, middle) if region.get("stairs", false) else region_height(region, start)
+			var top_b := side_height(region, middle) if region.get("stairs", false) else region_height(region, end)
+			var low_a := side_height(adjacent, middle) if adjacent.get("stairs", false) else region_height(adjacent, start)
+			var low_b := side_height(adjacent, middle) if adjacent.get("stairs", false) else region_height(adjacent, end)
 			if top_a <= low_a + EPS and top_b <= low_b + EPS:
 				continue
-			var vertices := [
-				Vector3(start.x, low_a, start.y),
-				Vector3(end.x, low_b, end.y),
-				Vector3(end.x, top_b, end.y),
-				Vector3(start.x, top_a, start.y)
-			]
-			var normal := Vector3(line.y, 0, -line.x).normalized()
-			for triangle in [[0, 1, 2], [0, 2, 3]]:
-				var first: Vector3 = vertices[triangle[1]] - vertices[triangle[0]]
-				var second: Vector3 = vertices[triangle[2]] - vertices[triangle[0]]
-				if first.cross(second).length_squared() <= EPS * EPS:
-					continue
-				for index in triangle:
-					surface.set_normal(normal)
-					surface.add_vertex(vertices[index])
+			# Created on first wall only: committing an empty SurfaceTool is an error.
+			if not _cliff_groups.has(style):
+				var created := SurfaceTool.new()
+				created.begin(Mesh.PRIMITIVE_TRIANGLES)
+				_cliff_groups[style] = created
+			var surface: SurfaceTool = _cliff_groups[style]
+			if region.has("ramp_start"):
+				if region.get("stairs", false):
+					# Stair cheeks: plain stepped walls; the treads close their top.
+					_quad(
+						surface,
+						[
+							Vector3(start.x, low_a, start.y),
+							Vector3(end.x, low_b, end.y),
+							Vector3(end.x, top_b, end.y),
+							Vector3(start.x, top_a, start.y)
+						],
+						normal,
+						wall_color,
+						0.0
+					)
+				else:
+					_emit_curb(surface, region, start, end, low_a, low_b, normal, wall_color, curb_color)
+				continue
+			# Plateau walls keep a rim of constant thickness. Where the drop becomes
+			# shallower than the rim (beside a slope) the rim is cut off square there
+			# instead of tapering to a point.
+			var pieces := [[start, end, top_a, top_b, low_a, low_b, splits[i], splits[i + 1]]]
+			var drop_a := top_a - low_a
+			var drop_b := top_b - low_b
+			if (drop_a - rim_height) * (drop_b - rim_height) < 0:
+				var cut := (rim_height - drop_a) / (drop_b - drop_a)
+				var cut_point := start.lerp(end, cut)
+				var cut_top := lerpf(top_a, top_b, cut)
+				var cut_low := lerpf(low_a, low_b, cut)
+				var cut_t := lerpf(splits[i], splits[i + 1], cut)
+				pieces = [
+					[start, cut_point, top_a, cut_top, low_a, cut_low, splits[i], cut_t],
+					[cut_point, end, cut_top, top_b, cut_low, low_b, cut_t, splits[i + 1]]
+				]
+			var offset_from: Vector2 = miters[edge]
+			var offset_to: Vector2 = miters[(edge + 1) % count]
+			for piece in pieces:
+				_emit_wall_piece(
+					surface,
+					piece,
+					offset_from,
+					offset_to,
+					normal,
+					wall_color,
+					rim_color,
+					rim_height,
+					overhang,
+					bevel
+				)
+
+
+## One stretch of plateau wall with, when it is tall enough, its overhanging rim.
+func _emit_wall_piece(
+	surface: SurfaceTool,
+	piece: Array,
+	offset_from: Vector2,
+	offset_to: Vector2,
+	normal: Vector3,
+	wall_color: Color,
+	rim_color: Color,
+	rim_height: float,
+	overhang: float,
+	bevel: float
+) -> void:
+	var start: Vector2 = piece[0]
+	var end: Vector2 = piece[1]
+	var top_a: float = piece[2]
+	var top_b: float = piece[3]
+	var low_a: float = piece[4]
+	var low_b: float = piece[5]
+	if top_a <= low_a + EPS and top_b <= low_b + EPS:
+		return
+	var rim := rim_height if minf(top_a - low_a, top_b - low_b) >= rim_height - .001 else 0.0
+	_quad(
+		surface,
+		[
+			Vector3(start.x, low_a, start.y),
+			Vector3(end.x, low_b, end.y),
+			Vector3(end.x, top_b - rim, end.y),
+			Vector3(start.x, top_a - rim, start.y)
+		],
+		normal,
+		wall_color,
+		0.0
+	)
+	if rim <= 0:
+		return
+	var offset_a := offset_from.lerp(offset_to, piece[6])
+	var offset_b := offset_from.lerp(offset_to, piece[7])
+	var so := start + offset_a * overhang
+	var eo := end + offset_b * overhang
+	var si := start + offset_a * (overhang - bevel)
+	var ei := end + offset_b * (overhang - bevel)
+	var chamfer := minf(bevel, rim)
+	# Flat cap from the plateau edge, a chamfer, the outer rim face and its underside.
+	_quad(
+		surface,
+		[
+			Vector3(si.x, top_a, si.y),
+			Vector3(ei.x, top_b, ei.y),
+			Vector3(end.x, top_b, end.y),
+			Vector3(start.x, top_a, start.y)
+		],
+		Vector3.UP,
+		rim_color,
+		1.0
+	)
+	_quad(
+		surface,
+		[
+			Vector3(so.x, top_a - chamfer, so.y),
+			Vector3(eo.x, top_b - chamfer, eo.y),
+			Vector3(ei.x, top_b, ei.y),
+			Vector3(si.x, top_a, si.y)
+		],
+		(normal + Vector3.UP).normalized(),
+		rim_color * .93,
+		1.0
+	)
+	_quad(
+		surface,
+		[
+			Vector3(so.x, top_a - rim, so.y),
+			Vector3(eo.x, top_b - rim, eo.y),
+			Vector3(eo.x, top_b - chamfer, eo.y),
+			Vector3(so.x, top_a - chamfer, so.y)
+		],
+		normal,
+		rim_color * .82,
+		1.0
+	)
+	_quad(
+		surface,
+		[
+			Vector3(start.x, top_a - rim, start.y),
+			Vector3(end.x, top_b - rim, end.y),
+			Vector3(eo.x, top_b - rim, eo.y),
+			Vector3(so.x, top_a - rim, so.y)
+		],
+		Vector3.DOWN,
+		rim_color * .5,
+		1.0
+	)
+	# Square end caps close the rim wherever it stops.
+	var tangent := Vector3(end.x - start.x, 0, end.y - start.y).normalized()
+	for cap in [[start, so, si, top_a, -tangent], [end, eo, ei, top_b, tangent]]:
+		var edge_point: Vector2 = cap[0]
+		var outer: Vector2 = cap[1]
+		var inner: Vector2 = cap[2]
+		var top: float = cap[3]
+		_quad(
+			surface,
+			[
+				Vector3(edge_point.x, top - rim, edge_point.y),
+				Vector3(outer.x, top - rim, outer.y),
+				Vector3(outer.x, top - chamfer, outer.y),
+				Vector3(edge_point.x, top - chamfer, edge_point.y)
+			],
+			cap[4],
+			rim_color * .75,
+			1.0
+		)
+		_quad(
+			surface,
+			[
+				Vector3(edge_point.x, top - chamfer, edge_point.y),
+				Vector3(outer.x, top - chamfer, outer.y),
+				Vector3(inner.x, top, inner.y),
+				Vector3(edge_point.x, top, edge_point.y)
+			],
+			cap[4],
+			rim_color * .75,
+			1.0
+		)
+
+
+## A solid stone curb along the side of a slope: it follows the slope a little
+## above it, meets the plateau top flush and ends in a square face at the bottom,
+## so the side never thins out to a knife edge.
+func _emit_curb(
+	surface: SurfaceTool,
+	region: Dictionary,
+	start: Vector2,
+	end: Vector2,
+	low_a: float,
+	low_b: float,
+	normal: Vector3,
+	wall_color: Color,
+	curb_color: Color
+) -> void:
+	var high := maxf(region.start_height, region.end_height)
+	var slope_a := region_height(region, start)
+	var slope_b := region_height(region, end)
+	var top_a := minf(slope_a + CURB_HEIGHT, high)
+	var top_b := minf(slope_b + CURB_HEIGHT, high)
+	if top_a <= low_a + EPS and top_b <= low_b + EPS:
+		return
+	var inward := Vector2(-normal.x, -normal.z) * CURB_WIDTH
+	var start_in := start + inward
+	var end_in := end + inward
+	var inner_a := region_height(region, start_in)
+	var inner_b := region_height(region, end_in)
+	_quad(
+		surface,
+		[
+			Vector3(start.x, low_a, start.y),
+			Vector3(end.x, low_b, end.y),
+			Vector3(end.x, top_b, end.y),
+			Vector3(start.x, top_a, start.y)
+		],
+		normal,
+		wall_color,
+		0.0
+	)
+	_quad(
+		surface,
+		[
+			Vector3(start.x, top_a, start.y),
+			Vector3(end.x, top_b, end.y),
+			Vector3(end_in.x, top_b, end_in.y),
+			Vector3(start_in.x, top_a, start_in.y)
+		],
+		Vector3.UP,
+		curb_color,
+		1.0
+	)
+	_quad(
+		surface,
+		[
+			Vector3(start_in.x, inner_a, start_in.y),
+			Vector3(end_in.x, inner_b, end_in.y),
+			Vector3(end_in.x, top_b, end_in.y),
+			Vector3(start_in.x, top_a, start_in.y)
+		],
+		-normal,
+		curb_color * .8,
+		1.0
+	)
+	# Square face where the curb stands clear of the slope (its low end); the high
+	# end meets the plateau flush and needs none.
+	var tangent := Vector3(end.x - start.x, 0, end.y - start.y).normalized()
+	for cap in [[start, start_in, top_a, low_a, inner_a, slope_a, -tangent], [end, end_in, top_b, low_b, inner_b, slope_b, tangent]]:
+		var outer_point: Vector2 = cap[0]
+		var inner_point: Vector2 = cap[1]
+		var top: float = cap[2]
+		if top - cap[5] < CURB_HEIGHT - .001:
+			continue
+		_quad(
+			surface,
+			[
+				Vector3(outer_point.x, cap[3], outer_point.y),
+				Vector3(inner_point.x, cap[4], inner_point.y),
+				Vector3(inner_point.x, top, inner_point.y),
+				Vector3(outer_point.x, top, outer_point.y)
+			],
+			cap[6],
+			curb_color * .85,
+			1.0
+		)
+
+
+func _near_eased_ramp(a: Vector2, b: Vector2, regions: Array[Dictionary]) -> bool:
+	var box := Rect2(a, Vector2.ZERO).expand(b).grow(.01)
+	for other in regions:
+		var curved: bool = (
+			(other.has("ramp_start") and not other.get("stairs", false)) or other.has("water")
+		)
+		if not curved:
+			continue
+		var ramp_box := Rect2(other.polygon[0], Vector2.ZERO)
+		for point in other.polygon:
+			ramp_box = ramp_box.expand(point)
+		if box.intersects(ramp_box.grow(.01)):
+			return true
+	return false
+
+
+## A plain wall between two smooth surfaces for the collision mesh only.
+func _collision_wall(
+	start: Vector2, end: Vector2, low_a: float, low_b: float, top_a: float, top_b: float
+) -> void:
+	if top_a <= low_a + EPS and top_b <= low_b + EPS:
+		return
+	start = (start * GRID_INV).round() / GRID_INV
+	end = (end * GRID_INV).round() / GRID_INV
+	if _wall_collision == null:
+		_wall_collision = SurfaceTool.new()
+		_wall_collision.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var vertices := [
+		Vector3(start.x, low_a, start.y),
+		Vector3(end.x, low_b, end.y),
+		Vector3(end.x, maxf(top_b, low_b), end.y),
+		Vector3(start.x, maxf(top_a, low_a), start.y)
+	]
+	var line := end - start
+	var order := _front_order(vertices, Vector3(line.y, 0, -line.x).normalized())
+	for triangle in [order.slice(0, 3), order.slice(3, 6)]:
+		var first: Vector3 = vertices[triangle[1]] - vertices[triangle[0]]
+		var second: Vector3 = vertices[triangle[2]] - vertices[triangle[0]]
+		# A wall that tapers to nothing at one end leaves a zero-area triangle.
+		if first.cross(second).length_squared() <= .0000000001:
+			continue
+		for index in triangle:
+			_wall_collision.add_vertex(vertices[index])
+
+
+static func _quad(
+	surface: SurfaceTool, vertices: Array, normal: Vector3, color: Color, rim: float
+) -> void:
+	var order := _front_order(vertices, normal)
+	for triangle in [order.slice(0, 3), order.slice(3, 6)]:
+		var first: Vector3 = vertices[triangle[1]] - vertices[triangle[0]]
+		var second: Vector3 = vertices[triangle[2]] - vertices[triangle[0]]
+		if first.cross(second).length_squared() <= EPS * EPS:
+			continue
+		for index in triangle:
+			surface.set_normal(normal)
+			surface.set_color(color)
+			surface.set_uv2(Vector2(rim, 0))
+			surface.add_vertex(vertices[index])

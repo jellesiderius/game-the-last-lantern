@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SurfaceStyle" format=3 uid="uid://crgc4a6hhi8ej"]
+
+[ext_resource type="Script" uid="uid://bsrql8vbmw4rn" path="res://scripts/world/authoring/surface_style.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Stad"
+ground_color = Color(0.82, 0.62, 0.38, 1)
+path_color = Color(0.9, 0.74, 0.5, 1)
+pattern = 3
+cliff_color = Color(0.72, 0.4, 0.37, 1)
+cliff_rim_color = Color(0.8, 0.5, 0.44, 1)
+cliff_rim_height = 0.14

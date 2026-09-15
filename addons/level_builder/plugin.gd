@@ -1,29 +1,53 @@
 @tool
 extends EditorPlugin
 ## Thin editor UI over saved scenes and Resources. No runtime generator/autoload.
+enum Tool { SELECT, PLACE, PLATEAU, STAIRS, PATH, PATROL, BRIDGE, WATER }
+const TOOL_NAMES := ["Selecteer", "Plaats", "Plateau", "Trap", "Pad", "Patrouille", "Brug", "Water"]
+const TOOL_HINTS := [
+	"Selecteer en versleep met Godots eigen gereedschap. Hoogte en maat staan in de Inspector.",
+	"Klik om te plaatsen. Begroeiing strooit bij slepen. Shift+slepen wist.",
+	"Kies een Hoogte en sleep een rechthoek. Ctrl houdt de hoogte van de grond eronder. Rechthoeken tegen elkaar vormen één plateau; hogere plateaus mogen op lagere.",
+	"Beweeg over de rand van een plateau en klik. Muis óp het plateau = trap erin, op de muur of ervoor = trap naar buiten. Rood = past niet.",
+	"Klik punten voor een pad. Esc rondt af.",
+	"Klik punten voor een patrouilleroute. Esc rondt af.",
+	"Klik een plateaurand (of de grond) als begin en daarna het tweede punt. Omhoog of omlaag mag; de brug volgt de plateaus. Rood = te steil of door een plateau. Esc annuleert.",
+	"Vierkant: sleep een rechthoek. Pad: klik punten voor een rivier, Esc rondt af. De grond zakt vanzelf in met zachte oevers; schuim en kringen komen vanzelf."
+]
 const PREPARATION = preload("res://addons/level_builder/asset_preparation.gd")
 const FACTORY = preload("res://addons/level_builder/level_factory.gd")
 const CHECKS = preload("res://addons/level_builder/level_checks.gd")
 const PORTAL_INSPECTOR = preload("res://addons/level_builder/portal_inspector.gd")
+const STAIR_SLOPE := LevelTerrain.STAIR_SLOPE
+const RAMP_SLOPE := LevelTerrain.RAMP_SLOPE
+const STAIR_PICK_DISTANCE := 1.5
+const STAIR_PICK_PIXELS := 48.0
 var dock: VBoxContainer
 var bottom_button: Button
 var tools_dock: EditorDock
-var tools_tabs := TabContainer.new()
-var editable_objects := OptionButton.new()
-var editable_nodes: Array[Node3D] = []
+var toolbar_button: Button
+var tool := Tool.SELECT
+var tool_buttons := {}
+var option_rows := {}
 var checked_terrains := {}
 var selection_editor = preload("res://addons/level_builder/selection_editor.gd").new()
 var pending_reimports := PackedStringArray()
-var toolbar_button: Button
 var sets := OptionButton.new()
 var search := LineEdit.new()
 var category := OptionButton.new()
 var selected_name := Label.new()
 var palette = preload("res://addons/level_builder/asset_palette.gd").new()
-var mode := OptionButton.new()
 var radius := SpinBox.new()
 var amount := SpinBox.new()
 var snap := SpinBox.new()
+var plateau_height := SpinBox.new()
+var stair_width := SpinBox.new()
+var stair_steps := CheckBox.new()
+var bridge_width := SpinBox.new()
+var bridge_rails := CheckBox.new()
+var bridge_start := {}
+var water_shape := OptionButton.new()
+var water_width := SpinBox.new()
+var water_depth := SpinBox.new()
 var status := RichTextLabel.new()
 var new_dialog := ConfirmationDialog.new()
 var new_name := LineEdit.new()
@@ -47,7 +71,13 @@ var maintenance_time := 0.0
 var last_paint := Vector3.INF
 var stroke_nodes: Array[Node3D] = []
 var painting := false
+var erasing := false
 var active_curve: Path3D
+var drag_start: Variant = null
+## A click without dragging sets the first corner of a rectangle; the next click finishes it.
+var corner_pending := false
+var drag_end: Variant = null
+var preview: MeshInstance3D
 
 
 func _enter_tree() -> void:
@@ -60,13 +90,9 @@ func _enter_tree() -> void:
 				_ensure_panel_height.call_deferred()
 	)
 	dock.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var body := HBoxContainer.new()
-	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 16)
-	dock.add_child(body)
 	var library := VBoxContainer.new()
-	library.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_child(library)
+	library.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	dock.add_child(library)
 	var filters := HBoxContainer.new()
 	library.add_child(filters)
 	sets.custom_minimum_size.x = 160 * EditorInterface.get_editor_scale()
@@ -97,138 +123,87 @@ func _enter_tree() -> void:
 	library_footer.add_child(selected_name)
 	_button("Asset toevoegen", library_footer, func(): source_dialog.popup_centered_ratio(.65))
 	_button("Vernieuwen", library_footer, _refresh_sets)
-	# Tools have their own right-hand dock; asset minimum widths cannot displace them.
+	# One right-hand dock: tools on top, selection material, then level actions.
 	tools_dock = EditorDock.new()
 	tools_dock.title = "Level tools"
-	tools_dock.layout_key = "LanternLevelToolsV2"
+	tools_dock.layout_key = "LanternLevelToolsV3"
 	tools_dock.default_slot = EditorDock.DOCK_SLOT_RIGHT_UL
 	tools_dock.icon_name = &"Tools"
-	var tools_scroll := ScrollContainer.new()
-	tools_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
-	tools_scroll.custom_minimum_size = Vector2(200, 120) * EditorInterface.get_editor_scale()
-	tools_dock.add_child(tools_scroll)
-	var tools_body := VBoxContainer.new()
-	tools_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tools_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	tools_scroll.add_child(tools_body)
-	# Wrapping tab buttons remain visible even in a narrow right sidebar.
-	var navigation := HFlowContainer.new()
-	tools_body.add_child(navigation)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	scroll.custom_minimum_size = Vector2(200, 120) * EditorInterface.get_editor_scale()
+	tools_dock.add_child(scroll)
+	var body := VBoxContainer.new()
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 8)
+	scroll.add_child(body)
+	var buttons := HFlowContainer.new()
+	body.add_child(buttons)
 	var group := ButtonGroup.new()
-	for i in 3:
-		var tab := Button.new()
-		tab.text = ["Bouwen", "Bewerken", "Level"][i]
-		tab.toggle_mode = true
-		tab.button_group = group
-		tab.button_pressed = i == 0
-		tab.pressed.connect(func(): tools_tabs.current_tab = i)
-		tools_tabs.tab_changed.connect(func(current): tab.set_pressed_no_signal(current == i))
-		navigation.add_child(tab)
-	tools_body.add_child(tools_tabs)
-	tools_tabs.tabs_visible = false
-	tools_tabs.custom_minimum_size.y = 240 * EditorInterface.get_editor_scale()
-	tools_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var tool_box := _tools_page("Bouwen")
-	var edit_box := _tools_page("Bewerken")
-	var level_box := _tools_page("Level")
-	_label("Onderdeel", edit_box)
-	editable_objects.fit_to_longest_item = false
-	editable_objects.clip_text = true
-	edit_box.add_child(editable_objects)
-	editable_objects.item_selected.connect(
-		func(index):
-			if (
-				index >= 0
-				and index < editable_nodes.size()
-				and is_instance_valid(editable_nodes[index])
-			):
-				EditorInterface.get_selection().clear()
-				EditorInterface.get_selection().add_node(editable_nodes[index])
-				EditorInterface.edit_node(editable_nodes[index])
-				tools_dock.make_visible()
-	)
+	for i in [Tool.SELECT, Tool.PLACE, Tool.PLATEAU, Tool.STAIRS, Tool.BRIDGE, Tool.WATER, Tool.PATH, Tool.PATROL]:
+		var button := Button.new()
+		button.text = TOOL_NAMES[i]
+		button.toggle_mode = true
+		button.button_group = group
+		button.button_pressed = i == Tool.SELECT
+		button.pressed.connect(_set_tool.bind(i))
+		buttons.add_child(button)
+		tool_buttons[i] = button
+	_spin(snap, 0, 4, .25, 1, "m raster (0 = vrij)")
+	_spin(plateau_height, .5, LevelTerrain.MAX_HEIGHT, .5, 1, "m hoog")
+	_spin(stair_width, .5, 12, .5, 2, "m breed")
+	_spin(bridge_width, 1, 6, .5, 2, "m breed")
+	_spin(water_width, .5, 20, .5, 3, "m breed")
+	_spin(water_depth, .2, 3, .1, .6, "m diep")
+	water_shape.add_item("Vierkant")
+	water_shape.add_item("Pad")
+	water_shape.item_selected.connect(func(_index): _set_tool(tool))
+	_spin(radius, .25, 12, .25, 2, "m penseel")
+	_spin(amount, 1, 40, 1, 6, "per stempel")
+	stair_steps.text = "Treden (uit = helling)"
+	stair_steps.button_pressed = true
+	bridge_rails.text = "Leuningen"
+	bridge_rails.button_pressed = true
+	_option("Raster", snap, [Tool.PLACE, Tool.PLATEAU, Tool.STAIRS, Tool.BRIDGE, Tool.WATER, Tool.PATH, Tool.PATROL], body)
+	_option("Hoogte", plateau_height, [Tool.PLATEAU], body)
+	_option("Trapbreedte", stair_width, [Tool.STAIRS], body)
+	_option("", stair_steps, [Tool.STAIRS], body)
+	_option("Brugbreedte", bridge_width, [Tool.BRIDGE], body)
+	_option("", bridge_rails, [Tool.BRIDGE], body)
+	_option("Vorm", water_shape, [Tool.WATER], body)
+	_option("Breedte", water_width, [Tool.WATER], body)
+	_option("Diepte", water_depth, [Tool.WATER], body)
+	_option("Penseel", radius, [Tool.PLACE], body)
+	_option("Aantal", amount, [Tool.PLACE], body)
+	body.add_child(HSeparator.new())
 	selection_editor.plugin = self
-	edit_box.add_child(selection_editor)
+	body.add_child(selection_editor)
 	selection_editor.refresh()
-	_label("Gereedschap", tool_box)
-	for title in [
-		"Selecteren",
-		"Asset plaatsen",
-		"Begroeiing schilderen",
-		"Pad tekenen",
-		"Terras tekenen",
-		"Patrouille tekenen",
-		"Begroeiing wissen",
-		"Ramp tekenen",
-		"Vloervlak tekenen"
-	]:
-		mode.add_item(title)
-	mode.fit_to_longest_item = false
-	mode.clip_text = true
-	tool_box.add_child(mode)
-	mode.item_selected.connect(_mode_changed)
-	radius.min_value = .25
-	radius.max_value = 12
-	radius.step = .25
-	radius.value = 2
-	radius.suffix = "m"
-	amount.min_value = 1
-	amount.max_value = 40
-	amount.value = 6
-	amount.suffix = "per stempel"
-	snap.min_value = 0
-	snap.max_value = 4
-	snap.step = .25
-	snap.suffix = "m (0 = vrij)"
-	_label("Penseelgrootte", tool_box)
-	tool_box.add_child(radius)
-	_label("Aantal", tool_box)
-	tool_box.add_child(amount)
-	_label("Rasterstap", tool_box)
-	tool_box.add_child(snap)
-	_button("Nieuwe curve", tool_box, _new_curve)
-	_button("Nieuwe encounter", tool_box, _new_encounter)
-	_button(
-		"Selecteren (Esc)",
-		tool_box,
-		func():
-			_commit_stroke()
-			mode.select(0)
-			active_curve = null
-	)
-	_button("Nieuw level", level_box, func(): _new_dialog("level"))
-	_button("Nieuwe areaset", level_box, func(): _new_dialog("set"))
+	body.add_child(HSeparator.new())
+	_label("Level", body)
+	_button("Nieuw level", body, func(): _new_dialog("level"))
+	_button("Nieuwe areaset", body, func(): _new_dialog("set"))
 	_button(
 		"Bewerk areaset",
-		level_box,
+		body,
 		func():
 			if _kit():
 				EditorInterface.edit_resource(_kit())
 	)
-	_button("Pas areaset toe", level_box, _apply_kit)
-	_button(
-		"Bewerk grondafmetingen",
-		level_box,
-		func():
-			var terrain := _terrain()
-			if terrain:
-				EditorInterface.get_selection().clear()
-				EditorInterface.get_selection().add_node(terrain)
-				tools_tabs.current_tab = 1
-	)
-	_button("Controleer level", level_box, _validate_level)
-	_button("Speel level", level_box, _play_level)
+	_button("Pas areaset toe", body, _apply_kit)
+	_button("Nieuwe encounter", body, _new_encounter)
+	_button("Controleer level", body, _validate_level)
+	_button("Speel level", body, _play_level)
 	status.custom_minimum_size.y = 80 * EditorInterface.get_editor_scale()
-	status.fit_content = false
+	status.fit_content = true
 	status.bbcode_enabled = false
-	tools_body.add_child(status)
+	body.add_child(status)
 	add_dock(tools_dock)
 	bottom_button = add_control_to_bottom_panel(dock, "Level Builder")
 	toolbar_button = Button.new()
 	toolbar_button.text = "Level Builder"
 	toolbar_button.pressed.connect(_show_builder)
 	add_control_to_container(CONTAINER_SPATIAL_EDITOR_MENU, toolbar_button)
-	add_tool_menu_item("Level Builder openen", _show_builder)
 	_setup_dialogs()
 	inspector = PORTAL_INSPECTOR.new()
 	add_inspector_plugin(inspector)
@@ -240,21 +215,19 @@ func _enter_tree() -> void:
 	EditorInterface.get_resource_filesystem().resources_reimported.connect(_reimported)
 	set_input_event_forwarding_always_enabled()
 	_refresh_sets()
+	_set_tool(Tool.SELECT)
 	if "--level-builder-editor-checks" in OS.get_cmdline_user_args():
 		_run_editor_checks.call_deferred()
-	_note(
-		"Kies een asset en klik in het level. Paden en terrassen: klik punten; Esc om af te ronden. Versleep punten met Godots curvegrepen."
-	)
 
 
 func _exit_tree() -> void:
 	_commit_stroke()
+	_clear_preview()
 	remove_inspector_plugin(inspector)
 	remove_node_3d_gizmo_plugin(placement_gizmos)
 	if EditorInterface.get_resource_filesystem().resources_reimported.is_connected(_reimported):
 		EditorInterface.get_resource_filesystem().resources_reimported.disconnect(_reimported)
 	EditorInterface.get_selection().selection_changed.disconnect(selection_editor.refresh)
-	remove_tool_menu_item("Level Builder openen")
 	remove_control_from_container(CONTAINER_SPATIAL_EDITOR_MENU, toolbar_button)
 	toolbar_button.queue_free()
 	remove_dock(tools_dock)
@@ -264,6 +237,936 @@ func _exit_tree() -> void:
 	new_dialog.queue_free()
 	source_dialog.queue_free()
 	import_dialog.queue_free()
+
+
+func _process(delta: float) -> void:
+	maintenance_time -= delta
+	if maintenance_time > 0:
+		return
+	maintenance_time = .5
+	var ground := _terrain()
+	if ground and not checked_terrains.has(ground.get_instance_id()):
+		checked_terrains[ground.get_instance_id()] = true
+		ground.request_bake()
+	var root := EditorInterface.get_edited_scene_root()
+	if root and CHECKS.ensure_enemy_ids(root, id_claims):
+		EditorInterface.mark_scene_as_unsaved()
+
+
+func _spin(spin: SpinBox, low: float, high: float, step: float, value: float, suffix: String) -> void:
+	spin.min_value = low
+	spin.max_value = high
+	spin.step = step
+	spin.value = value
+	spin.suffix = suffix
+	spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+
+func _option(title: String, control: Control, tools: Array, parent: Node) -> void:
+	var row := HBoxContainer.new()
+	var label := Label.new()
+	label.text = title
+	label.custom_minimum_size.x = 90 * EditorInterface.get_editor_scale()
+	row.add_child(label)
+	row.add_child(control)
+	parent.add_child(row)
+	option_rows[row] = tools
+
+
+func _set_tool(next: int) -> void:
+	_commit_stroke()
+	_clear_preview()
+	drag_start = null
+	corner_pending = false
+	last_paint = Vector3.INF
+	tool = next
+	active_curve = null
+	bridge_start = {}
+	if tool in [Tool.PATH, Tool.PATROL, Tool.WATER]:
+		var selected := EditorInterface.get_selection().get_selected_nodes()
+		if selected.size() == 1 and _curve_matches_tool(selected[0]):
+			active_curve = selected[0]
+	for i in tool_buttons:
+		tool_buttons[i].set_pressed_no_signal(i == tool)
+	for row in option_rows:
+		row.visible = tool in option_rows[row]
+	_note(TOOL_HINTS[tool])
+
+
+func _curve_matches_tool(node: Variant) -> bool:
+	return is_instance_valid(node) and (
+		(tool == Tool.PATH and node is LevelPath)
+		or (tool == Tool.PATROL and node is EnemyPatrol)
+		or (tool == Tool.WATER and node is LevelWater and node.shape == LevelWater.Shape.PATH)
+	)
+
+
+func _asset_selected(index: int) -> void:
+	active_asset = shown_assets[index]
+	selected_name.text = active_asset.display_name
+	_set_tool(Tool.PLACE)
+	tools_dock.make_visible()
+
+
+func _scene_changed(root: Node) -> void:
+	_set_tool(Tool.SELECT)
+	if root and CHECKS.has_property(root, &"area_set"):
+		var kit: AreaSet = root.get("area_set")
+		if kit in kit_list:
+			sets.select(kit_list.find(kit))
+			_refresh_palette()
+
+
+func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		if tool == Tool.SELECT:
+			return EditorPlugin.AFTER_GUI_INPUT_PASS
+		if corner_pending:
+			corner_pending = false
+			drag_start = null
+			_clear_preview()
+			_note("Rechthoek geannuleerd.")
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		if tool == Tool.BRIDGE and not bridge_start.is_empty():
+			bridge_start = {}
+			_clear_preview()
+			_note("Brug geannuleerd. Kies een nieuw beginpunt.")
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		_set_tool(Tool.SELECT)
+		return EditorPlugin.AFTER_GUI_INPUT_STOP
+	if tool == Tool.SELECT or (event is InputEventWithModifiers and event.alt_pressed):
+		return EditorPlugin.AFTER_GUI_INPUT_PASS
+	if tool == Tool.BRIDGE:
+		# Like stairs: hover shows the anchor (and the bridge once a start is set).
+		var bridge_ground := _terrain()
+		if bridge_ground == null:
+			return EditorPlugin.AFTER_GUI_INPUT_PASS
+		if event is InputEventMouseMotion:
+			_update_bridge_preview(_bridge_anchor_from_view(bridge_ground, camera, event.position))
+			return EditorPlugin.AFTER_GUI_INPUT_PASS
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				_bridge_click(_bridge_anchor_from_view(bridge_ground, camera, event.position))
+				_update_bridge_preview(_bridge_anchor_from_view(bridge_ground, camera, event.position))
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		return EditorPlugin.AFTER_GUI_INPUT_PASS
+	if tool == Tool.STAIRS:
+		# Hovering previews the stairs; camera navigation keeps working.
+		var ground := _terrain()
+		if ground == null:
+			return EditorPlugin.AFTER_GUI_INPUT_PASS
+		if event is InputEventMouseMotion:
+			_update_stairs_preview(_stairs_plan_from_view(ground, camera, event.position))
+			return EditorPlugin.AFTER_GUI_INPUT_PASS
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				_build_stairs(_stairs_plan_from_view(ground, camera, event.position))
+				_update_stairs_preview(_stairs_plan_from_view(ground, camera, event.position))
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		return EditorPlugin.AFTER_GUI_INPUT_PASS
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		var at: Variant = _hit(camera, event.position)
+		if event.pressed:
+			if at == null:
+				return EditorPlugin.AFTER_GUI_INPUT_STOP
+			if corner_pending:
+				# Second click of click-click rectangle drawing.
+				corner_pending = false
+				drag_end = at
+				_finish_rectangle(event.is_command_or_control_pressed())
+				return EditorPlugin.AFTER_GUI_INPUT_STOP
+			match tool:
+				Tool.PLACE:
+					painting = true
+					erasing = event.shift_pressed
+					if erasing:
+						_erase(at)
+					else:
+						_stamp(at)
+				Tool.PLATEAU:
+					drag_start = at
+					drag_end = at
+					_update_plateau_preview(event.is_command_or_control_pressed())
+				Tool.PATH, Tool.PATROL:
+					_add_curve_point(at)
+				Tool.WATER:
+					if water_shape.selected == LevelWater.Shape.AREA:
+						drag_start = at
+						drag_end = at
+						_update_water_preview()
+					else:
+						_add_curve_point(at)
+		else:
+			if drag_start != null and not corner_pending:
+				if at != null:
+					drag_end = at
+				var moved := Vector2(drag_end.x - drag_start.x, drag_end.z - drag_start.z).length()
+				if moved < .25:
+					# Released where it was pressed: wait for the opposite corner.
+					corner_pending = true
+					_note("Klik de tegenoverliggende hoek. Esc annuleert.")
+				else:
+					_finish_rectangle(event.is_command_or_control_pressed())
+			_commit_stroke()
+		return EditorPlugin.AFTER_GUI_INPUT_STOP
+	if event is InputEventMouseMotion and corner_pending:
+		# Hovering previews the rectangle; camera drags keep working.
+		var hover: Variant = _hit(camera, event.position)
+		if hover != null:
+			drag_end = hover
+			if tool == Tool.WATER:
+				_update_water_preview()
+			else:
+				_update_plateau_preview(event.is_command_or_control_pressed())
+		return EditorPlugin.AFTER_GUI_INPUT_PASS
+	if event is InputEventMouseMotion and (painting or drag_start != null):
+		var at: Variant = _hit(camera, event.position)
+		if at == null:
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		if drag_start != null:
+			drag_end = at
+			if tool == Tool.WATER:
+				_update_water_preview()
+			else:
+				_update_plateau_preview(event.is_command_or_control_pressed())
+		elif at.distance_to(last_paint) >= radius.value * .5:
+			if erasing:
+				_erase(at)
+			elif active_asset and active_asset.scatter_allowed:
+				_stamp(at)
+		return EditorPlugin.AFTER_GUI_INPUT_STOP
+	return EditorPlugin.AFTER_GUI_INPUT_PASS
+
+
+func _stamp(at: Vector3) -> void:
+	if active_asset == null:
+		_note("Kies eerst een asset uit de bibliotheek.")
+		return
+	var root := EditorInterface.get_edited_scene_root()
+	if root == null:
+		return
+	var ground := _terrain()
+	last_paint = at
+	var count := int(amount.value) if active_asset.scatter_allowed else 1
+	for i in count:
+		var point := at
+		if active_asset.scatter_allowed:
+			var angle := randf() * TAU
+			var distance := sqrt(randf()) * radius.value
+			point += Vector3(cos(angle), 0, sin(angle)) * distance
+			if ground:
+				var local := ground.to_local(point)
+				if absf(local.x) > ground.size.x / 2 or absf(local.z) > ground.size.y / 2:
+					continue
+				local.y = _height_at(ground, Vector2(local.x, local.z))
+				point = ground.to_global(local)
+				if _on_path(ground, local):
+					continue
+			var blocked := false
+			for other in _parent_for(active_asset).get_children():
+				if (
+					other is Node3D
+					and other.global_position.distance_to(point) < active_asset.spacing
+				):
+					blocked = true
+					break
+			if blocked:
+				continue
+		var node := active_asset.scene.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node3D
+		if node == null:
+			continue
+		node.name = active_asset.display_name.to_pascal_case()
+		_parent_for(active_asset).add_child(node, true)
+		node.owner = root
+		node.global_position = point
+		node.set_meta("level_asset_id", active_asset.id)
+		if active_asset.random_yaw:
+			node.rotation.y = randf() * TAU
+		node.scale *= randf_range(active_asset.scale_range.x, active_asset.scale_range.y)
+		if CHECKS.has_property(node, &"persistent_id"):
+			node.set("respawn_rule", 1)
+		CHECKS.ensure_enemy_ids(root, id_claims)
+		stroke_nodes.append(node)
+	if not painting:
+		_commit_stroke()
+
+
+## Surface height at a terrain-local X/Z point, ramps included.
+func _height_at(ground: LevelTerrain, point: Vector2) -> float:
+	var height := 0.0
+	for region in ground.outlines():
+		if Geometry2D.is_point_in_polygon(point, region.polygon):
+			height = maxf(height, LevelTerrain.region_height(region, point))
+	return height
+
+
+func _erase(at: Vector3) -> void:
+	last_paint = at
+	var root := EditorInterface.get_edited_scene_root()
+	if root == null:
+		return
+	var doomed: Array[Node3D] = []
+	for group in ["Props", "Enemies", "Gameplay"]:
+		var parent := root.get_node_or_null(group)
+		if parent == null:
+			continue
+		for node in parent.get_children():
+			if (
+				node is Node3D
+				and node.has_meta("level_asset_id")
+				and (active_asset == null or node.get_meta("level_asset_id") == active_asset.id)
+				and node.global_position.distance_to(at) < radius.value
+			):
+				doomed.append(node)
+	if doomed.is_empty():
+		return
+	var undo := get_undo_redo()
+	undo.create_action("Wis assets")
+	for node in doomed:
+		undo.add_do_method(node.get_parent(), "remove_child", node)
+		undo.add_undo_method(node.get_parent(), "add_child", node, true)
+		undo.add_undo_property(node, "owner", node.owner)
+		undo.add_undo_reference(node)
+	undo.commit_action()
+
+
+## Grid-snapped X/Z rectangle between two terrain-local points, clamped to the ground.
+func _drag_rect(ground: LevelTerrain, a: Vector3, b: Vector3) -> Rect2:
+	var grid := snap.value if snap.value > 0 else .5
+	var low := Vector2(minf(a.x, b.x), minf(a.z, b.z))
+	var high := Vector2(maxf(a.x, b.x), maxf(a.z, b.z))
+	high = high.max(low + Vector2(grid, grid))
+	low = low.max(-ground.size / 2)
+	high = high.min(ground.size / 2)
+	return Rect2(low, (high - low).max(Vector2.ZERO))
+
+
+func _plateau_height(ground: LevelTerrain, start: Vector3, flat: bool) -> float:
+	return ground.snap_height(start.y) if flat else plateau_height.value
+
+
+func _create_plateau(start: Vector3, end: Vector3, flat := false) -> LevelTerrace:
+	var ground := _terrain()
+	var root := EditorInterface.get_edited_scene_root()
+	if ground == null or root == null:
+		_note("Maak eerst een level met Terrain via Nieuw level.")
+		return null
+	var a := ground.to_local(start)
+	var rect := _drag_rect(ground, a, ground.to_local(end))
+	if rect.size.x < .01 or rect.size.y < .01:
+		return null
+	var height := _plateau_height(ground, a, flat)
+	var terrace := LevelTerrace.new()
+	terrace.name = "Plateau"
+	terrace.curve = Curve3D.new()
+	terrace.curve.resource_local_to_scene = true
+	for corner in [
+		rect.position,
+		Vector2(rect.end.x, rect.position.y),
+		rect.end,
+		Vector2(rect.position.x, rect.end.y)
+	]:
+		terrace.curve.add_point(Vector3(corner.x, 0, corner.y))
+	var undo := get_undo_redo()
+	undo.create_action("Plateau")
+	undo.add_do_method(ground, "add_child", terrace, true)
+	undo.add_do_property(terrace, "owner", root)
+	undo.add_do_property(terrace, "height", height)
+	undo.add_undo_method(ground, "remove_child", terrace)
+	undo.add_do_reference(terrace)
+	undo.commit_action()
+	_select(terrace)
+	if not flat and height <= ground.snap_height(a.y):
+		_note("Dit plateau is niet hoger dan de grond eronder. Kies een grotere Hoogte.")
+	else:
+		_note("Plateau op %s m." % height)
+	return terrace
+
+
+## Plateau edges, plateaus and existing stair footprints in terrain space.
+func _stair_context(ground: LevelTerrain) -> Dictionary:
+	var plateaus: Array[Dictionary] = []
+	var ramps: Array[PackedVector2Array] = []
+	for region in ground.outlines():
+		if region.has("ramp_start"):
+			ramps.append(region.polygon)
+		else:
+			plateaus.append(region)
+	var edges: Array[Dictionary] = []
+	for region in plateaus:
+		var polygon: PackedVector2Array = region.polygon
+		for i in polygon.size():
+			var a := polygon[i]
+			var b := polygon[(i + 1) % polygon.size()]
+			var length := a.distance_to(b)
+			if length < .5:
+				continue
+			var tangent := (b - a) / length
+			# Outlines are counter-clockwise: the right-hand side is outside.
+			edges.append(
+				{
+					"a": a,
+					"b": b,
+					"top": region.height,
+					"tangent": tangent,
+					"outward": Vector2(tangent.y, -tangent.x),
+					"length": length
+				}
+			)
+	return {"plateaus": plateaus, "ramps": ramps, "edges": edges}
+
+
+func _edge_drops(context: Dictionary, edge: Dictionary, point: Vector2) -> bool:
+	var below := LevelTerrain.height_under(point + edge.outward * .05, context.plateaus)
+	return edge.top - below >= LevelTerrain.HEIGHT_STEP - LevelTerrain.EPS
+
+
+## Stairs picked in the viewport: the plateau edge nearest the mouse on screen.
+## The mouse over the plateau top means stairs set into it; over the wall or the
+## ground in front means stairs leading out.
+func _stairs_plan_from_view(ground: LevelTerrain, camera: Camera3D, mouse: Vector2) -> Dictionary:
+	var context := _stair_context(ground)
+	var nearest := STAIR_PICK_PIXELS * EditorInterface.get_editor_scale()
+	var best := {}
+	var best_along := 0.0
+	for edge in context.edges:
+		var a3 := ground.to_global(Vector3(edge.a.x, edge.top, edge.a.y))
+		var b3 := ground.to_global(Vector3(edge.b.x, edge.top, edge.b.y))
+		if camera.is_position_behind(a3) or camera.is_position_behind(b3):
+			continue
+		var sa := camera.unproject_position(a3)
+		var sb := camera.unproject_position(b3)
+		var closest := Geometry2D.get_closest_point_to_segment(mouse, sa, sb)
+		var distance := mouse.distance_to(closest)
+		if distance >= nearest:
+			continue
+		var along: float = edge.length * closest.distance_to(sa) / maxf(sa.distance_to(sb), .001)
+		if not _edge_drops(context, edge, edge.a + edge.tangent * along):
+			continue
+		nearest = distance
+		best = edge
+		best_along = along
+	if best.is_empty():
+		return {}
+	var origin := ground.to_local(camera.project_ray_origin(mouse))
+	var direction := ground.global_basis.inverse() * camera.project_ray_normal(mouse)
+	var on_top: Variant = Plane(Vector3.UP, best.top).intersects_ray(origin, direction)
+	var inset: bool = on_top != null and (Vector2(on_top.x, on_top.z) - best.a).dot(best.outward) < 0
+	return _plan_with_fallback(ground, context, best, best_along, inset)
+
+
+## Stairs for a terrain-space point near a plateau edge (used by tests and tools).
+func _stairs_plan(ground: LevelTerrain, point: Vector2, inset := false) -> Dictionary:
+	var context := _stair_context(ground)
+	var nearest := STAIR_PICK_DISTANCE
+	var best := {}
+	var best_along := 0.0
+	for edge in context.edges:
+		var closest := Geometry2D.get_closest_point_to_segment(point, edge.a, edge.b)
+		var distance := point.distance_to(closest)
+		if distance >= nearest or not _edge_drops(context, edge, closest):
+			continue
+		nearest = distance
+		best = edge
+		best_along = (closest - edge.a).dot(edge.tangent)
+	if best.is_empty():
+		return {}
+	return _plan_with_fallback(ground, context, best, best_along, inset)
+
+
+## Tries the requested direction first, then the other one before giving up.
+func _plan_with_fallback(
+	ground: LevelTerrain, context: Dictionary, edge: Dictionary, along: float, inset: bool
+) -> Dictionary:
+	var plan := _plan_on_edge(ground, context, edge, along, inset)
+	if not plan.has("error"):
+		return plan
+	var other := _plan_on_edge(ground, context, edge, along, not inset)
+	if other.has("error"):
+		return plan
+	other.note = (
+		"Past niet in het plateau; trap naar buiten gezet."
+		if inset
+		else "Geen ruimte voor de rand; trap in het plateau gezet."
+	)
+	return other
+
+
+## {low, high, width, top, bottom, inset}, plus "error" when the flight does not fit.
+func _plan_on_edge(
+	ground: LevelTerrain, context: Dictionary, edge: Dictionary, along: float, inset: bool
+) -> Dictionary:
+	var width := minf(stair_width.value, edge.length)
+	var grid := snap.value if snap.value > 0 else .5
+	along = clampf(snappedf(along - width / 2, grid) + width / 2, width / 2, edge.length - width / 2)
+	var point: Vector2 = edge.a + edge.tangent * along
+	var bottom := LevelTerrain.height_under(point + edge.outward * .05, context.plateaus)
+	var slope := STAIR_SLOPE if stair_steps.button_pressed else RAMP_SLOPE
+	var run: float = maxf(edge.top - bottom, LevelTerrain.HEIGHT_STEP) / slope
+	var plan := {"width": width, "top": edge.top, "bottom": bottom, "inset": inset}
+	if inset:
+		plan.low = point
+		plan.high = point - edge.outward * run
+	else:
+		plan.low = point + edge.outward * run
+		plan.high = point
+	if edge.top - bottom < LevelTerrain.HEIGHT_STEP - LevelTerrain.EPS:
+		plan.error = "Hier is geen hoogteverschil."
+		return plan
+	# The flight must stay on the ground and on one level along its whole length.
+	var expected: float = edge.top if inset else bottom
+	var side: Vector2 = edge.tangent * (width / 2 - .01)
+	for i in range(1, 6):
+		var center: Vector2 = plan.low.lerp(plan.high, i / 6.0)
+		for sample in [center - side, center, center + side]:
+			if absf(sample.x) > ground.size.x / 2 or absf(sample.y) > ground.size.y / 2:
+				plan.error = "De trap valt buiten de grond."
+			elif not is_equal_approx(LevelTerrain.height_under(sample, context.plateaus), expected):
+				plan.error = (
+					"Het plateau is hier te klein voor een ingezette trap."
+					if inset
+					else "Er ligt iets voor deze rand; hier past geen trap."
+				)
+			for other in context.ramps:
+				if Geometry2D.is_point_in_polygon(sample, other):
+					plan.error = "Hier ligt al een trap of helling."
+	var far: Vector2 = plan.high if inset else plan.low
+	if absf(far.x) > ground.size.x / 2 or absf(far.y) > ground.size.y / 2:
+		plan.error = "De trap valt buiten de grond."
+	return plan
+
+
+func _create_stairs(at: Vector3, inset := false) -> LevelRamp:
+	var ground := _terrain()
+	if ground == null:
+		_note("Maak eerst een level met Terrain via Nieuw level.")
+		return null
+	var local := ground.to_local(at)
+	return _build_stairs(_stairs_plan(ground, Vector2(local.x, local.z), inset))
+
+
+func _build_stairs(plan: Dictionary) -> LevelRamp:
+	var ground := _terrain()
+	var root := EditorInterface.get_edited_scene_root()
+	if ground == null or root == null:
+		_note("Maak eerst een level met Terrain via Nieuw level.")
+		return null
+	if plan.is_empty():
+		_note("Beweeg over de rand van een plateau.")
+		return null
+	if plan.has("error"):
+		_note(plan.error)
+		return null
+	var stairs := LevelRamp.new()
+	stairs.name = "Trap" if stair_steps.button_pressed else "Helling"
+	stairs.stairs = stair_steps.button_pressed
+	# The end on the plateau edge stays put; raising the plateau lengthens the flight.
+	stairs.fit_length = true
+	stairs.anchor_end = 0 if plan.inset else 1
+	stairs.width = plan.width
+	stairs.curve = Curve3D.new()
+	stairs.curve.resource_local_to_scene = true
+	stairs.curve.add_point(Vector3(plan.low.x, 0, plan.low.y))
+	stairs.curve.add_point(Vector3(plan.high.x, 0, plan.high.y))
+	var undo := get_undo_redo()
+	undo.create_action("Trap")
+	undo.add_do_method(ground, "add_child", stairs, true)
+	undo.add_do_property(stairs, "owner", root)
+	undo.add_undo_method(ground, "remove_child", stairs)
+	undo.add_do_reference(stairs)
+	undo.commit_action()
+	_note(plan.get("note", "Trap van %s m naar %s m." % [plan.bottom, plan.top]))
+	return stairs
+
+
+## Bridge end under the mouse: the nearest plateau edge on screen, else the surface hit.
+func _bridge_anchor_from_view(ground: LevelTerrain, camera: Camera3D, mouse: Vector2) -> Dictionary:
+	var context := _stair_context(ground)
+	var nearest := STAIR_PICK_PIXELS * EditorInterface.get_editor_scale()
+	var best := {}
+	for edge in context.edges:
+		var a3 := ground.to_global(Vector3(edge.a.x, edge.top, edge.a.y))
+		var b3 := ground.to_global(Vector3(edge.b.x, edge.top, edge.b.y))
+		if camera.is_position_behind(a3) or camera.is_position_behind(b3):
+			continue
+		var sa := camera.unproject_position(a3)
+		var sb := camera.unproject_position(b3)
+		var closest := Geometry2D.get_closest_point_to_segment(mouse, sa, sb)
+		var distance := mouse.distance_to(closest)
+		if distance >= nearest:
+			continue
+		var along: float = edge.length * closest.distance_to(sa) / maxf(sa.distance_to(sb), .001)
+		if not _edge_drops(context, edge, edge.a + edge.tangent * along):
+			continue
+		nearest = distance
+		best = _edge_anchor(edge, along)
+	if not best.is_empty():
+		return best
+	var at: Variant = _hit(camera, mouse)
+	if at == null:
+		return {}
+	var local := ground.to_local(at)
+	var flat := Vector2(local.x, local.z)
+	return {"point": flat, "height": _height_at(ground, flat), "edge": false}
+
+
+## Bridge end for a terrain-space point (used by tests and tools).
+func _bridge_anchor_at(ground: LevelTerrain, point: Vector2) -> Dictionary:
+	var context := _stair_context(ground)
+	var nearest := STAIR_PICK_DISTANCE
+	var best := {}
+	for edge in context.edges:
+		var closest := Geometry2D.get_closest_point_to_segment(point, edge.a, edge.b)
+		var distance := point.distance_to(closest)
+		if distance >= nearest or not _edge_drops(context, edge, closest):
+			continue
+		nearest = distance
+		best = _edge_anchor(edge, (closest - edge.a).dot(edge.tangent))
+	if not best.is_empty():
+		return best
+	return {"point": point, "height": _height_at(ground, point), "edge": false}
+
+
+func _edge_anchor(edge: Dictionary, along: float) -> Dictionary:
+	var grid := snap.value if snap.value > 0 else .5
+	along = clampf(snappedf(along, grid), 0, edge.length)
+	return {"point": edge.a + edge.tangent * along, "height": edge.top, "edge": true}
+
+
+## {a, b, ha, hb, width}, plus "error" when the deck would be unwalkable or blocked.
+func _bridge_plan(ground: LevelTerrain, start: Dictionary, end: Dictionary) -> Dictionary:
+	var a: Vector2 = start.point
+	var b: Vector2 = end.point
+	var plan := {
+		"a": a, "b": b, "ha": float(start.height), "hb": float(end.height), "width": bridge_width.value
+	}
+	var run := a.distance_to(b)
+	if run < 1.0:
+		plan.error = "Kies een tweede punt verder weg."
+		return plan
+	if absf(plan.hb - plan.ha) / run > LevelTerrain.BRIDGE_SLOPE:
+		plan.error = "Te steil voor een brug. Kies punten verder uit elkaar of gebruik een trap."
+		return plan
+	var plateaus: Array[Dictionary] = _stair_context(ground).plateaus
+	var across := (b - a).normalized().orthogonal() * (bridge_width.value / 2 - .05)
+	for i in range(1, 10):
+		var t := i / 10.0
+		var center := a.lerp(b, t)
+		var deck := lerpf(plan.ha, plan.hb, t)
+		for sample in [center - across, center, center + across]:
+			if absf(sample.x) > ground.size.x / 2 or absf(sample.y) > ground.size.y / 2:
+				plan.error = "De brug valt buiten de grond."
+			elif LevelTerrain.height_under(sample, plateaus) > deck + .05:
+				plan.error = "De brug gaat door een hoger plateau heen."
+	return plan
+
+
+func _bridge_click(anchor: Dictionary) -> void:
+	var ground := _terrain()
+	if ground == null or anchor.is_empty():
+		_note("Klik op een plateaurand of op de grond.")
+		return
+	if bridge_start.is_empty():
+		bridge_start = anchor
+		_note("Beginpunt op %s m. Klik het tweede punt; Esc annuleert." % anchor.height)
+		return
+	var plan := _bridge_plan(ground, bridge_start, anchor)
+	if plan.has("error"):
+		_note(plan.error)
+		return
+	_build_bridge(plan)
+	bridge_start = {}
+
+
+func _create_bridge(from: Vector3, to: Vector3) -> LevelBridge:
+	var ground := _terrain()
+	if ground == null:
+		return null
+	var a := ground.to_local(from)
+	var b := ground.to_local(to)
+	var plan := _bridge_plan(
+		ground,
+		_bridge_anchor_at(ground, Vector2(a.x, a.z)),
+		_bridge_anchor_at(ground, Vector2(b.x, b.z))
+	)
+	if plan.has("error"):
+		_note(plan.error)
+		return null
+	return _build_bridge(plan)
+
+
+func _build_bridge(plan: Dictionary) -> LevelBridge:
+	var ground := _terrain()
+	var root := EditorInterface.get_edited_scene_root()
+	if ground == null or root == null:
+		return null
+	var bridge := LevelBridge.new()
+	bridge.name = "Brug"
+	bridge.width = plan.width
+	bridge.railings = bridge_rails.button_pressed
+	bridge.curve = Curve3D.new()
+	bridge.curve.resource_local_to_scene = true
+	bridge.curve.add_point(Vector3(plan.a.x, plan.ha, plan.a.y))
+	bridge.curve.add_point(Vector3(plan.b.x, plan.hb, plan.b.y))
+	var undo := get_undo_redo()
+	undo.create_action("Brug")
+	undo.add_do_method(ground, "add_child", bridge, true)
+	undo.add_do_property(bridge, "owner", root)
+	undo.add_undo_method(ground, "remove_child", bridge)
+	undo.add_do_reference(bridge)
+	undo.commit_action()
+	_note("Brug van %s m naar %s m." % [plan.ha, plan.hb])
+	return bridge
+
+
+func _update_bridge_preview(anchor: Dictionary) -> void:
+	var ground := _terrain()
+	if ground == null:
+		return
+	var lines := PackedVector3Array()
+	var color := Color(1, .85, .3)
+	if not anchor.is_empty():
+		_marker(lines, anchor)
+	if not bridge_start.is_empty():
+		_marker(lines, bridge_start)
+		if not anchor.is_empty():
+			var plan := _bridge_plan(ground, bridge_start, anchor)
+			var a3 := Vector3(plan.a.x, plan.ha, plan.a.y)
+			var b3 := Vector3(plan.b.x, plan.hb, plan.b.y)
+			var side: Vector2 = (plan.b - plan.a).normalized().orthogonal() * float(plan.width) / 2
+			var s := Vector3(side.x, 0, side.y)
+			lines.append_array(
+				PackedVector3Array([a3 - s, b3 - s, a3 + s, b3 + s, a3 - s, a3 + s, b3 - s, b3 + s])
+			)
+			if plan.has("error"):
+				color = Color(1, .3, .25)
+				_note(plan.error)
+	if lines.is_empty():
+		_clear_preview()
+		return
+	_draw_preview(lines, color, ground)
+
+
+func _marker(lines: PackedVector3Array, anchor: Dictionary) -> void:
+	var point: Vector2 = anchor.point
+	var y: float = anchor.height
+	var r := .25
+	var corners := [
+		Vector3(point.x - r, y, point.y - r),
+		Vector3(point.x + r, y, point.y - r),
+		Vector3(point.x + r, y, point.y + r),
+		Vector3(point.x - r, y, point.y + r)
+	]
+	for i in 4:
+		lines.append(corners[i])
+		lines.append(corners[(i + 1) % 4])
+
+
+func _finish_rectangle(flat: bool) -> void:
+	if tool == Tool.WATER:
+		_create_water_area(drag_start, drag_end)
+	else:
+		_create_plateau(drag_start, drag_end, flat)
+	drag_start = null
+	_clear_preview()
+
+
+func _create_water_area(start: Vector3, end: Vector3) -> LevelWater:
+	var ground := _terrain()
+	var root := EditorInterface.get_edited_scene_root()
+	if ground == null or root == null:
+		_note("Maak eerst een level met Terrain via Nieuw level.")
+		return null
+	var rect := _drag_rect(ground, ground.to_local(start), ground.to_local(end))
+	if rect.size.x < .01 or rect.size.y < .01:
+		return null
+	var water := LevelWater.new()
+	water.name = "Water"
+	water.shape = LevelWater.Shape.AREA
+	water.depth = water_depth.value
+	water.curve = Curve3D.new()
+	water.curve.resource_local_to_scene = true
+	for corner in [
+		rect.position,
+		Vector2(rect.end.x, rect.position.y),
+		rect.end,
+		Vector2(rect.position.x, rect.end.y)
+	]:
+		water.curve.add_point(Vector3(corner.x, 0, corner.y))
+	var undo := get_undo_redo()
+	undo.create_action("Water")
+	undo.add_do_method(ground, "add_child", water, true)
+	undo.add_do_property(water, "owner", root)
+	undo.add_undo_method(ground, "remove_child", water)
+	undo.add_do_reference(water)
+	undo.commit_action()
+	_select(water)
+	_note("Water geplaatst. Versleep de hoekpunten om de vorm aan te passen.")
+	return water
+
+
+func _update_water_preview() -> void:
+	var ground := _terrain()
+	if ground == null or drag_start == null:
+		return
+	var a := ground.to_local(drag_start)
+	var rect := _drag_rect(ground, a, ground.to_local(drag_end))
+	var corners := [
+		rect.position,
+		Vector2(rect.end.x, rect.position.y),
+		rect.end,
+		Vector2(rect.position.x, rect.end.y)
+	]
+	var lines := PackedVector3Array()
+	for i in 4:
+		var p: Vector2 = corners[i]
+		var q: Vector2 = corners[(i + 1) % 4]
+		lines.append(Vector3(p.x, a.y, p.y))
+		lines.append(Vector3(q.x, a.y, q.y))
+	_draw_preview(lines, Color(.35, .8, 1.0), ground)
+
+
+func _select(node: Node) -> void:
+	EditorInterface.get_selection().clear()
+	EditorInterface.get_selection().add_node(node)
+	EditorInterface.edit_node(node)
+
+
+func _update_plateau_preview(flat: bool) -> void:
+	var ground := _terrain()
+	if ground == null or drag_start == null:
+		return
+	var a := ground.to_local(drag_start)
+	var rect := _drag_rect(ground, a, ground.to_local(drag_end))
+	var base := ground.snap_height(a.y)
+	var top := _plateau_height(ground, a, flat)
+	var corners := [
+		rect.position,
+		Vector2(rect.end.x, rect.position.y),
+		rect.end,
+		Vector2(rect.position.x, rect.end.y)
+	]
+	var lines := PackedVector3Array()
+	for i in 4:
+		var p: Vector2 = corners[i]
+		var q: Vector2 = corners[(i + 1) % 4]
+		lines.append_array(
+			PackedVector3Array(
+				[
+					Vector3(p.x, top, p.y),
+					Vector3(q.x, top, q.y),
+					Vector3(p.x, base, p.y),
+					Vector3(p.x, top, p.y)
+				]
+			)
+		)
+	_draw_preview(lines, Color(1, .85, .3), ground)
+
+
+func _update_stairs_preview(plan: Dictionary) -> void:
+	var ground := _terrain()
+	if ground == null or plan.is_empty():
+		_clear_preview()
+		return
+	var low: Vector2 = plan.low
+	var high: Vector2 = plan.high
+	var side: Vector2 = (high - low).normalized().orthogonal() * float(plan.width) / 2
+	var lines := PackedVector3Array()
+	var steps := maxi(1, roundi((plan.top - plan.bottom) / LevelTerrain.STAIR_RISE))
+	for i in steps + 1 if stair_steps.button_pressed else [0, steps]:
+		var t := float(i) / steps
+		var center := low.lerp(high, t)
+		var y := lerpf(plan.bottom, plan.top, t)
+		lines.append_array(
+			PackedVector3Array(
+				[Vector3(center.x - side.x, y, center.y - side.y), Vector3(center.x + side.x, y, center.y + side.y)]
+			)
+		)
+	for offset in [-side, side]:
+		lines.append_array(
+			PackedVector3Array(
+				[
+					Vector3(low.x + offset.x, plan.bottom, low.y + offset.y),
+					Vector3(high.x + offset.x, plan.top, high.y + offset.y)
+				]
+			)
+		)
+	_draw_preview(lines, Color(1, .3, .25) if plan.has("error") else Color(1, .85, .3), ground)
+	if plan.has("error"):
+		_note(plan.error)
+	elif plan.has("note"):
+		_note(plan.note)
+
+
+func _draw_preview(lines: PackedVector3Array, color: Color, ground: LevelTerrain) -> void:
+	var root := EditorInterface.get_edited_scene_root()
+	if root == null:
+		return
+	if not is_instance_valid(preview):
+		# Unowned helper: visible in the viewport, never saved or listed in the Scene dock.
+		preview = MeshInstance3D.new()
+		preview.mesh = ImmediateMesh.new()
+		var material := StandardMaterial3D.new()
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.no_depth_test = true
+		preview.material_override = material
+		root.add_child(preview)
+	(preview.material_override as StandardMaterial3D).albedo_color = color
+	var mesh := preview.mesh as ImmediateMesh
+	mesh.clear_surfaces()
+	mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	for point in lines:
+		mesh.surface_add_vertex(point + Vector3(0, .05, 0))
+	mesh.surface_end()
+	preview.global_transform = ground.global_transform
+
+
+func _clear_preview() -> void:
+	if is_instance_valid(preview):
+		preview.queue_free()
+	preview = null
+
+
+func _add_curve_point(at: Vector3) -> void:
+	var root := EditorInterface.get_edited_scene_root()
+	var ground := _terrain()
+	if root == null or (tool in [Tool.PATH, Tool.WATER] and ground == null):
+		_note("Maak eerst een level met Terrain via Nieuw level.")
+		return
+	var undo := get_undo_redo()
+	if not _curve_matches_tool(active_curve) or not active_curve.is_inside_tree():
+		if tool == Tool.WATER:
+			var river := LevelWater.new()
+			river.name = "Water"
+			river.shape = LevelWater.Shape.PATH
+			river.width = water_width.value
+			river.depth = water_depth.value
+			active_curve = river
+		else:
+			active_curve = LevelPath.new() if tool == Tool.PATH else EnemyPatrol.new()
+			active_curve.name = "Pad" if tool == Tool.PATH else "Patrouille"
+		active_curve.curve = Curve3D.new()
+		active_curve.curve.resource_local_to_scene = true
+		active_curve.curve.bake_interval = .3
+		var parent: Node = ground if tool in [Tool.PATH, Tool.WATER] else root.get_node_or_null("Routes")
+		if parent == null:
+			parent = root
+		undo.create_action("Nieuwe levelcurve")
+		undo.add_do_method(parent, "add_child", active_curve, true)
+		undo.add_do_property(active_curve, "owner", root)
+		undo.add_undo_method(parent, "remove_child", active_curve)
+		undo.add_do_reference(active_curve)
+		undo.commit_action()
+	var before := active_curve.curve
+	var after := before.duplicate() as Curve3D
+	# Keep the clicked surface height, so routes drawn on plateaus stay on top of them.
+	var local := active_curve.to_local(at)
+	after.add_point(local)
+	undo.create_action("Teken curvepunt")
+	undo.add_do_property(active_curve, "curve", after)
+	undo.add_undo_property(active_curve, "curve", before)
+	undo.commit_action()
+	_select(active_curve)
 
 
 func _run_editor_checks() -> void:
@@ -300,43 +1203,6 @@ func _ensure_panel_height() -> void:
 		ancestor = ancestor.get_parent()
 
 
-func _process(delta: float) -> void:
-	maintenance_time -= delta
-	if maintenance_time > 0:
-		return
-	maintenance_time = .5
-	_refresh_editable_objects()
-	var ground := _terrain()
-	if ground and not checked_terrains.has(ground.get_instance_id()):
-		checked_terrains[ground.get_instance_id()] = true
-		ground.request_bake()
-	var root := EditorInterface.get_edited_scene_root()
-	if root and CHECKS.ensure_enemy_ids(root, id_claims):
-		EditorInterface.mark_scene_as_unsaved()
-
-
-func _refresh_editable_objects() -> void:
-	var root := EditorInterface.get_edited_scene_root()
-	var current: Array[Node3D] = []
-	if root:
-		for node in CHECKS.nodes(root):
-			if (
-				node is LevelTerrain
-				or node is LevelPath
-				or node is LevelTerrace
-				or node is LevelRamp
-				or node is EnemyPatrol
-			):
-				current.append(node)
-	if current != editable_nodes:
-		editable_nodes = current
-		editable_objects.clear()
-		for node in editable_nodes:
-			editable_objects.add_item(String(node.name))
-	if is_instance_valid(selection_editor.target) and selection_editor.target in editable_nodes:
-		editable_objects.select(editable_nodes.find(selection_editor.target))
-
-
 func _save_external_data() -> void:
 	var root := EditorInterface.get_edited_scene_root()
 	if root:
@@ -344,18 +1210,6 @@ func _save_external_data() -> void:
 		for node in CHECKS.nodes(root):
 			if node is LevelTerrain:
 				node.bake()
-
-
-func _tools_page(title: String) -> VBoxContainer:
-	var scroll := ScrollContainer.new()
-	scroll.name = title
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
-	tools_tabs.add_child(scroll)
-	var box := VBoxContainer.new()
-	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	box.add_theme_constant_override("separation", 8)
-	scroll.add_child(box)
-	return box
 
 
 func _label(text: String, parent: Node) -> void:
@@ -465,61 +1319,6 @@ func _thumbnail_ready(_path: String, preview: Texture2D, _small: Texture2D, id: 
 			palette.set_item_icon(i, preview)
 
 
-func _asset_selected(index: int) -> void:
-	active_asset = shown_assets[index]
-	selected_name.text = active_asset.display_name
-	mode.select(1)
-	tools_tabs.current_tab = 0
-	tools_dock.make_visible()
-	_mode_changed(1)
-	_note(
-		(
-			active_asset.display_name
-			+ ": klik om te plaatsen. Botsing en gedrag reizen met het object mee."
-		)
-	)
-
-
-func _scene_changed(root: Node) -> void:
-	_commit_stroke()
-	active_curve = null
-	mode.select(0)
-	if root and CHECKS.has_property(root, &"area_set"):
-		var kit: AreaSet = root.get("area_set")
-		if kit in kit_list:
-			sets.select(kit_list.find(kit))
-			_refresh_palette()
-
-
-func _mode_changed(_index: int) -> void:
-	_commit_stroke()
-	last_paint = Vector3.INF
-	if mode.selected in [3, 4, 5, 7, 8]:
-		var selected := EditorInterface.get_selection().get_selected_nodes()
-		active_curve = selected[0] as Path3D if selected.size() == 1 else null
-		if not _curve_matches_mode():
-			active_curve = null
-		_note(
-			"Klik punten in de wereld. 'Nieuwe curve' begint een apart pad/terras. Esc stopt tekenen; selecteer de curve om punten en breedte te bewerken."
-		)
-
-
-func _curve_matches_mode() -> bool:
-	if not is_instance_valid(active_curve):
-		return false
-	return (
-		(mode.selected == 3 and active_curve is LevelPath)
-		or (mode.selected == 4 and active_curve is LevelTerrace)
-		or (mode.selected == 5 and active_curve is EnemyPatrol)
-		or (mode.selected == 7 and active_curve is LevelRamp)
-		or (
-			mode.selected == 8
-			and active_curve is LevelTerrace
-			and is_zero_approx(active_curve.height)
-		)
-	)
-
-
 func _terrain() -> LevelTerrain:
 	var root := EditorInterface.get_edited_scene_root()
 	if root:
@@ -529,7 +1328,7 @@ func _terrain() -> LevelTerrain:
 	return null
 
 
-func _hit(camera: Camera3D, mouse: Vector2) -> Variant:
+func _hit(camera: Camera3D, mouse: Vector2, grid := true) -> Variant:
 	var origin := camera.project_ray_origin(mouse)
 	var direction := camera.project_ray_normal(mouse)
 	var ground := _terrain()
@@ -572,41 +1371,10 @@ func _hit(camera: Camera3D, mouse: Vector2) -> Variant:
 					nearest = local_origin.distance_squared_to(raised)
 	if result == null:
 		return null
-	if snap.value > 0:
+	if grid and snap.value > 0:
 		result.x = snappedf(result.x, snap.value)
 		result.z = snappedf(result.z, snap.value)
 	return transform * result
-
-
-func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		_commit_stroke()
-		mode.select(0)
-		active_curve = null
-		return EditorPlugin.AFTER_GUI_INPUT_STOP
-	if mode.selected == 0 or (event is InputEventWithModifiers and event.alt_pressed):
-		return EditorPlugin.AFTER_GUI_INPUT_PASS
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if not event.pressed:
-			_commit_stroke()
-			return EditorPlugin.AFTER_GUI_INPUT_STOP
-		var at: Variant = _hit(camera, event.position)
-		if at == null:
-			return EditorPlugin.AFTER_GUI_INPUT_STOP
-		if mode.selected in [3, 4, 5, 7, 8]:
-			_add_curve_point(at)
-		elif mode.selected == 6:
-			_erase(at)
-		else:
-			painting = true
-			_stamp(at)
-		return EditorPlugin.AFTER_GUI_INPUT_STOP
-	if event is InputEventMouseMotion and painting and mode.selected == 2:
-		var at: Variant = _hit(camera, event.position)
-		if at != null and at.distance_to(last_paint) >= radius.value * .5:
-			_stamp(at)
-		return EditorPlugin.AFTER_GUI_INPUT_STOP
-	return EditorPlugin.AFTER_GUI_INPUT_PASS
 
 
 func _parent_for(asset: LevelAsset) -> Node:
@@ -617,67 +1385,6 @@ func _parent_for(asset: LevelAsset) -> Node:
 		else "Gameplay" if asset.category == "Gameplay" else "Props"
 	)
 	return root.get_node_or_null(name) if root.has_node(name) else root
-
-
-func _stamp(at: Vector3) -> void:
-	if active_asset == null:
-		_note("Kies eerst een asset uit de bibliotheek.")
-		return
-	if mode.selected == 2 and not active_asset.scatter_allowed:
-		_note(
-			"Dit object wordt afzonderlijk geplaatst. Het penseel is voor begroeiing en props met Scatter Allowed."
-		)
-		return
-	var root := EditorInterface.get_edited_scene_root()
-	if root == null:
-		return
-	var ground := _terrain()
-	last_paint = at
-	var count := int(amount.value) if mode.selected == 2 else 1
-	for i in count:
-		var point := at
-		if mode.selected == 2:
-			var angle := randf() * TAU
-			var distance := sqrt(randf()) * radius.value
-			point += Vector3(cos(angle), 0, sin(angle)) * distance
-			if ground:
-				var local := ground.to_local(point)
-				if absf(local.x) > ground.size.x / 2 or absf(local.z) > ground.size.y / 2:
-					continue
-				local.y = 0
-				for region in ground.outlines():
-					if Geometry2D.is_point_in_polygon(Vector2(local.x, local.z), region.polygon):
-						local.y = LevelTerrain.region_height(region, Vector2(local.x, local.z))
-				point = ground.to_global(local)
-				if _on_path(ground, local):
-					continue
-			var blocked := false
-			for other in _parent_for(active_asset).get_children():
-				if (
-					other is Node3D
-					and other.global_position.distance_to(point) < active_asset.spacing
-				):
-					blocked = true
-					break
-			if blocked:
-				continue
-		var node := active_asset.scene.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node3D
-		if node == null:
-			continue
-		node.name = active_asset.display_name.to_pascal_case()
-		_parent_for(active_asset).add_child(node, true)
-		node.owner = root
-		node.global_position = point
-		node.set_meta("level_asset_id", active_asset.id)
-		if active_asset.random_yaw:
-			node.rotation.y = randf() * TAU
-		node.scale *= randf_range(active_asset.scale_range.x, active_asset.scale_range.y)
-		if CHECKS.has_property(node, &"persistent_id"):
-			node.set("respawn_rule", 1)
-		CHECKS.ensure_enemy_ids(root, id_claims)
-		stroke_nodes.append(node)
-	if mode.selected == 1:
-		_commit_stroke()
 
 
 func _on_path(ground: LevelTerrain, point: Vector3) -> bool:
@@ -712,116 +1419,6 @@ func _commit_stroke() -> void:
 	stroke_nodes.clear()
 
 
-func _erase(at: Vector3) -> void:
-	if active_asset == null or not active_asset.scatter_allowed:
-		return
-	var undo := get_undo_redo()
-	undo.create_action("Wis geschilderde assets")
-	for node in _parent_for(active_asset).get_children():
-		if (
-			node is Node3D
-			and node.get_meta("level_asset_id", &"") == active_asset.id
-			and node.global_position.distance_to(at) < radius.value
-		):
-			undo.add_do_method(node.get_parent(), "remove_child", node)
-			undo.add_undo_method(node.get_parent(), "add_child", node, true)
-			undo.add_undo_property(node, "owner", node.owner)
-			undo.add_undo_reference(node)
-	undo.commit_action()
-
-
-func _new_curve() -> void:
-	active_curve = null
-	if not mode.selected in [3, 4, 5, 7, 8]:
-		mode.select(3)
-	_note("Klik het eerste punt in het level.")
-
-
-func _add_curve_point(at: Vector3) -> void:
-	var root := EditorInterface.get_edited_scene_root()
-	var ground := _terrain()
-	if root == null or (mode.selected != 5 and ground == null):
-		_note("Maak eerst een level met Terrain via Nieuw level.")
-		return
-	var undo := get_undo_redo()
-	if not _curve_matches_mode() or not active_curve.is_inside_tree():
-		active_curve = (
-			LevelPath.new()
-			if mode.selected == 3
-			else (
-				LevelTerrace.new()
-				if mode.selected in [4, 8]
-				else LevelRamp.new() if mode.selected == 7 else EnemyPatrol.new()
-			)
-		)
-		active_curve.name = (
-			"Pad"
-			if mode.selected == 3
-			else (
-				"Terras"
-				if mode.selected == 4
-				else (
-					"Vloervlak"
-					if mode.selected == 8
-					else "Ramp" if mode.selected == 7 else "Patrouille"
-				)
-			)
-		)
-		if mode.selected == 8:
-			active_curve.height = 0
-			active_curve.surface_style = load("res://settings/surface_styles/stone.tres")
-		active_curve.curve = Curve3D.new()
-		active_curve.curve.resource_local_to_scene = true
-		active_curve.curve.bake_interval = .3
-		if active_curve is LevelRamp:
-			active_curve.points_define_height = true
-		var parent: Node = ground if mode.selected != 5 else root.get_node("Routes")
-		undo.create_action("Nieuwe levelcurve")
-		undo.add_do_method(parent, "add_child", active_curve, true)
-		undo.add_do_property(active_curve, "owner", root)
-		undo.add_undo_method(parent, "remove_child", active_curve)
-		undo.add_do_reference(active_curve)
-		undo.commit_action()
-	if active_curve is LevelRamp and active_curve.curve.point_count == 2:
-		_note(
-			"De ramp heeft twee punten. Versleep de uiteinden of kies Nieuwe curve voor een tweede ramp."
-		)
-		return
-	var before := active_curve.curve
-	var after := before.duplicate() as Curve3D
-	var local := active_curve.to_local(at)
-	if active_curve is LevelRamp:
-		if before.point_count == 0:
-			local.y = maxf(0, local.y)
-		else:
-			var height := local.y
-			local.y = (maxf(0, height) if height > 0 or active_curve.start_height > 0 else 1.5)
-	else:
-		local.y = 0
-	after.add_point(local)
-	var attachment := {}
-	if active_curve is LevelRamp and after.point_count == 2:
-		attachment = RampConnection.find_attachment(active_curve, after, ground)
-		if not attachment.is_empty():
-			after = attachment.curve
-	undo.create_action("Teken curvepunt")
-	undo.add_do_property(active_curve, "curve", after)
-	undo.add_undo_property(active_curve, "curve", before)
-	if not attachment.is_empty():
-		undo.add_do_property(active_curve, "width", attachment.width)
-		undo.add_undo_property(active_curve, "width", active_curve.width)
-		undo.add_do_property(active_curve, "attached_end", attachment.endpoint)
-		undo.add_undo_property(active_curve, "attached_end", active_curve.attached_end)
-		undo.add_do_property(
-			active_curve, "terrace_attachment", active_curve.get_path_to(attachment.terrace)
-		)
-		undo.add_undo_property(active_curve, "terrace_attachment", active_curve.terrace_attachment)
-	undo.commit_action()
-	EditorInterface.get_selection().clear()
-	EditorInterface.get_selection().add_node(active_curve)
-	EditorInterface.edit_node(active_curve)
-
-
 func _new_encounter() -> void:
 	var root := EditorInterface.get_edited_scene_root()
 	if root == null:
@@ -840,76 +1437,6 @@ func _new_encounter() -> void:
 	undo.commit_action()
 	EditorInterface.edit_node(node)
 	_note("Sleep enemies naar Enemies en portals naar Unlock Portals in de Inspector.")
-
-
-func _add_landing(ramp: LevelRamp, depth: float) -> void:
-	if not is_instance_valid(ramp) or ramp.curve == null or ramp.curve.point_count != 2:
-		_note("Teken eerst een ramp met twee uiteinden.")
-		return
-	var ground := ramp.get_parent() as LevelTerrain
-	var root := EditorInterface.get_edited_scene_root()
-	if ground == null or root == null:
-		return
-	ramp.ensure_point_heights()
-	var endpoint := 1 if ramp.end_height >= ramp.start_height else 0
-	var high := ramp.transform * ramp.curve.get_point_position(endpoint)
-	var low := ramp.transform * ramp.curve.get_point_position(1 - endpoint)
-	var direction := Vector2(high.x - low.x, high.z - low.z).normalized()
-	if direction.length_squared() < .1:
-		_note("Geef de ramp eerst een lengte in het grondvlak.")
-		return
-	var center := Vector2(high.x, high.z)
-	var side := direction.orthogonal() * ramp.width / 2
-	var outline := PackedVector2Array(
-		[
-			center - side,
-			center + side,
-			center + side + direction * depth,
-			center - side + direction * depth
-		]
-	)
-	for point in outline:
-		if absf(point.x) > ground.size.x / 2 or absf(point.y) > ground.size.y / 2:
-			_note("Het plateau valt buiten de grond. Kies minder diepte of vergroot eerst Terrain.")
-			return
-	for region in ground.outlines():
-		if region.name == ramp.name:
-			continue
-		for overlap in Geometry2D.intersect_polygons(outline, region.polygon):
-			if LevelTerrain.polygon_area(overlap) > LevelTerrain.EPS:
-				_note(
-					(
-						"Hier ligt al "
-						+ String(region.name)
-						+ ". Pas dat plateau aan of kies minder diepte."
-					)
-				)
-				return
-	var landing := LevelTerrace.new()
-	landing.name = String(ramp.name) + "Plateau"
-	landing.height = high.y
-	landing.curve = Curve3D.new()
-	landing.curve.resource_local_to_scene = true
-	for point in outline:
-		landing.curve.add_point(Vector3(point.x, 0, point.y))
-	landing.height_source = NodePath("../" + String(ramp.name))
-	landing.height_source_end = endpoint
-	var undo := get_undo_redo()
-	undo.create_action("Plateau aansluiten op ramp")
-	undo.add_do_method(ground, "add_child", landing, true)
-	undo.add_do_property(landing, "owner", root)
-	undo.add_undo_method(ground, "remove_child", landing)
-	undo.add_do_reference(landing)
-	undo.commit_action()
-	mode.select(0)
-	EditorInterface.get_selection().clear()
-	EditorInterface.get_selection().add_node(landing)
-	EditorInterface.edit_node(landing)
-	tools_tabs.current_tab = 1
-	tools_dock.make_visible()
-	_note(
-		"Plateau aangesloten. Hoogte volgt het rampeinde; versleep de plateaupunten om de grond uit te breiden."
-	)
 
 
 func _validate_level() -> void:
@@ -1065,7 +1592,7 @@ func _create_new() -> void:
 			return
 		EditorInterface.get_resource_filesystem().scan()
 		EditorInterface.open_scene_from_path(path)
-		_note("Level gemaakt. Plaats assets of kies Pad tekenen.")
+		_note("Level gemaakt. Sleep een plateau of plaats assets.")
 
 
 func _source_selected(path: String) -> void:

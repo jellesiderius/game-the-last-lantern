@@ -147,10 +147,7 @@ frames = round(DURATION*FPS)
 for frame in range(frames + 1):
     t = frame/FPS; u = t/DURATION
     m = roll_pose(t)
-    low, fix = body_ground(m) if 0 < frame < frames else ground(m)
-    if 0 < frame < frames:
-        for name, matrix in m.items():
-            if name != 'root': matrix.translation.z += phases(t)[4]
+    low, fix = 0., 0.
     report['floor_correction_max'] = max(report['floor_correction_max'], fix)
     # Leave and rejoin the relaxed carry pose so locomotion blends stay seamless.
     # Blend back only after the spin is complete, so the shortest rotation path
@@ -166,6 +163,18 @@ for frame in range(frames + 1):
         bone.location = loc.lerp(c_loc, carry)
         bone.rotation_quaternion = rot.slerp(c_rot, carry)
         bone.scale = scale.lerp(c_scale, carry)
+    # Floor contact on the FINAL (carry-blended) pose, every frame, so the blend back to
+    # idle can never float or pop. Only the pelvis moves; everything else hangs from it.
+    bpy.context.view_layer.update()
+    evaluated = {b.name: b.matrix.copy() for b in rig.pose.bones}
+    lowest = min(p.z for p, bone in skinned_points(evaluated) if not bone.startswith('tail'))
+    target_floor = .006 + (phases(t)[4] if 0 < frame < frames else 0.)
+    fix = target_floor - lowest; low = lowest
+    pelvis = evaluated['pelvis'].copy(); pelvis.translation.z += fix
+    local = rest['pelvis'].inverted() @ (rest['root'] @ evaluated['root'].inverted()) @ pelvis
+    p_loc, p_rot, p_scale = local.decompose()
+    pb = rig.pose.bones['pelvis']; pb.location = p_loc; pb.rotation_quaternion = p_rot
+    for bone in rig.pose.bones:
         for prop in ['location', 'rotation_quaternion', 'scale']:
             bone.keyframe_insert(prop, frame=frame, group=bone.name)
     if frame % 7 == 0:

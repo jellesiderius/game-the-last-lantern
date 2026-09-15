@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SurfaceStyle" format=3 uid="uid://du63ld8j81wfi"]
+
+[ext_resource type="Script" uid="uid://bsrql8vbmw4rn" path="res://scripts/world/authoring/surface_style.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Bos"
+ground_color = Color(0.4, 0.58, 0.24, 1)
+path_color = Color(0.78, 0.64, 0.4, 1)
+cliff_color = Color(0.33, 0.37, 0.36, 1)
+cliff_rim_color = Color(0.34, 0.5, 0.2, 1)
+cliff_rim_height = 0.14

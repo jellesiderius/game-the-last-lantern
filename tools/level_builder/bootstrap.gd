@@ -139,9 +139,18 @@ func _kit(id: String, label: String, ground: Color, path: Color, cliff: Color) -
 	var kit := AreaSet.new()
 	kit.id = StringName(id)
 	kit.display_name = label
-	kit.ground_color = ground
-	kit.path_color = path
-	kit.cliff_color = cliff
+	var style_path := "res://settings/surface_styles/" + id + ".tres"
+	var style := load(style_path) as SurfaceStyle if FileAccess.file_exists(style_path) else null
+	if style == null:
+		style = SurfaceStyle.new()
+		style.display_name = label
+		style.ground_color = ground
+		style.path_color = path
+		style.cliff_color = cliff
+		style.cliff_rim_color = cliff.lightened(.25)
+		_save_new(style, style_path)
+		style = load(style_path)
+	kit.default_surface = style
 	return kit
 
 

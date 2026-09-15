@@ -285,15 +285,22 @@ func _terrain_checks() -> void:
 		"smooth path edges are independent of ground cell size",
 		coarse_mask.get_image().get_data() == mask_data
 	)
-	var duplicate := terrain.get_node("Rotsbank").duplicate() as LevelTerrace
+	var duplicate := terrain.get_node("Terrashelling").duplicate() as LevelRamp
 	terrain.add_child(duplicate)
 	check(
-		"overlapping terraces rejected without replacing ground",
+		"overlapping ramps rejected without replacing ground",
 		not terrain.bake() and stable == terrain.get_node("Baked/Surface").mesh
 	)
 	terrain.remove_child(duplicate)
 	duplicate.free()
-	check("valid terrace can be rebuilt after rejection", terrain.bake())
+	check("valid terrain can be rebuilt after rejection", terrain.bake())
+	# Plateaus may overlap: the higher (or earlier) one owns the shared area.
+	var stacked := terrain.get_node("Rotsbank").duplicate() as LevelTerrace
+	terrain.add_child(stacked)
+	check("overlapping plateaus merge instead of breaking ground", terrain.bake(), terrain.last_error)
+	terrain.remove_child(stacked)
+	stacked.free()
+	check("terrain rebuilds after removing the stacked plateau", terrain.bake())
 	check(
 		"saved scene packs edited curves and meshes",
 		FACTORY.save(root, "res://captures/level_builder/roundtrip.tscn") == OK

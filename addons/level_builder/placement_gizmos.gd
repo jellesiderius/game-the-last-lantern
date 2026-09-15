@@ -77,7 +77,8 @@ func _get_handle_name(_gizmo: EditorNode3DGizmo, id: int, _secondary: bool) -> S
 
 
 func _get_handle_value(gizmo: EditorNode3DGizmo, _id: int, _secondary: bool) -> Variant:
-	return (gizmo.get_node_3d() as LevelRamp).curve.duplicate()
+	var ramp := gizmo.get_node_3d() as LevelRamp
+	return [ramp.curve.duplicate(), ramp.follow_ground]
 
 
 func _set_handle(
@@ -95,6 +96,9 @@ func _set_handle(
 		origin, origin + direction * 4096, center - axis * 1024, center + axis * 1024
 	)
 	point.y = maxf(0, ramp.to_local(closest[1]).y - HEIGHT_HANDLE_OFFSET.y)
+	# A hand-dragged height overrides the automatic ground-following heights.
+	if ramp.follow_ground:
+		ramp.follow_ground = false
 	var changed := ramp.curve.duplicate() as Curve3D
 	changed.set_point_position(id, point)
 	ramp.curve = changed
@@ -108,10 +112,13 @@ func _commit_handle(
 	if not is_instance_valid(ramp):
 		return
 	if cancel:
-		ramp.curve = restore
+		ramp.curve = restore[0]
+		ramp.follow_ground = restore[1]
 	else:
 		undo_redo.create_action("Sleep ramphoogte", UndoRedo.MERGE_DISABLE, ramp)
 		undo_redo.add_do_property(ramp, "curve", ramp.curve)
-		undo_redo.add_undo_property(ramp, "curve", restore)
+		undo_redo.add_do_property(ramp, "follow_ground", false)
+		undo_redo.add_undo_property(ramp, "curve", restore[0])
+		undo_redo.add_undo_property(ramp, "follow_ground", restore[1])
 		undo_redo.commit_action(false)
 	ramp.update_gizmos()

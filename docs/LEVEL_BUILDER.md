@@ -1,49 +1,90 @@
 # Levels bouwen
 
-De **Lantern Level Builder** is een Godot-editorplugin. Open hem via **Level Builder** boven de 3D-weergave of **Project → Tools → Level Builder openen**. Onderaan staat alleen de assetbibliotheek: compacte modelplaatjes met volledige namen, zoeken en categoriefilters. Rechts staat **Level tools** met drie secties:
+De **Lantern Level Builder** is een Godot-editorplugin voor levels in een schone, Tunic-achtige stijl: vlakke grond, plateaus op vaste hoogten, trappen die in de klifrand aansluiten, paden en props. Open hem via **Level Builder** boven de 3D-weergave. Onderaan staat de assetbibliotheek: plaatjes met volledige namen, zoeken en categoriefilters. Rechts staat één dock **Level tools**:
 
-- **Bouwen**: plaatsen, schilderen, curves tekenen en rasterinstellingen.
-- **Bewerken**: kies een bestaand onderdeel en verander afmetingen, hoogten of curvepunten.
-- **Level**: nieuw level, areasets, grondafmetingen, controle en spelen.
+- bovenaan de gereedschappen **Selecteer · Plaats · Plateau · Trap · Brug · Water · Pad · Patrouille**, met alleen de instellingen van het gekozen gereedschap;
+- daaronder **hoogte en materiaal van de selectie** (grond, plateau of trap);
+- onderaan de levelacties: nieuw level, areasets, encounter, controleren en spelen.
 
-De previews hebben een vaste grootte; er is geen zoomslider. Het raster past het aantal kolommen aan en kan verticaal scrollen zonder de rest van de editor weg te drukken. Ook in een smalle rechterkolom blijven de drie sectieknoppen zichtbaar. De bovenrand van de ondertab bepaalt hoeveel ruimte je bibliotheek krijgt. Als Godot openstond tijdens de installatie, sla je eigen scene op en herlaad de plugin eenmalig via **Project Settings → Plugins**.
+**Escape** gaat terug naar Selecteer. Met **Alt** ingedrukt werkt Godots eigen camera- en selectiebesturing gewoon door. Maten, hoogten en curvepunten blijven ook in de Inspector bewerkbaar. Als Godot openstond tijdens een update van de plugin, sla je scene op en herlaad de plugin eenmalig via **Project Settings → Plugins**.
 
 ## Beginnen
 
-1. Kies **Bos**, **Grot · startset** of **Stad · startset**.
-2. Kies rechts **Level → Nieuw level**, vul een naam, breedte en diepte in meters in. Het level krijgt een gedeelde speler, vaste gameplaycamera, belichting, HUD, effecten, grond, aankomstpunt en eigen gebiedsregistratie.
-3. Selecteer een asset en klik in de 3D-weergave. Het raster toont een opgeslagen modelrender met een volledige, omlopende naam. Slepen vanuit het raster gebruikt Godots gewone sceneplaatsing; de kliktool zet het object op de ondergrond.
-4. Kies **Pad tekenen**, klik punten en druk Escape om af te ronden. Selecteer de curve voor Godots verplaatsbare curvegrepen; Width bepaalt de padbreedte. Eén punt vormt een ronde open plek; meerdere overlappende paden mengen op hetzelfde grondoppervlak.
-5. **Controleer level** controleert configuratie, verwijzingen en grond. **Speel level** slaat op en start het huidige level. F6 werkt eveneens.
+1. Kies bovenaan de bibliotheek **Bos**, **Grot · startset** of **Stad · startset**.
+2. Kies rechts **Nieuw level**, vul een naam, breedte en diepte in meters in. Het level krijgt speler, gameplaycamera, belichting, HUD, effecten, grond, aankomstpunt en eigen gebiedsregistratie.
+3. Kies **Plateau**, stel **Hoogte** in en sleep een rechthoek. Kies **Trap** en klik op de rand van dat plateau.
+4. Kies een asset in de bibliotheek (het gereedschap springt naar **Plaats**) en klik in de 3D-weergave.
+5. **Controleer level** controleert configuratie, verwijzingen en grond. **Speel level** slaat op en start het level. F6 werkt eveneens.
 
-Werkende voorbeelden: `scenes/levels/BuilderForest.tscn`, `BuilderCave.tscn`, `BuilderCity.tscn`. Bos en grot hebben gewone portals heen en terug. De grot- en stadssets zijn technische startsets met bestaande rots-/dorpsmodellen, geen afgeronde nieuwe artpacks.
+Werkende voorbeelden: `scenes/levels/BuilderForest.tscn`, `BuilderCave.tscn`, `BuilderCity.tscn`. Een render van de stijl maak je met `tools/level_builder/look_preview.gd` (zie Controles).
 
-## Grootte en hoogte
+## Plateaus
 
-Kies **Bewerken → Onderdeel → Terrain** en verander **Breedte/Diepte**, of selecteer Terrain en pas **Size** in de Inspector aan: X is breedte, Y is diepte in het grondvlak. Beide worden in meters opgeslagen. Een resize behoudt paden en geplaatste objecten. Objecten worden niet automatisch verplaatst wanneer je grond verkleint. De levelroot gebruikt standaard **Auto Camera Bounds**; bij starten volgen de cameragrenzen de grondafmetingen. Zet dit uit om de grenzen zelf te bepalen. Camera size13 en 50°/45° blijven behouden.
+- **Hoogte** loopt van 0,5 tot 10 m in stappen van 0,5 m. Elk plateau en elk trapeinde valt altijd op zo'n stap, zodat klifranden overal gelijk lopen. Die stap is vast; er is geen globale instelling die bestaande plateaus kan verschuiven.
+- **Sleep een rechthoek** op het raster (**Raster**, standaard 1 m), of **klik twee hoeken**: een klik zonder slepen zet de eerste hoek, de preview volgt de muis en de tweede klik zet de tegenoverliggende hoek (Esc annuleert). Een gele lijn toont vooraf rand en hoogte.
+- **Ctrl** tijdens het slepen houdt de hoogte van de grond eronder: zo teken je een vlak met ander materiaal, bijvoorbeeld een stenen vloer.
+- **Rechthoeken tegen elkaar** op dezelfde hoogte vormen één plateau zonder muur ertussen; zo bouw je L- en U-vormen.
+- **Plateaus mogen overlappen.** Het hogere plateau wint het gedeelde stuk, dus een heuvel op een heuvel teken je gewoon bovenop. Bij gelijke hoogte wint het eerst getekende.
+- **Hoogte van één plateau aanpassen**: selecteer het en wijzig **Hoogte** in het dock. Alleen dat plateau verandert; Undo werkt.
+- **Vorm aanpassen**: selecteer het plateau en versleep Godots curvepunten. Randen zijn recht; tangentgrepen doen niets.
 
-**Terras tekenen**: klik een gesloten omtrek (minstens drie punten; het laatste punt hoeft niet gelijk te zijn aan het eerste). Selecteer het terras en stel **Height** in. De vlakke bovenkant en rotswanden vervangen de grond binnen die omtrek. Je kunt de hele omtrek verplaatsen of punten verslepen. Terrascurves gebruiken rechte polygonranden; de tangentgrepen veranderen deze randen niet.
+Elk plateau krijgt een muur van grove stenen blokken met een smalle, afgeschuinde lip in de kleur van de bovenkant. Waar de muur lager wordt dan die lip (naast een helling of trap) stopt de lip recht in plaats van puntig uit te lopen. Aan de voet van de muur ligt een zachte schaduw op de lagere grond. Botsing wordt meteen mee gebakken.
 
-**Ramp tekenen**: klik het lage begin en daarna het hoge einde. Een klik op een bestaand plateau laat de ramp loodrecht en vlak tegen een passende rand aansluiten. De breedte wordt zo nodig passend gemaakt. Dit werkt ook bij tekenen van boven naar beneden. De verbinding wordt bijgewerkt na wijzigingen aan het plateau, de rampbreedte of de curvepunten. Een ramp heeft twee echte 3D-eindpunten. Via **Bewerken → Onderdeel → Ramp** kun je:
+## Trappen en hellingen
 
-- De grepen boven de groene lijntjes omhoog/omlaag slepen om begin- of eindhoogte te veranderen.
-- **Bewerk curvepunten** kiezen en de uiteinden in 3D verplaatsen om positie, lengte, richting en hoogte aan te passen.
-- Breedte, beginhoogte en eindhoogte intypen; deze velden lezen en wijzigen dezelfde curvepunten.
-- **Plateau aan hoge kant** kiezen: de opgegeven diepte maakt een aansluitend plateau met de breedte van de ramp. De hoogte blijft gekoppeld aan het hoge rampeinde. Een hoogtewijziging via ramp of plateau houdt beide gelijk. De plateaupunten blijven bewerkbaar om het vlak groter te maken.
+Kies **Trap** en **beweeg over de rand van een plateau**. De builder zoekt de rand die op het scherm het dichtst bij de muis ligt, dus je kunt gewoon op de rand, de kaprand of de muur zelf wijzen. Een gele preview toont de treden; rood betekent dat de trap daar niet past (de reden staat onderin het dock). **Klik** om te plaatsen.
 
-De nieuwe grond heeft meteen bijpassende botsing. De builder weigert een plateau buiten de levelgrenzen of boven bestaande grondvlakken. Een plateau dat je vanuit een ramp maakt volgt diens hoogte. Als je die ramp daarna horizontaal verplaatst, pas je de nieuwe plateaurand mee aan. Bij ramps die je naar een al bestaand plateau tekent blijft de randverbinding automatisch uitgelijnd. Eerdere opgeslagen ramps worden bij bewerken omgezet naar hoogtepunten met behoud van hun bestaande hoogte. Zowel tekenen als hoogte- en puntwijzigingen ondersteunen Undo/Redo.
+- **Muis óp het plateau** naast de rand: de trap wordt **in het plateau gezet**, met muur en kaprand aan beide kanten.
+- **Muis op de muur of de grond ervoor**: de trap loopt **naar buiten**, met zijwangen van klifmateriaal.
+- Past de gekozen richting niet (plateau te klein, er ligt al iets, buiten de grond), dan probeert de builder automatisch de andere richting en meldt dat.
+- **Trapbreedte** bepaalt de breedte; de trap wordt langs de rand op het raster gezet en loopt altijd loodrecht op de rand.
+- **Treden** uit maakt een gladde grashelling met een flauwere hoek. Boven en onder loopt die helling afgerond over in het plateau en de grond, zonder harde knik; beeld en botsing volgen dezelfde ronding. De zijkanten krijgen een lage stenen stoeprand die de ronding volgt, bovenaan gelijk met het plateau loopt en onderaan recht eindigt. Hellingen die al steiler zijn dan 0,8 blijven recht, zodat vijanden ze kunnen beklimmen.
+- De lengte volgt uit het hoogteverschil. Beide uiteinden **volgen de grond** (**Follow Ground**): verander je later de hoogte van het plateau, dan past de trap zich aan. Sleep je een eindhoogte met de gizmo of typ je die in de Inspector, dan wordt die ene trap handmatig.
+- De treden zijn 0,25 m hoog en echte geometrie; de **botsing blijft een gladde helling**, zodat lopen niet hobbelt.
+- Verhoog of verlaag je het plateau, dan wordt de trap vanaf zijn aansluitende uiteinde langer of korter, zodat hij altijd even steil blijft.
 
-Terrassen en ramps mogen elkaar raken, maar niet in oppervlakte overlappen. De builder controleert dit en behoudt bij een ongeldige vorm het laatste geldige grondresultaat. Gelijke aansluitende randen krijgen geen interne wand. Te steile ramps geven een fout; maak ze langer of verlaag het hoogteverschil. De automatische verbinding maakt de aansluiting loodrecht en past de breedte aan de rand aan. Laat voldoende vrije ruimte voor de ramp; overlap met andere delen of een ligging buiten de grond blijft ongeldig.
+Trappen en hellingen mogen elkaar niet overlappen. Bij een ongeldige vorm behoudt de builder het laatste geldige grondresultaat en toont hij een waarschuwing. Ramps uit oudere levels blijven hellingen; zet **Stairs** aan op zo'n LevelRamp als je er treden van wilt maken.
 
-De grond gebruikt één gras/zand- of vloer/padoppervlak; er ligt geen extra padmesh boven een andere vloer. De generator bewaakt de totale oppervlakte. Padranden gebruiken een fijn masker met lineaire filtering en mipmaps, onafhankelijk van het driehoeksraster van de grond. Een grove collision-/grondresolutie maakt het pad dus niet blokkerig. Het masker wordt alleen tijdens het bewerken opgebouwd. **Resolution** bepaalt de basisresolutie; bij grote grondvlakken wordt de celgrootte automatisch vergroot om de editorbelasting te begrenzen. Zeer grote gebieden blijven een reden om meerdere verbonden levels te gebruiken. Verhoogde bruggen met begaanbare grond eronder vallen buiten dit enkelvoudige grondmodel en worden als losse complete assets geplaatst.
+## Bruggen
 
-## Gras, steen en eigen materialen
+Kies **Brug**. Beweeg over een plateaurand (of de grond): een geel vierkantje toont het ankerpunt. **Klik** voor het begin, beweeg naar het tweede punt en **klik** opnieuw. **Esc** annuleert een half getekende brug.
 
-Selecteer grond, een plateau of een ramp via **Bewerken → Onderdeel**. **Grondmateriaal** biedt **Bosgras**, **Steen** en **Aarde**. **Van areaset / grond** herstelt de standaard. Zo kan een stenen binnenruimte dezelfde gameplay en assets gebruiken als het bos zonder de gedeelde bosset aan te passen.
+- Een brug mag **omhoog of omlaag** lopen, tot een helling van 0,6. Elk uiteinde krijgt de hoogte van het plateau waarop het rust en volgt die later mee (**Follow Ground**).
+- Rood betekent: te steil, te kort, buiten de grond, of de brug gaat door een hoger plateau heen. De reden staat onderin het dock.
+- **Brugbreedte** en **Leuningen** stel je vooraf in; kleuren en breedte zijn daarna in de Inspector te wijzigen.
+- De brug bouwt bij het laden zijn eigen planken, balken, palen en botsing. De grond eronder blijft beloopbaar. Korte vlakke stukjes op elk plateau maken op- en aflopen naadloos; onzichtbare zijwanden houden je op het dek. Het zichtbare dek ligt 5 cm boven het loopvlak, zodat planken nooit door de plateaubovenkant heen steken.
+- Vijanden lopen gewoon over bruggen: hun navigatie gebruikt de brugbotsing.
 
-Met **Bouwen → Vloervlak tekenen** teken je een apart materiaalvlak op grondhoogte. Kies daarna zelf het materiaal bij Bewerken. Dat vlak vervangt de onderliggende grond binnen zijn omtrek; er liggen geen twee vloeren op elkaar. Bestaande plateaus en ramps kunnen elk hun eigen materiaal krijgen.
+## Water
 
-**Eigen kleuren / texture…** maakt een persoonlijke kopie voor het geselecteerde onderdeel en opent de Resource in de Inspector. Daar kun je grond-, pad- en klifkleur, een eigen herhalende texture en de patroonschaal aanpassen. De standaardpresets blijven behouden. Sla een eigen SurfaceStyle als `.tres` onder `settings/surface_styles/` op om hem opnieuw te gebruiken. De steenpreset heeft zachte antialiasing op voegen; padranden blijven door het afzonderlijke masker glad.
+Kies **Water** en daarna de **Vorm**:
+
+- **Vierkant**: sleep een rechthoek of klik twee hoeken, net als bij een plateau. Versleep daarna de hoekpunten om de vorm aan te passen.
+- **Pad**: klik punten voor een rivier en druk **Esc** om af te ronden. **Breedte** bepaalt hoe breed de rivier is.
+
+De grond zakt vanzelf in tot **Diepte**, met zachte oevers. Het wateroppervlak ligt net onder de omliggende grond. De shader komt uit het test2-project (`shaders/level_water.gdshader`): kleur op diepte, lichtbreking, bewegende lichtpatronen op de bodem en schuim waar iets door het oppervlak steekt. Oevers, plateaumuren, rotsen en brugpalen krijgen die schuimrand dus automatisch. De speler en vijanden die door het water waden laten kringen achter; tot vier tegelijk per waterplas.
+
+Plateaus en trappen gaan altijd voor: een plateau in het water wordt een eiland met een muur tot op de bodem. Twee waterplassen die overlappen smelten samen. Water wordt afgeknipt op de rand van het terrein. Selecteer een **LevelWater** voor **Depth**, **Bank** (oeverbreedte), **Surface Drop** en **Ripples**; wijs een eigen **Surface Material** toe om één plas anders te laten ogen. Het water is ondiep en doorwaadbaar; er is geen zwemmen.
+
+## Botsing
+
+Beeld en botsing zijn gescheiden. Treden, zaagtandwangen, kapranden en eindkapjes zijn alleen beeld. De botsing bestaat uit gladde vlakken: grond, trappen als helling en muren die die helling volgen. Zo blijf je nergens haken, ook niet langs trapranden of vlak langs een muur. Gegenereerde punten liggen op een raster van 0,1 mm, zodat aansluitende vlakken exact sluiten en er geen driehoeken zonder oppervlakte ontstaan. Muren naast afgeronde hellingen en water volgen het celraster van de grond, zodat hun bovenrand punt voor punt op het oppervlak aansluit.
+
+## Grootte, paden en patrouilles
+
+Selecteer **Terrain** en pas **Size** in de Inspector aan: X is breedte, Y is diepte in meters. Een resize behoudt paden en geplaatste objecten; objecten worden niet verplaatst als je de grond verkleint. De levelroot gebruikt standaard **Auto Camera Bounds**; zet dit uit om cameragrenzen zelf te bepalen.
+
+**Pad**: klik punten en druk Escape om af te ronden. Selecteer het pad voor de curvegrepen; Width bepaalt de breedte. Het pad krijgt een zacht geschulpte rand met een donkere grasrand ernaast. Padranden gebruiken een eigen fijn masker, onafhankelijk van **Resolution** van de grond, en blijven dus glad op grove grond.
+
+**Patrouille**: klik punten op de route. Punten krijgen de hoogte van het oppervlak waarop je klikt, ook op plateaus en trappen.
+
+## Grond- en klifmateriaal
+
+Alle uiterlijk staat in één Resource: **SurfaceStyle** (`settings/surface_styles/`). Die bevat grond- en padkleur en -texture, het procedurele patroon (**Effen, Gras, Steen, Aarde**), de klifkleur, een klif-texture met schaal, en kleur en hoogte van de kaprand. Een **AreaSet** kiest alleen de standaard via **Default Surface**.
+
+Selecteer grond, een plateau of een trap: het dock toont de **materiaalkiezer**. **Standaard** volgt de grond of de areaset; **Eigen kleuren / textures…** maakt een kopie voor dat onderdeel en opent hem in de Inspector. Sla een eigen stijl als `.tres` in `settings/surface_styles/` op om hem opnieuw te kiezen.
+
+Zonder textures tekenen de shaders het uiterlijk zelf, in een vlakke, schone Tunic-achtige stijl: `shaders/level_ground.gdshader` maakt effen grond met brede zachte vlekken, een schone padrand en de treden; `shaders/level_cliff.gdshader` maakt grove stenen blokken die elk het licht net anders vangen (low-poly facetten), met donkere naden en een afgeschuinde onderkant. De presets **Bos** (olijfgroen en leisteen), **Stad** (zand en rode baksteen) en **Grot** (lichte platen en lavendelsteen) volgen dat palet; nieuwe levels gebruiken ACES-tonemapping voor verzadigde kleuren. Wijs je een **Ground Texture**, **Path Texture** of **Cliff Texture** toe, dan neemt die het over. Klif-textures worden in wereldruimte geplaatst en rekken dus niet uit bij hoge muren.
 
 ## Assets en botsingsvormen
 
@@ -62,19 +103,19 @@ Voor speciaal ontworpen botsing kun je in Blender eenvoudige collisionmeshes met
 
 Na herimport van een geregistreerd model wordt uitsluitend **GeneratedCollision** opnieuw opgebouwd; handmatig toegevoegde sockets of andere nodes blijven behouden. Bij een geopende prefab wordt vervanging uitgesteld om onopgeslagen werk te beschermen. Sluit de prefab en kies **Vernieuwen** om de uitgestelde vernieuwing uit te voeren. Voor handmatig aangepaste collision: plaats die buiten GeneratedCollision en verwijder de automatisch gemaakte vormen. Bewerk nooit `.godot/imported`.
 
-**Begroeiing schilderen** gebruikt alleen assets met **Scatter Allowed**. Spacing, Scale Range en Random Yaw staan op de LevelAsset Resource. Een penseelstreek bewaart de uiteindelijke instances en vormt één Undo-actie. Paden blijven vrij. Wissen verwijdert alleen met de builder gemarkeerde instances van de geselecteerde asset.
+Met **Plaats** zet een klik één exemplaar neer. Assets met **Scatter Allowed** (begroeiing) worden bij slepen gestrooid volgens **Penseel** en **Aantal**; Spacing, Scale Range en Random Yaw staan op de LevelAsset Resource. Een streek vormt één Undo-actie en paden blijven vrij. **Shift+slepen** wist met de builder geplaatste exemplaren van de gekozen asset.
 
 ## Areasets, gameplay en saves
 
-`AreaSet` bepaalt de assetlijst, grond-/pad-/klifmaterialen en belichting. `WorldArea` bepaalt de identiteit van één speelbaar gebied en zijn scenepad. Zo kunnen tien bossen dezelfde bosset delen en toch afzonderlijke checkpoints hebben.
+`AreaSet` bepaalt de assetlijst, het standaard grondmateriaal (**Default Surface**) en de belichting. `WorldArea` bepaalt de identiteit van één speelbaar gebied en zijn scenepad. Zo kunnen tien bossen dezelfde bosset delen en toch afzonderlijke checkpoints hebben.
 
-**Nieuwe set** maakt een eigen Resource met de huidige materiaal-/lichtinstellingen en een lege assetlijst. Voeg bestaande LevelAsset Resources of nieuwe modellen toe. Een set met **Catalog Only** verschijnt als gedeelde assetbibliotheek bij iedere normale areaset. De standaard gedeelde catalogus bevat enemies, portals, rustpunten en NPC's. Nieuwe setcodes vereisen geen aanpassingen in gameplaycode.
+**Nieuwe areaset** maakt een eigen Resource met de huidige materiaal-/lichtinstellingen en een lege assetlijst. Voeg bestaande LevelAsset Resources of nieuwe modellen toe. Een set met **Catalog Only** verschijnt als gedeelde assetbibliotheek bij iedere normale areaset. De standaard gedeelde catalogus bevat enemies, portals, rustpunten en NPC's. Nieuwe setcodes vereisen geen aanpassingen in gameplaycode.
 
-**Level → Pas areaset toe** vervangt de geselecteerde kit en belichting met Undo/Redo. Bestaande props worden niet automatisch omgewisseld. Handmatige lichtaanpassingen blijven dus bestaan totdat je deze knop bewust gebruikt.
+**Pas areaset toe** vervangt de geselecteerde kit en belichting met Undo/Redo. Bestaande props worden niet automatisch omgewisseld. Handmatige lichtaanpassingen blijven dus bestaan totdat je deze knop bewust gebruikt.
 
 De plaatsbare eikelwacht gebruikt standaard **On rest**. De editor kent iedere plaatsing automatisch een blijvende `persistent_id` toe. Dupliceren geeft een nieuwe code; verplaatsen/hernoemen behoudt de bestaande. Bestaande handmatig toegekende codes blijven bruikbaar. De gedeelde EnemySettings worden niet per level aangepast.
 
-**Patrouille tekenen** maakt een Path3D met controlepunten. Wijs bij **Enemy** de geplaatste vijand aan. De punten bepalen uitsluitend zijn eigen routine; de bestaande EnemyBrain en navigatie blijven verantwoordelijk voor de beweging. **Encounter** maakt een doel met toegewezen enemies, te ontgrendelen portals en optioneel een DungeonDefinition/blijvende voltooiingsflag.
+**Patrouille** maakt een Path3D met controlepunten. Wijs bij **Enemy** de geplaatste vijand aan. De punten bepalen uitsluitend zijn eigen routine; de bestaande EnemyBrain en navigatie blijven verantwoordelijk voor de beweging. **Nieuwe encounter** maakt een doel met toegewezen enemies, te ontgrendelen portals en optioneel een DungeonDefinition/blijvende voltooiingsflag.
 
 Eigen patrouilles blijven hun punt volgen zolang de route duurt; de korte tijdslimiet van de standaard lokale dwaalroutine geldt daar niet voor. Op ramps volgt de navigatie het oppervlak verticaal, zonder onnodige zijwaartse herstelbewegingen. De builder verwijdert driehoeken zonder oppervlakte uit de grond en collision: die konden de physics op steile ramps opzij laten springen. Een enemy die na het verlagen van grond eerst naar beneden valt, neemt bij zijn eerste grondcontact de werkelijke hoogte als thuishoogte over.
 
@@ -86,13 +127,17 @@ De Godot-levelscene is leidend voor plaatsing. De builder schrijft alleen de afg
 
 De plugin staat onder `addons/level_builder/`; runtimegegevens en configureerbare nodes onder `scripts/world/authoring/`. De bestaande PlayerCharacter, GameClock, SceneTransit, Checkpoints en NavigationWorld blijven eigenaar van hun gameplaytaken.
 
-Gerichte controles:
+Gerichte controles en een stijlrender:
 
 ```sh
 /Applications/Godot.app/Contents/MacOS/Godot --path . --max-fps 60 tests/LevelBuilderReplay.tscn -- --save-test-root=level_builder_review
 /Applications/Godot.app/Contents/MacOS/Godot --editor --path . -- --level-builder-editor-checks
 /Applications/Godot.app/Contents/MacOS/Godot --path . --max-fps 60 tests/LevelBuilderEnemyReplay.tscn -- --save-test-root=builder_enemy_review
+/Applications/Godot.app/Contents/MacOS/Godot --path . tests/LevelBuilderStairsReplay.tscn
+/Applications/Godot.app/Contents/MacOS/Godot --path . -s res://tools/level_builder/look_preview.gd
 ```
+
+De stairs-replay laat de echte speler over en langs trappen, bruggen en plateauranden lopen en faalt bij haken, stilstaan of vallen. De stijlrender schrijft `captures/level_builder/look.png`, een close-up van de trappen (`look_close.png`) en van de bruggen (`look_bridge.png`).
 
 Voer de editorcontrole in een geïsoleerde projectkopie uit wanneer je tegelijk zelf in Godot werkt. De controle gebruikt een unieke tijdelijke fixture per proces. Resultaten en native beelden komen in `captures/level_builder/`. De replay gebruikt een eigen savemap. De replay kan beperkt worden tot camera/helling via `--builder-traversal-only`; gebruik `--max-fps 30`, `60` of `120`. De bestaande headless replay op poort9090 wordt niet gebruikt om native controles te besturen.
 

@@ -30,6 +30,10 @@ func _ready() -> void:
 		add_child(load("res://tests/room_replay.gd").new())
 	if "--energy-replay" in OS.get_cmdline_user_args():
 		add_child(load("res://tests/energy_replay.gd").new())
+	if "--roll-momentum-replay" in OS.get_cmdline_user_args():
+		add_child(load("res://tests/roll_momentum_replay.gd").new())
+	if "--lock-switch-replay" in OS.get_cmdline_user_args():
+		add_child(load("res://tests/lock_switch_replay.gd").new())
 	if "--roll-review" in OS.get_cmdline_user_args():
 		add_child(load("res://tests/roll_review_replay.gd").new())
 	if "--slash-closeup" in OS.get_cmdline_user_args():

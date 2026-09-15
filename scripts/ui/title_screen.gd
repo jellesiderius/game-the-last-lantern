@@ -27,6 +27,8 @@ func _ready() -> void:
 		"--swing-style-replay",
 		"--slash-closeup",
 		"--roll-review",
+		"--lock-switch-replay",
+		"--roll-momentum-replay",
 		"--acorn-replay",
 		"--enemy-movement-replay",
 		"--enemy-surface-replay",

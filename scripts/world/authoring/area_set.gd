@@ -2,18 +2,14 @@
 class_name AreaSet
 extends Resource
 ## Art kit, independent of a world's identity, save data and gameplay.
+## Appearance lives in default_surface; this resource owns assets and lighting only.
 @export var id: StringName
 @export var display_name := "Nieuwe areaset"
 @export var catalog_only := false
 @export_multiline var description := ""
 @export var assets: Array[LevelAsset] = []
 @export_group("Ground")
-@export var ground_color := Color("52664b")
-@export var path_color := Color("bca17a")
-@export var cliff_color := Color("64676a")
-@export var ground_texture: Texture2D
-@export var path_texture: Texture2D
-@export_range(.1, 20, .1) var texture_scale := 3.0
+@export var default_surface: SurfaceStyle
 @export_group("Lighting")
 @export var background_color := Color("203133")
 @export var ambient_color := Color("a4b8b1")

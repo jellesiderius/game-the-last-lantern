@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WorldArea" format=3 uid="uid://ddhfj3asms2jy"]
+
+[ext_resource type="Script" uid="uid://di1cc4m2874ms" path="res://scripts/world/world_area.gd" id="1_oxovk"]
+
+[resource]
+script = ExtResource("1_oxovk")
+code = &"area.174c5bbe89244bfd7a23a65644677a5b"
+display_name = "Test123"
+scene_path = "res://scenes/levels/Test123.tscn"

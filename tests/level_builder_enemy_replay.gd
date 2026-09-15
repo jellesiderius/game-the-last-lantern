@@ -53,7 +53,6 @@ func run() -> void:
 	for child in terrain.get_children():
 		if child is LevelRamp:
 			ramp = child
-	ramp.ensure_point_heights()
 	var changed := ramp.curve.duplicate() as Curve3D
 	changed.set_point_position(0, Vector3(2, 0, -8))
 	ramp.curve = changed
@@ -64,7 +63,53 @@ func run() -> void:
 	fixture.free()
 	await load_world("res://captures/level_builder/SteepRamp.tscn")
 	await _ramp_trips("steep")
+	# Bridges: a guard crosses from a 1 m plateau to a 2 m plateau and back using
+	# its own navigation, which must include the bridge's generated collider.
+	check(
+		"bridge fixture saves",
+		_bridge_fixture("res://captures/level_builder/BridgeEnemies.tscn") == OK
+	)
+	await load_world("res://captures/level_builder/BridgeEnemies.tscn")
+	var bridge_guard: CharacterBody3D = world.get_node("Enemies").get_child(0)
+	await _trip(bridge_guard, "bridge_up", Vector3(0, 1, -7), Vector3(0, 2, 7))
+	await _trip(bridge_guard, "bridge_down", Vector3(0, 2, 7), Vector3(0, 1, -7))
 	_finish("enemy_ramps_%d" % Engine.max_fps)
+
+
+func _bridge_fixture(path: String) -> Error:
+	var kit := load("res://settings/area_sets/forest.tres") as AreaSet
+	var area := WorldArea.new()
+	area.code = &"area.bridge_enemies"
+	area.display_name = "Bridge Enemies"
+	area.scene_path = path
+	var root := FACTORY.create(kit, area, Vector2(30, 26))
+	var terrain := root.get_node("Terrain") as LevelTerrain
+	for item in [[Rect2(-10, -12, 20, 8), 1.0], [Rect2(-6, 4, 16, 8), 2.0]]:
+		var rect: Rect2 = item[0]
+		var plateau := LevelTerrace.new()
+		plateau.curve = Curve3D.new()
+		for corner in [
+			rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)
+		]:
+			plateau.curve.add_point(Vector3(corner.x, 0, corner.y))
+		terrain.add_child(plateau, true)
+		plateau.owner = root
+		plateau.height = item[1]
+	var bridge := LevelBridge.new()
+	bridge.name = "Brug"
+	bridge.curve = Curve3D.new()
+	bridge.curve.add_point(Vector3(0, 1, -4))
+	bridge.curve.add_point(Vector3(0, 2, 4))
+	terrain.add_child(bridge, true)
+	bridge.owner = root
+	var guard: Node3D = load("res://scenes/actors/npcs/enemy/PlacedAcornGuard.tscn").instantiate()
+	guard.name = "BridgeGuard"
+	root.get_node("Enemies").add_child(guard)
+	guard.owner = root
+	guard.position = Vector3(0, 1, -8)
+	var error := FACTORY.save(root, path)
+	root.free()
+	return error
 
 
 func _ramp_trips(label: String, pursuit := false) -> void:

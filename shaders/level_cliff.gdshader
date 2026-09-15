@@ -1,0 +1,57 @@
+shader_type spatial;
+render_mode cull_disabled;
+// Cliff walls and their top lip. COLOR = base tint (cliff or lip colour per vertex).
+// UV2.x = 1 on the lip, 0 on the block wall.
+uniform sampler2D cliff_texture : source_color, filter_linear_mipmap, repeat_enable;
+uniform bool has_cliff_texture = false;
+uniform float cliff_texture_scale = 2.0;
+// Procedural chunky stone blocks, used until a real cliff texture is assigned.
+uniform float block_height = 0.5;
+uniform float block_length = 1.0;
+varying vec3 world_pos;
+varying vec3 world_normal;
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+void vertex() {
+	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	world_normal = normalize(mat3(MODEL_MATRIX) * NORMAL);
+}
+
+void fragment() {
+	vec3 n = abs(world_normal);
+	float wx = n.x / max(n.x + n.z, 0.0001);
+	// World-space mapping: blocks keep their size regardless of wall height.
+	float along = mix(world_pos.x, world_pos.z, wx);
+	vec3 color = COLOR.rgb;
+	if (UV2.x < 0.5) {
+		if (has_cliff_texture) {
+			color *= texture(cliff_texture, vec2(along, -world_pos.y) / cliff_texture_scale).rgb;
+		} else {
+			float row = floor(world_pos.y / block_height + 0.001);
+			// Every row gets its own block length and offset, like stacked rough stone.
+			float length_m = block_length * (0.6 + 0.9 * hash(vec2(row, 3.1)));
+			vec2 cell = vec2(along / length_m + hash(vec2(row, 7.7)), world_pos.y / block_height + 0.001);
+			vec2 f = fract(cell);
+			vec2 id = floor(cell);
+			vec2 edge_m = min(f, 1.0 - f) * vec2(length_m, block_height);
+			float aa = max(fwidth(cell.x) * length_m, fwidth(cell.y) * block_height);
+			float seam = smoothstep(0.012, 0.03 + aa, min(edge_m.x, edge_m.y));
+			// Flat low-poly facets: each block leans a little, so the sun catches it
+			// differently and the wall reads as chunky stone rather than a texture.
+			vec3 lean = vec3(hash(id + 1.3), hash(id + 7.1), hash(id + 4.2)) - 0.5;
+			NORMAL = normalize(NORMAL + (VIEW_MATRIX * vec4(lean * 0.9, 0.0)).xyz);
+			color *= 0.8 + 0.32 * hash(id + row * 3.1);
+			// Chamfered underside of every block.
+			color *= mix(0.62, 1.0, smoothstep(0.0, 0.25, f.y));
+			color = mix(color * 0.4, color, seam);
+		}
+	} else {
+		color *= 0.97 + 0.06 * hash(floor(vec2(along, world_pos.y) * 2.0));
+	}
+	ALBEDO = color;
+	ROUGHNESS = 1.0;
+	SPECULAR = 0.1;
+}

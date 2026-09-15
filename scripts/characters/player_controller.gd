@@ -410,15 +410,9 @@ func _physics_process(_delta: float) -> void:
 			if previous_time < settings.roll_duration:
 				# Burst out of the stance and ease into the stop. Sampling the distance
 				# curve keeps the authored roll distance at any physics rate.
-				var before := _roll_travel(previous_time)
-				var after := _roll_travel(minf(action_time, settings.roll_duration))
-				desired_velocity = (
-					locked_direction
-					* settings.roll_speed
-					* settings.roll_duration
-					* (after - before)
-					/ delta
-				)
+				var before := _roll_position(previous_time)
+				var after := _roll_position(minf(action_time, settings.roll_duration))
+				desired_velocity = locked_direction * (after - before) / delta
 		"charge":
 			charge_amount = minf(1, action_time / settings.charge_duration)
 			_face(aim_direction(charge_aim_device), delta)
@@ -592,10 +586,20 @@ func _resolve_priority() -> void:
 				_release_heavy()
 
 
-## Normalised roll distance covered after `time`.
-func _roll_travel(time: float) -> float:
-	var t := clampf(time / settings.roll_duration, 0.0, 1.0)
-	return 1.0 - pow(1.0 - t, settings.roll_ease)
+## Metres covered after `time`. Speed eases from a burst down to roll_exit_speed (not zero),
+## while the total stays roll_speed * roll_duration.
+func _roll_position(time: float) -> float:
+	var duration := settings.roll_duration
+	var t := clampf(time / duration, 0.0, 1.0)
+	var distance := settings.roll_speed * duration
+	var exit_speed := minf(settings.roll_exit_speed, settings.roll_speed)
+	var k := settings.roll_ease - 1.0
+	# v(t) = exit + (burst - exit) * (1 - t)^k; burst solves the total distance.
+	var burst := exit_speed + (distance - exit_speed * duration) * (k + 1.0) / duration
+	return (
+		exit_speed * t * duration
+		+ (burst - exit_speed) * duration / (k + 1.0) * (1.0 - pow(1.0 - t, k + 1.0))
+	)
 
 
 func _face(direction: Vector3, delta: float) -> void:

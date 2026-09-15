@@ -1,0 +1,396 @@
+[gd_scene format=3 uid="uid://cgc256neq0et1"]
+
+[ext_resource type="Script" uid="uid://dahr67yknirj2" path="res://scripts/world/authoring/authored_level.gd" id="1_0753s"]
+[ext_resource type="Resource" uid="uid://ddhfj3asms2jy" path="res://settings/areas/test_123.tres" id="2_ui5k7"]
+[ext_resource type="Resource" path="res://settings/area_sets/cave.tres" id="3_112qs"]
+[ext_resource type="Script" uid="uid://clqcgbow6xpru" path="res://scripts/world/authoring/level_terrain.gd" id="4_xkr4p"]
+[ext_resource type="Script" uid="uid://x01chox7kq21" path="res://scripts/world/authoring/level_path.gd" id="5_75t2i"]
+[ext_resource type="Resource" path="res://settings/surface_styles/forest.tres" id="5_0753s"]
+[ext_resource type="ArrayMesh" uid="uid://d4e48vy36vgam" path="res://scenes/levels/Test123.terrain/Terrain.res" id="5_xf4up"]
+[ext_resource type="Script" uid="uid://cxwe78k8exu1i" path="res://scripts/world/authoring/level_terrace.gd" id="6_1pymh"]
+[ext_resource type="Shape3D" uid="uid://dnfmu8puohfdr" path="res://scenes/levels/Test123.terrain/Terrain_collision.res" id="6_xm4g4"]
+[ext_resource type="Script" uid="uid://baahi06eehkq4" path="res://scripts/world/scene_spawn_point.gd" id="7_w1lay"]
+[ext_resource type="Script" uid="uid://dnfqek7ev0jgq" path="res://scripts/world/checkpoint_anchor.gd" id="8_6olc1"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="9_kdx6q"]
+[ext_resource type="PackedScene" path="res://scenes/assets/environment/forest_cliff/Asset.tscn" id="10_ui5k7"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="13_6rrud"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="15_y0xwa"]
+[ext_resource type="AudioStream" uid="uid://bsmjsj1bsmfm8" path="res://assets/audio/impact.wav" id="16_hrbk2"]
+
+[sub_resource type="Curve3D" id="Curve3D_0753s"]
+resource_local_to_scene = true
+bake_interval = 0.3
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 4, 0, -2, 0, 0, 0, 0, 0, 0, 3, 0, 4),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_ui5k7"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -2, 0, -4, 0, 0, 0, 0, 0, 0, -1, 0, -4, 0, 0, 0, 0, 0, 0, -1, 0, -3, 0, 0, 0, 0, 0, 0, -2, 0, -3),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_112qs"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -4.5, 0, -11.25, 0, 0, 0, 0, 0, 0, -2.25, 0, -11.25, 0, 0, 0, 0, 0, 0, -2.25, 0, -9, 0, 0, 0, 0, 0, 0, -4.5, 0, -9),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_xkr4p"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 4.5, 0, -6.75, 0, 0, 0, 0, 0, 0, 6.75, 0, -6.75, 0, 0, 0, 0, 0, 0, 6.75, 0, -4.5, 0, 0, 0, 0, 0, 0, 4.5, 0, -4.5),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_xf4up"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 2.25, 0, -6.75, 0, 0, 0, 0, 0, 0, 4.5, 0, -6.75, 0, 0, 0, 0, 0, 0, 4.5, 0, -4.5, 0, 0, 0, 0, 0, 0, 2.25, 0, -4.5),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_xm4g4"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 2.25, 0, -9, 0, 0, 0, 0, 0, 0, 4.5, 0, -9, 0, 0, 0, 0, 0, 0, 4.5, 0, -6.75, 0, 0, 0, 0, 0, 0, 2.25, 0, -6.75),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_w1lay"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 4.5, 0, -6.75, 0, 0, 0, 0, 0, 0, 6.75, 0, -6.75, 0, 0, 0, 0, 0, 0, 6.75, 0, -4.5, 0, 0, 0, 0, 0, 0, 4.5, 0, -4.5),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_6olc1"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 6.75, 0, -9, 0, 0, 0, 0, 0, 0, 9, 0, -9, 0, 0, 0, 0, 0, 0, 9, 0, -6.75, 0, 0, 0, 0, 0, 0, 6.75, 0, -6.75),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_kdx6q"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 4.5, 0, -9, 0, 0, 0, 0, 0, 0, 6.75, 0, -9, 0, 0, 0, 0, 0, 0, 6.75, 0, -6.75, 0, 0, 0, 0, 0, 0, 4.5, 0, -6.75),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[sub_resource type="Curve3D" id="Curve3D_83h53"]
+resource_local_to_scene = true
+bake_interval = 0.3
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 9, 0, -6.75, 0, 0, 0, 0, 0, 0, 6.75, 0, -9, 0, 0, 0, 0, 0, 0, 4.5, 0, -6.75, 0, 0, 0, 0, 0, 0, 4.5, 0, -6.75, 0, 0, 0, 0, 0, 0, 2.25, 0, 0),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
+}
+point_count = 5
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0753s"]
+size = Vector3(0.5, 8, 25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ui5k7"]
+size = Vector3(0.5, 8, 25)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_112qs"]
+size = Vector3(25, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xkr4p"]
+size = Vector3(25, 8, 0.5)
+
+[sub_resource type="Environment" id="Environment_pthuc"]
+background_mode = 1
+background_color = Color(0.08627451, 0.11372549, 0.14901961, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.60784316, 0.6627451, 0.72156864, 1)
+ambient_light_energy = 0.55
+reflected_light_source = 2
+tonemap_mode = 2
+tonemap_exposure = 1.3
+ssao_enabled = true
+ssao_radius = 0.4
+ssao_intensity = 0.7
+glow_enabled = true
+glow_intensity = 0.35
+fog_enabled = true
+fog_light_color = Color(0.21960784, 0.30980393, 0.28235295, 1)
+fog_density = 0.001
+
+[sub_resource type="ParticleProcessMaterial" id="Process"]
+emission_shape = 1
+emission_sphere_radius = 0.025
+direction = Vector3(0, 1, 0)
+spread = 140.0
+initial_velocity_min = 0.8
+initial_velocity_max = 2.0
+gravity = Vector3(0, -3, 0)
+scale_min = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+shading_mode = 0
+albedo_color = Color(1, 0.2, 0.4, 1)
+
+[sub_resource type="SphereMesh" id="SparkMesh"]
+material = SubResource("Material")
+radius = 0.024
+height = 0.048
+radial_segments = 8
+rings = 4
+
+[node name="Test123" type="Node3D" unique_id=878404066]
+script = ExtResource("1_0753s")
+area = ExtResource("2_ui5k7")
+area_set = ExtResource("3_112qs")
+
+[node name="Terrain" type="Node3D" parent="." unique_id=589215907]
+script = ExtResource("4_xkr4p")
+surface_style = ExtResource("5_0753s")
+area_set = ExtResource("3_112qs")
+height_step = 0.25
+baked_signature = "702e1d83e9df95267c9dc7c2a74a9ad3aa22b6249c2a09d396382f8c1d700145"
+
+[node name="Pad" type="Path3D" parent="Terrain" unique_id=567556211]
+curve = SubResource("Curve3D_0753s")
+script = ExtResource("5_75t2i")
+
+[node name="Plateau" type="Path3D" parent="Terrain" unique_id=2121098787]
+curve = SubResource("Curve3D_ui5k7")
+script = ExtResource("6_1pymh")
+height = 2.0
+
+[node name="Plateau2" type="Path3D" parent="Terrain" unique_id=1665860007]
+curve = SubResource("Curve3D_112qs")
+script = ExtResource("6_1pymh")
+height = 1.25
+
+[node name="Plateau3" type="Path3D" parent="Terrain" unique_id=74041132]
+curve = SubResource("Curve3D_xkr4p")
+script = ExtResource("6_1pymh")
+height = 1.25
+
+[node name="Plateau4" type="Path3D" parent="Terrain" unique_id=453452704]
+curve = SubResource("Curve3D_xf4up")
+script = ExtResource("6_1pymh")
+height = 1.25
+
+[node name="Plateau5" type="Path3D" parent="Terrain" unique_id=580678912]
+curve = SubResource("Curve3D_xm4g4")
+script = ExtResource("6_1pymh")
+height = 1.25
+
+[node name="Plateau6" type="Path3D" parent="Terrain" unique_id=1437408200]
+curve = SubResource("Curve3D_w1lay")
+script = ExtResource("6_1pymh")
+height = 1.25
+
+[node name="Plateau7" type="Path3D" parent="Terrain" unique_id=651655308]
+curve = SubResource("Curve3D_6olc1")
+script = ExtResource("6_1pymh")
+height = 1.25
+
+[node name="Plateau8" type="Path3D" parent="Terrain" unique_id=612428249]
+curve = SubResource("Curve3D_kdx6q")
+script = ExtResource("6_1pymh")
+height = 1.25
+
+[node name="Pad2" type="Path3D" parent="Terrain" unique_id=327739757]
+curve = SubResource("Curve3D_83h53")
+script = ExtResource("5_75t2i")
+
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=2010618082]
+metadata/level_builder_generated = true
+
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=1529476057]
+mesh = ExtResource("5_xf4up")
+
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=1610528956]
+collision_mask = 0
+
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=809693307]
+shape = ExtResource("6_xm4g4")
+
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=595377415]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.25, 3, 0)
+shape = SubResource("BoxShape3D_0753s")
+
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=264506785]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.25, 3, 0)
+shape = SubResource("BoxShape3D_ui5k7")
+
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1925570517]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -12.25)
+shape = SubResource("BoxShape3D_112qs")
+
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=8856106]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 12.25)
+shape = SubResource("BoxShape3D_xkr4p")
+
+[node name="Props" type="Node3D" parent="." unique_id=1400412523]
+
+[node name="Cliff" parent="Props" unique_id=780858955 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 0, -6.75)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff2" parent="Props" unique_id=250036873 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 1.2500005, -6.75)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff3" parent="Props" unique_id=1179134834 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 1.25, -9)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff4" parent="Props" unique_id=210327977 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 1.25, -9)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff5" parent="Props" unique_id=1512804327 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 1.25, -6.75)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff6" parent="Props" unique_id=1481741619 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 1.25, -6.75)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff7" parent="Props" unique_id=1503842535 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 4.7683716e-07, -9)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff8" parent="Props" unique_id=936118091 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, -9)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff9" parent="Props" unique_id=1836403619 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.25, 0, -6.75)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff10" parent="Props" unique_id=1203527598 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 0, 0)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff11" parent="Props" unique_id=1435065136 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 4.7683716e-07, -2.25)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff12" parent="Props" unique_id=1692096185 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 0, -4.5)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff13" parent="Props" unique_id=318816684 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, -4.5)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff14" parent="Props" unique_id=1935464955 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, -4.5)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff15" parent="Props" unique_id=354670331 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25, 0, -4.5)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff16" parent="Props" unique_id=429075236 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 1.25, -4.5)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff17" parent="Props" unique_id=565643865 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25, 0, -6.75)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff18" parent="Props" unique_id=1566439480 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25, 0, -6.75)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff19" parent="Props" unique_id=934553478 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.25, 0, -6.75)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff20" parent="Props" unique_id=1756843280 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.75)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff21" parent="Props" unique_id=303322173 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 0, -2.25)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Cliff22" parent="Props" unique_id=1000699106 instance=ExtResource("10_ui5k7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.75, 0, -2.25)
+metadata/level_asset_id = &"forest_cliff"
+
+[node name="Enemies" type="Node3D" parent="." unique_id=445352934]
+
+[node name="Gameplay" type="Node3D" parent="." unique_id=25549818]
+
+[node name="Routes" type="Node3D" parent="." unique_id=610228228]
+
+[node name="Spawns" type="Node3D" parent="." unique_id=407765739]
+
+[node name="Entrance" type="Marker3D" parent="Spawns" unique_id=1706967480]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+script = ExtResource("7_w1lay")
+
+[node name="StartCheckpoint" type="Marker3D" parent="Spawns" unique_id=1869866667]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+script = ExtResource("8_6olc1")
+checkpoint_id = &"start.area.174c5bbe89244bfd7a23a65644677a5b"
+area = ExtResource("2_ui5k7")
+
+[node name="Player" parent="." unique_id=1158551141 instance=ExtResource("9_kdx6q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=669200494]
+transform = Transform3D(0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76604444, -0.70710677, -0.5416752, 0.45451948, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=877232609]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
+projection = 1
+current = true
+size = 13.0
+far = 160.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=908235655]
+environment = SubResource("Environment_pthuc")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=514100073]
+transform = Transform3D(0.8480481, 0.43408445, -0.3039492, 0, 0.57357645, 0.81915206, 0.52991927, -0.69468033, 0.48642042, 0, 0, 0)
+light_color = Color(0.6784314, 0.7882353, 0.8745098, 1)
+light_energy = 0.4
+shadow_enabled = true
+
+[node name="HUD" parent="." unique_id=2125404689 instance=ExtResource("13_6rrud")]
+
+[node name="DebugVolumes" type="MeshInstance3D" parent="." unique_id=546839705]
+
+[node name="ImpactPool" type="Node3D" parent="." unique_id=1118698762]
+
+[node name="Spark0" parent="ImpactPool" unique_id=1165646871 instance=ExtResource("15_y0xwa")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark1" parent="ImpactPool" unique_id=2136513467 instance=ExtResource("15_y0xwa")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark2" parent="ImpactPool" unique_id=699737013 instance=ExtResource("15_y0xwa")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark3" parent="ImpactPool" unique_id=1698545903 instance=ExtResource("15_y0xwa")]
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="." unique_id=986628737]
+stream = ExtResource("16_hrbk2")
+volume_db = -8.0
+max_distance = 30.0

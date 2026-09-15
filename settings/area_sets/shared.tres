@@ -10,10 +10,12 @@
 [ext_resource type="Resource" path="res://settings/level_assets/waymarker.tres" id="8_gmldm"]
 [ext_resource type="Script" path="res://scripts/world/authoring/area_set.gd" id="9_g0s5t"]
 
+[ext_resource type="Resource" path="res://settings/surface_styles/forest.tres" id="style_forest"]
+
 [resource]
 script = ExtResource("9_g0s5t")
 id = &"shared"
 display_name = "Gedeelde gameplay"
 catalog_only = true
 assets = Array[ExtResource("1_fvwq5")]([ExtResource("2_fvwq5"), ExtResource("3_bnoev"), ExtResource("4_mr1rt"), ExtResource("5_2oei8"), ExtResource("6_fod3m"), ExtResource("7_jvfu1"), ExtResource("8_gmldm")])
-cliff_color = Color(0.40784314, 0.41960785, 0.4117647, 1)
+default_surface = ExtResource("style_forest")

@@ -8,3 +8,4 @@ max_speed = 3.8
 walk_blend_speed = 0.55
 walk_cycle_speed = 0.340909
 run_cycle_speed = 2.34375
+roll_exit_speed = 3.8

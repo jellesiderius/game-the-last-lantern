@@ -20,6 +20,8 @@ extends Resource
 @export var roll_speed := 6.109
 ## Ease-out exponent: 1 is constant speed, higher bursts harder and settles softer.
 @export_range(1.0, 3.0, 0.1) var roll_ease := 1.7
+## Speed the roll eases down to; at walking pace the roll never stalls before walking on.
+@export var roll_exit_speed := 4.5
 @export var roll_iframe_start := 0.065
 @export var roll_iframe_end := 0.35
 @export var roll_recovery := 0.10

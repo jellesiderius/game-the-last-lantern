@@ -3,6 +3,7 @@
 [resource]
 script = ExtResource("Script")
 max_speed = 2.4
+roll_exit_speed = 2.4
 walk_blend_speed = 1.2
 walk_cycle_speed = 0.75
 run_cycle_speed = 1.4909
