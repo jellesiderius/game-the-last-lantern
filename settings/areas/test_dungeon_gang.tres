@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WorldArea" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/world_area.gd" id="1_lakfi"]
+
+[resource]
+script = ExtResource("1_lakfi")
+code = &"area.test_dungeon.gang"
+display_name = "Testkelder gang"
+scene_path = "res://scenes/levels/TestDungeonGang.tscn"

@@ -54,6 +54,16 @@ void fragment() {
 		float width = max(fwidth(tiled.x), fwidth(tiled.y));
 		float slab = smoothstep(.012 - width, .025 + width, min(edge.x, edge.y));
 		ground *= mix(.78, 1.0, slab) * (.95 + .08 * hash(floor(tiled)));
+	} else if (ground_pattern == 4) {
+		// Floorboards like the Forest house: half-metre wide planks running the length
+		// of the room in three alternating tones with a dark seam between them.
+		float boards = pos.y * 2.0;
+		float row = floor(boards);
+		float f = fract(boards);
+		float seam_w = fwidth(boards) * 1.5;
+		float seam = smoothstep(0.0, .025 + seam_w, min(f, 1.0 - f));
+		float tone = 1.0 + .046 * mod(row, 3.0);
+		ground *= tone * mix(.45, 1.0, seam);
 	} else {
 		ground *= mix(.94, 1.04, broad);
 	}

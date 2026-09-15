@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="AreaSet" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/authoring/area_set.gd" id="1"]
+[ext_resource type="Resource" path="res://settings/surface_styles/interior.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = &"interior"
+display_name = "Interieur"
+description = "Huizen en kamers: houten vloer, gladde muren en warm binnenlicht."
+default_surface = ExtResource("2")
+background_color = Color(0.025, 0.055, 0.05, 1)
+ambient_color = Color(0.56, 0.69, 0.63, 1)
+ambient_energy = 0.55
+sun_color = Color(1, 0.88, 0.68, 1)
+sun_energy = 0.6
+fog_density = 0.0

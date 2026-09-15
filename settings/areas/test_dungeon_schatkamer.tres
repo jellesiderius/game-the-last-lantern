@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WorldArea" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/world_area.gd" id="1_g7bcj"]
+
+[resource]
+script = ExtResource("1_g7bcj")
+code = &"area.test_dungeon.schatkamer"
+display_name = "Testkelder schatkamer"
+scene_path = "res://scenes/levels/TestDungeonSchatkamer.tscn"

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WorldArea" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/world_area.gd" id="1_56bh4"]
+
+[resource]
+script = ExtResource("1_56bh4")
+code = &"area.test_house.keuken"
+display_name = "Testhuis keuken"
+scene_path = "res://scenes/levels/TestHuisKeuken.tscn"

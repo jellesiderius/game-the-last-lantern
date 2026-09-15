@@ -25,7 +25,7 @@ extends Resource
 	set(value):
 		texture_scale = value
 		emit_changed()
-@export_enum("Effen", "Gras", "Steen", "Aarde") var pattern := 1:
+@export_enum("Effen", "Gras", "Steen", "Aarde", "Planken") var pattern := 1:
 	set(value):
 		pattern = value
 		emit_changed()
@@ -33,6 +33,11 @@ extends Resource
 @export var cliff_color := Color("64676a"):
 	set(value):
 		cliff_color = value
+		emit_changed()
+## Stone blocks for cliffs and dungeon walls, or smooth plaster for interiors.
+@export_enum("Blokken", "Glad") var cliff_pattern := 0:
+	set(value):
+		cliff_pattern = value
 		emit_changed()
 @export var cliff_texture: Texture2D:
 	set(value):
@@ -62,6 +67,7 @@ func signature() -> String:
 			texture_scale,
 			pattern,
 			cliff_texture_scale,
+			cliff_pattern,
 			cliff_rim_color,
 			cliff_rim_height,
 			ground_texture.resource_path if ground_texture else "",

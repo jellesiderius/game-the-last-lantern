@@ -30,6 +30,29 @@ extends Node3D
 	set(value):
 		enclose_bounds = value
 		request_bake()
+@export_group("Kamer")
+## Walls all around the ground, for interiors and dungeons. A LevelDoor standing on
+## an edge cuts a doorway through the wall and the boundary.
+@export var room_walls := false:
+	set(value):
+		room_walls = value
+		request_bake()
+@export_range(1, 6, .1, "suffix:m") var wall_height := 2.5:
+	set(value):
+		wall_height = value
+		request_bake()
+## The south and east walls face the camera and stay this low to keep the room readable.
+@export_range(0, 3, .05, "suffix:m") var cutaway_height := .6:
+	set(value):
+		cutaway_height = value
+		request_bake()
+## Steen: walls in the cliff material. Huis: plastered walls with dark timber
+## posts and a beam, low wooden walls at the front and a dark foundation.
+@export_enum("Steen", "Huis") var room_look := 0:
+	set(value):
+		room_look = value
+		request_bake()
+@export_group("")
 @export_storage var baked_signature := ""
 @export_tool_button("Werk grond bij", "MeshInstance3D") var rebuild: Callable:
 	get:
@@ -64,6 +87,10 @@ const BRIDGE_SLOPE := .6
 const GRID_INV := 10000.0
 ## Stone curb along the sides of slopes (visual only).
 const CURB_HEIGHT := .12
+const BOUNDARY_THICKNESS := .5
+const ROOM_WALL_THICKNESS := .35
+## Floor length beyond a doorway, covering the short walk out during a transition.
+const DOORWAY_DEPTH := 1.6
 ## Fraction of a slope's run eased at each end, and the steepest slope easing may reach.
 const SLOPE_EASE := .35
 ## Enemies climb up to about 40 degrees; slopes already that steep stay linear.
@@ -385,7 +412,17 @@ func signature() -> String:
 	for region in regions:
 		region.style = region.style.signature() if region.style else ""
 	var data := [
-		"surface_styles_v7", size, resolution, enclose_bounds, regions, style_for(null).signature()
+		"surface_styles_v8",
+		size,
+		resolution,
+		enclose_bounds,
+		regions,
+		style_for(null).signature(),
+		room_walls,
+		wall_height,
+		cutaway_height,
+		room_look,
+		_door_openings()
 	]
 	for child in get_children():
 		if child is LevelPath and child.curve:
@@ -502,9 +539,12 @@ func bake() -> bool:
 		cliff.set_shader_parameter("has_cliff_texture", settings.cliff_texture != null)
 		cliff.set_shader_parameter("cliff_texture_scale", settings.cliff_texture_scale)
 		cliff.set_shader_parameter("block_height", HEIGHT_STEP)
+		cliff.set_shader_parameter("cliff_pattern", settings.cliff_pattern)
 		_cliff_groups[style].set_material(cliff)
 		_cliff_groups[style].commit(mesh)
 	_cliff_groups.clear()
+	if room_walls:
+		_emit_room_walls(mesh)
 	# Collision walls follow the smooth surfaces: no step sawtooth, rim or caps to snag on.
 	if _wall_collision:
 		_wall_collision.commit(collision_mesh)
@@ -525,27 +565,35 @@ func bake() -> bool:
 	shape.name = "SurfaceShape"
 	shape.shape = collision_mesh.create_trimesh_shape()
 	body.add_child(shape)
-	if enclose_bounds:
-		var boundary_height := 8.0
+	if enclose_bounds or room_walls:
+		var boundary_height := maxf(8.0, wall_height + 1.0)
 		for region in regions:
 			boundary_height = maxf(boundary_height, region.height + 4)
-		for item in [
-			Vector3(-size.x / 2 - .25, 0, 0),
-			Vector3(size.x / 2 + .25, 0, 0),
-			Vector3(0, 0, -size.y / 2 - .25),
-			Vector3(0, 0, size.y / 2 + .25)
-		]:
+		for segment in _boundary_segments(BOUNDARY_THICKNESS):
 			var wall := CollisionShape3D.new()
 			wall.name = "Boundary%d" % body.get_child_count()
 			var box := BoxShape3D.new()
-			box.size = (
-				Vector3(.5, boundary_height, size.y + 1)
-				if item.x != 0
-				else Vector3(size.x + 1, boundary_height, .5)
-			)
+			box.size = Vector3(segment.size.x, boundary_height, segment.size.y)
 			wall.shape = box
-			wall.position = item + Vector3(0, boundary_height / 2 - 1, 0)
+			wall.position = Vector3(segment.centre.x, boundary_height / 2 - 1, segment.centre.y)
 			body.add_child(wall)
+		# Doorways get a short floor and a back stop, so walking out never drops the player.
+		for opening in _door_openings():
+			var outward := _side_normal(opening.side)
+			var across := Vector2(outward.y, outward.x).abs()
+			var edge := _edge_point(opening.side, opening.along)
+			for piece in [
+				[edge + outward * DOORWAY_DEPTH / 2, Vector3(0, -.1, 0), .2],
+				[edge + outward * (DOORWAY_DEPTH + .25), Vector3(0, boundary_height / 2 - 1, 0), boundary_height]
+			]:
+				var stop := CollisionShape3D.new()
+				stop.name = "Doorway%d" % body.get_child_count()
+				var shape_box := BoxShape3D.new()
+				var span: Vector2 = across * opening.half * 2 + outward.abs() * (DOORWAY_DEPTH if piece[2] < 1 else .5)
+				shape_box.size = Vector3(span.x, piece[2], span.y)
+				stop.shape = shape_box
+				stop.position = Vector3(piece[0].x, 0, piece[0].y) + piece[1]
+				body.add_child(stop)
 	var previous := get_node_or_null("Baked")
 	if previous:
 		# A user may have selected a generated surface or collider. Move the editor
@@ -1459,6 +1507,193 @@ func _emit_curb(
 			curb_color * .85,
 			1.0
 		)
+
+
+## Doors standing on a ground edge: side (0 north, 1 east, 2 south, 3 west), position
+## along that edge, half gap width and the doorway height.
+func _door_openings() -> Array[Dictionary]:
+	var openings: Array[Dictionary] = []
+	for child in get_children():
+		if not child is LevelDoor:
+			continue
+		var p: Vector3 = child.position
+		var distances := [
+			absf(p.z + size.y / 2), absf(p.x - size.x / 2), absf(p.z - size.y / 2), absf(p.x + size.x / 2)
+		]
+		for side in 4:
+			if distances[side] <= .75:
+				openings.append(
+					{
+						"side": side,
+						"along": p.x if side % 2 == 0 else p.z,
+						"half": child.width / 2 + .3,
+						"height": child.height + (.45 if child.style == LevelDoor.Style.STONE_ARCH else .22)
+					}
+				)
+				break
+	return openings
+
+
+func _side_normal(side: int) -> Vector2:
+	return [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)][side]
+
+
+func _edge_point(side: int, along: float) -> Vector2:
+	return [
+		Vector2(along, -size.y / 2), Vector2(size.x / 2, along), Vector2(along, size.y / 2), Vector2(-size.x / 2, along)
+	][side]
+
+
+## Wall pieces just outside each ground edge, with gaps where doors stand.
+func _boundary_segments(thickness: float) -> Array[Dictionary]:
+	var openings := _door_openings()
+	var segments: Array[Dictionary] = []
+	for side in 4:
+		var length: float = size.x if side % 2 == 0 else size.y
+		var intervals: Array = [[-length / 2 - thickness, length / 2 + thickness]]
+		for opening in openings:
+			if opening.side != side:
+				continue
+			var gap_from: float = opening.along - opening.half
+			var gap_to: float = opening.along + opening.half
+			var next: Array = []
+			for interval in intervals:
+				if gap_to <= interval[0] or gap_from >= interval[1]:
+					next.append(interval)
+					continue
+				if gap_from > interval[0]:
+					next.append([interval[0], gap_from])
+				if gap_to < interval[1]:
+					next.append([gap_to, interval[1]])
+			intervals = next
+		var outward := _side_normal(side)
+		var offset: float = (size.y if side % 2 == 0 else size.x) / 2 + thickness / 2
+		for interval in intervals:
+			var extent: float = interval[1] - interval[0]
+			if extent < .01:
+				continue
+			var middle: float = (interval[0] + interval[1]) / 2
+			var centre := (
+				Vector2(middle, 0) if side % 2 == 0 else Vector2(0, middle)
+			) + outward * offset
+			segments.append(
+				{
+					"side": side,
+					"centre": centre,
+					"size": Vector2(extent, thickness) if side % 2 == 0 else Vector2(thickness, extent)
+				}
+			)
+	return segments
+
+
+## Visible room walls: tall on the north and west, cut away on the camera sides,
+## with a header above doors in the tall walls.
+func _emit_room_walls(mesh: ArrayMesh) -> void:
+	var settings := style_for(null)
+	var house := room_look == 1
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# The house look uses plain vertex colours (sRGB); the stone look the cliff shader.
+	var wall_color := settings.cliff_color if house else settings.cliff_color.srgb_to_linear()
+	var top_color := settings.cliff_color if house else settings.cliff_rim_color.srgb_to_linear()
+	var wood := settings.cliff_rim_color
+	var timber := wood.darkened(.6)
+	var emitted := false
+	for segment in _boundary_segments(ROOM_WALL_THICKNESS):
+		var low: bool = not segment.side in [0, 3]
+		var tall: float = cutaway_height if low else wall_height
+		if tall <= .01:
+			continue
+		var colour: Color = wood if house and low else wall_color
+		var centre: Vector2 = segment.centre
+		var extent: Vector2 = segment.size
+		if segment.side % 2 == 1:
+			# The north and south walls own the corners; overlapping boxes would flicker.
+			var from := maxf(centre.y - extent.y / 2, -size.y / 2)
+			var to := minf(centre.y + extent.y / 2, size.y / 2)
+			if to - from < .01:
+				continue
+			centre.y = (from + to) / 2
+			extent.y = to - from
+		_emit_box(surface, Vector3(centre.x, tall / 2, centre.y), Vector3(extent.x, tall, extent.y), colour, wood if house and low else top_color)
+		emitted = true
+	for opening in _door_openings():
+		if not opening.side in [0, 3] or opening.height >= wall_height:
+			continue
+		var header: float = wall_height - opening.height
+		var outward := _side_normal(opening.side)
+		var centre := _edge_point(opening.side, opening.along) + outward * ROOM_WALL_THICKNESS / 2
+		var span: Vector2 = Vector2(outward.y, outward.x).abs() * opening.half * 2 + outward.abs() * ROOM_WALL_THICKNESS
+		_emit_box(surface, Vector3(centre.x, opening.height + header / 2, centre.y), Vector3(span.x, header, span.y), wall_color, top_color)
+		emitted = true
+	if house:
+		_emit_house_timber(surface, timber)
+		emitted = true
+	if not emitted:
+		return
+	if house:
+		var plain := StandardMaterial3D.new()
+		plain.vertex_color_use_as_albedo = true
+		plain.vertex_color_is_srgb = true
+		plain.roughness = .92
+		surface.set_material(plain)
+		surface.commit(mesh)
+		return
+	var material := ShaderMaterial.new()
+	material.shader = preload("res://shaders/level_cliff.gdshader")
+	material.set_shader_parameter("cliff_texture", settings.cliff_texture)
+	material.set_shader_parameter("has_cliff_texture", settings.cliff_texture != null)
+	material.set_shader_parameter("cliff_texture_scale", settings.cliff_texture_scale)
+	material.set_shader_parameter("block_height", HEIGHT_STEP)
+	material.set_shader_parameter("cliff_pattern", settings.cliff_pattern)
+	surface.set_material(material)
+	surface.commit(mesh)
+
+
+## House look: a dark foundation under floor and walls, and timber posts with a
+## beam along the inside of the tall north and west walls, skipping doorways.
+func _emit_house_timber(surface: SurfaceTool, timber: Color) -> void:
+	var half := size / 2
+	var margin := ROOM_WALL_THICKNESS + .2
+	_emit_box(surface, Vector3(0, -.36, 0), Vector3(size.x + margin * 2, .5, size.y + margin * 2), timber, timber)
+	var openings := _door_openings()
+	for side in [0, 3]:
+		var length: float = size.x if side == 0 else size.y
+		var inward := -_side_normal(side)
+		var count := maxi(2, roundi(length / 2.2))
+		for i in count + 1:
+			var along := -length / 2 + .08 + (length - .16) * i / count
+			# The north-west corner post belongs to the north wall.
+			var blocked := side == 3 and i == 0
+			for opening in openings:
+				if opening.side == side and absf(opening.along - along) < opening.half + .1:
+					blocked = true
+			if blocked:
+				continue
+			var at := _edge_point(side, along) + inward * .06
+			_emit_box(surface, Vector3(at.x, wall_height / 2, at.y), Vector3(.13, wall_height, .13), timber, timber)
+		# The west beam starts past the north beam so the two never overlap.
+		var skip := 0.0 if side == 0 else .2
+		var beam := _edge_point(side, skip / 2) + inward * .06
+		var beam_size := Vector2(length, .15) if side == 0 else Vector2(.15, length - skip)
+		_emit_box(surface, Vector3(beam.x, wall_height - .25, beam.y), Vector3(beam_size.x, .15, beam_size.y), timber, timber)
+
+
+func _emit_box(surface: SurfaceTool, centre: Vector3, box: Vector3, color: Color, top_color: Color) -> void:
+	var h := box / 2
+	var faces := [
+		[Vector3.UP, [Vector3(-h.x, h.y, -h.z), Vector3(h.x, h.y, -h.z), Vector3(h.x, h.y, h.z), Vector3(-h.x, h.y, h.z)]],
+		[Vector3.FORWARD, [Vector3(-h.x, -h.y, -h.z), Vector3(h.x, -h.y, -h.z), Vector3(h.x, h.y, -h.z), Vector3(-h.x, h.y, -h.z)]],
+		[Vector3.BACK, [Vector3(-h.x, -h.y, h.z), Vector3(h.x, -h.y, h.z), Vector3(h.x, h.y, h.z), Vector3(-h.x, h.y, h.z)]],
+		[Vector3.LEFT, [Vector3(-h.x, -h.y, -h.z), Vector3(-h.x, -h.y, h.z), Vector3(-h.x, h.y, h.z), Vector3(-h.x, h.y, -h.z)]],
+		[Vector3.RIGHT, [Vector3(h.x, -h.y, -h.z), Vector3(h.x, -h.y, h.z), Vector3(h.x, h.y, h.z), Vector3(h.x, h.y, -h.z)]]
+	]
+	for face in faces:
+		var corners: Array = []
+		for corner in face[1]:
+			corners.append(centre + corner)
+		var top: bool = face[0] == Vector3.UP
+		_quad(surface, corners, face[0], top_color if top else color, 1.0 if top else 0.0)
 
 
 func _near_eased_ramp(a: Vector2, b: Vector2, regions: Array[Dictionary]) -> bool:

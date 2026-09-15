@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="DungeonDefinition" format=3 uid="uid://mjgbkqw36j1b"]
+
+[ext_resource type="Script" uid="uid://ce1ltch5nyyhc" path="res://scripts/dungeons/dungeon_definition.gd" id="1_htylj"]
+
+[resource]
+script = ExtResource("1_htylj")
+id = &"test_123123"
+display_name = "Test123123"
+scene_path = "res://scenes/levels/Test123123.tscn"

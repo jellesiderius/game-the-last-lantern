@@ -3,10 +3,16 @@ class_name LevelFactory
 extends RefCounted
 
 
-static func create(kit: AreaSet, area: WorldArea, dimensions := Vector2(24, 24)) -> Node3D:
+const LEVEL_SCRIPT := "res://scripts/world/authoring/authored_level.gd"
+const DUNGEON_SCRIPT := "res://scripts/world/authoring/authored_dungeon.gd"
+
+
+static func create(
+	kit: AreaSet, area: WorldArea, dimensions := Vector2(24, 24), root_script := LEVEL_SCRIPT
+) -> Node3D:
 	var root := Node3D.new()
 	root.name = area.display_name.to_pascal_case()
-	root.set_script(load("res://scripts/world/authoring/authored_level.gd"))
+	root.set_script(load(root_script))
 	root.set("area", area)
 	root.set("area_set", kit)
 	root.set("spawn_position", Vector3(0, 0, minf(6, dimensions.y / 2 - 1)))
@@ -83,6 +89,118 @@ static func create(kit: AreaSet, area: WorldArea, dimensions := Vector2(24, 24))
 	root.add_child(sound)
 	own(root, root)
 	return root
+
+
+## An enclosed room: an interior (kind "interior") or a dungeon room (kind "dungeon").
+## Dungeons need their DungeonDefinition; they get its entrance marker and an exit.
+static func create_room(
+	kind: String, kit: AreaSet, area: WorldArea, dimensions: Vector2, dungeon: DungeonDefinition = null
+) -> Node3D:
+	var root := create(kit, area, dimensions, DUNGEON_SCRIPT if kind == "dungeon" else LEVEL_SCRIPT)
+	var terrain := root.get_node("Terrain") as LevelTerrain
+	terrain.room_walls = true
+	root.get_node("CameraRig/Camera3D").size = 11
+	# Rooms float in the dark, like a diorama; the area set gives the colour.
+	for node in root.find_children("*", "WorldEnvironment", true, false):
+		var dark := (node as WorldEnvironment).environment.duplicate() as Environment
+		dark.fog_enabled = false
+		if kind == "interior":
+			dark.tonemap_exposure = 1.3
+		(node as WorldEnvironment).environment = dark
+	if kind == "interior":
+		terrain.room_look = 1
+		terrain.wall_height = 2.6
+		terrain.cutaway_height = .5
+	var lamp := OmniLight3D.new()
+	lamp.name = "RoomLight"
+	lamp.position = Vector3(dimensions.x * .15, 2.6, -dimensions.y * .15)
+	lamp.light_color = Color(1, .72, .4) if kind == "interior" else Color("ffa64d")
+	lamp.light_energy = 1.0 if kind == "interior" else .9
+	lamp.omni_range = maxf(7.0, maxf(dimensions.x, dimensions.y) * .75)
+	lamp.shadow_enabled = true
+	root.add_child(lamp)
+	if kind == "dungeon" and dungeon:
+		root.set("dungeon", dungeon)
+		var entrance := root.get_node("Spawns/Entrance") as Node3D
+		entrance.name = String(dungeon.entrance)
+		entrance.set("spawn_id", dungeon.entrance)
+		# Like the Wortelkelder: arrival a few metres in, the exit just behind it,
+		# both kept on the floor of the room.
+		var arrival := Vector3(0, 0, dimensions.y / 2 - 3.2)
+		entrance.position = arrival
+		root.set("spawn_position", arrival)
+		root.get_node("Player").position = arrival
+		root.get_node("Spawns/StartCheckpoint").position = arrival
+		var exit: Node3D = load("res://scenes/world/dungeons/DungeonExit.tscn").instantiate()
+		exit.name = "Uitgang"
+		exit.set("dungeon", dungeon)
+		exit.position = Vector3(0, 0, dimensions.y / 2 - 1.4)
+		exit.rotation_degrees.y = 180
+		root.get_node("Gameplay").add_child(exit)
+	own(root, root)
+	terrain.bake()
+	return root
+
+
+## A doorway on one ground edge (0 north, 1 east, 2 south, 3 west) of the terrain,
+## leading to target_scene; its arrival marker answers to door_id.
+static func add_door(
+	terrain: LevelTerrain,
+	root: Node,
+	side: int,
+	along: float,
+	door_id: StringName,
+	target_scene := "",
+	target_spawn: StringName = &"",
+	style := LevelDoor.Style.WOODEN_DOOR
+) -> LevelDoor:
+	var door := LevelDoor.new()
+	door.name = String(door_id)
+	door.collision_layer = 0
+	door.collision_mask = 2
+	door.settings = load("res://settings/transitions/door.tres")
+	var shape := CollisionShape3D.new()
+	shape.name = "Shape"
+	var box := BoxShape3D.new()
+	box.resource_local_to_scene = true
+	shape.shape = box
+	door.add_child(shape)
+	var arrival := Marker3D.new()
+	arrival.name = "Arrival"
+	arrival.set_script(load("res://scripts/world/scene_spawn_point.gd"))
+	# Stands inside the room and faces into it; -Z of the door points out.
+	arrival.position = Vector3(0, 0, LevelDoor.ARRIVAL_DEPTH)
+	arrival.rotation_degrees.y = 180
+	door.add_child(arrival)
+	door.style = style
+	door.width = 2.0
+	door.door_id = door_id
+	door.target_scene = target_scene
+	door.target_spawn = target_spawn
+	var half := terrain.size / 2
+	door.position = [
+		Vector3(along, 0, -half.y), Vector3(half.x, 0, along), Vector3(along, 0, half.y), Vector3(-half.x, 0, along)
+	][side]
+	door.rotation_degrees.y = [0.0, -90.0, 180.0, 90.0][side]
+	terrain.add_child(door, true)
+	door.owner = root
+	shape.owner = root
+	arrival.owner = root
+	arrival.set("spawn_id", door_id)
+	return door
+
+
+## Starts a room (in the editor, on F6 and after a checkpoint) at a door's arrival.
+static func start_at_door(root: Node3D, door_id: StringName) -> void:
+	var door := root.get_node_or_null("Terrain/" + String(door_id)) as LevelDoor
+	if door == null or not door.has_node("Arrival"):
+		return
+	var at: Vector3 = door.transform * (door.get_node("Arrival") as Node3D).position
+	root.set("spawn_position", at)
+	for path in ["Player", "Spawns/Entrance", "Spawns/StartCheckpoint"]:
+		var node := root.get_node_or_null(path) as Node3D
+		if node:
+			node.position = at
 
 
 static func make_environment(kit: AreaSet) -> Environment:

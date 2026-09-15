@@ -566,6 +566,66 @@ func run(editor_plugin: EditorPlugin) -> void:
 		}
 	)
 	await load("res://tests/level_builder_scatter_checks.gd").new().run(self, terrain)
+	# Doors and rooms: a doorway on the ground edge, a new room behind it, the link list.
+	plugin._set_tool(LevelBuilderToolDoor())
+	var door_plan: Dictionary = plugin._door_plan(terrain, Vector2(3, -terrain.size.y / 2 + .4))
+	check("hovering near a ground edge plans a doorway on it", door_plan.get("side") == 0, door_plan)
+	var edge_door: LevelDoor = plugin._create_door(terrain, door_plan)
+	check(
+		"a door stands on the edge with its own arrival inside",
+		(
+			edge_door != null
+			and is_equal_approx(edge_door.position.z, -terrain.size.y / 2)
+			and edge_door.has_node("Arrival")
+			and edge_door.get_node("Arrival").spawn_id == edge_door.door_id
+			and edge_door.get_node("Arrival").global_position.z > edge_door.global_position.z
+			and terrain.bake()
+		),
+		terrain.last_error
+	)
+	EditorInterface.save_scene()
+	await wait_frames(10)
+	var room_title := "Builder Kamer %d" % OS.get_process_id()
+	var room_path: String = plugin._create_room_behind(edge_door, room_title, "interior", Vector2(8, 8))
+	check(
+		"a new room behind the door is created and linked",
+		room_path != "" and edge_door.target_scene == room_path and FileAccess.file_exists(room_path),
+		room_path
+	)
+	if room_path != "":
+		var room: Node = load(room_path).instantiate()
+		var back: LevelDoor
+		for child in room.get_node("Terrain").get_children():
+			if child is LevelDoor:
+				back = child
+		check(
+			"the room's own door leads back to this door",
+			(
+				back != null
+				and back.target_scene == path
+				and back.target_spawn == edge_door.door_id
+				and edge_door.target_spawn == back.door_id
+				and absf(back.position.z - 4.0) < .01
+				and room.get_node("Terrain").room_walls
+			),
+			[back.target_scene if back else null, back.position if back else null]
+		)
+		room.free()
+	plugin._refresh_links(true)
+	var listed := false
+	for row in plugin.links_box.get_children():
+		for button in row.get_children():
+			if button is Button and edge_door.name in button.text:
+				listed = true
+	check("connected rooms list shows the door", listed)
+	plugin._set_tool(0)
+	if room_path != "":
+		DirAccess.remove_absolute(room_path)
+		var baked_dir := room_path.get_basename() + ".terrain"
+		for file in DirAccess.get_files_at(baked_dir):
+			DirAccess.remove_absolute(baked_dir.path_join(file))
+		DirAccess.remove_absolute(baked_dir)
+		DirAccess.remove_absolute("res://settings/areas/" + plugin._slug(room_title) + ".tres")
 	var ramp := stairs
 	# Replacing terrain must not free a node currently selected by editor gizmos.
 	EditorInterface.get_selection().clear()
@@ -789,3 +849,8 @@ func _visible_ground_corners(camera: Camera3D, terrain: LevelTerrain) -> Array:
 			):
 				return [a, b]
 	return []
+
+
+## Tool index of the Door tool (last in the plugin's Tool enum).
+func LevelBuilderToolDoor() -> int:
+	return plugin.Tool.DOOR

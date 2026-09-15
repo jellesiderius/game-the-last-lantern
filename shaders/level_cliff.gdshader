@@ -8,6 +8,8 @@ uniform float cliff_texture_scale = 2.0;
 // Procedural chunky stone blocks, used until a real cliff texture is assigned.
 uniform float block_height = 0.5;
 uniform float block_length = 1.0;
+// 0 = stone blocks, 1 = smooth plaster (interiors).
+uniform int cliff_pattern = 0;
 varying vec3 world_pos;
 varying vec3 world_normal;
 
@@ -27,7 +29,9 @@ void fragment() {
 	float along = mix(world_pos.x, world_pos.z, wx);
 	vec3 color = COLOR.rgb;
 	if (UV2.x < 0.5) {
-		if (has_cliff_texture) {
+		if (cliff_pattern == 1 && !has_cliff_texture) {
+			color *= 0.96 + 0.05 * hash(floor(vec2(along, world_pos.y) * 3.0));
+		} else if (has_cliff_texture) {
 			color *= texture(cliff_texture, vec2(along, -world_pos.y) / cliff_texture_scale).rgb;
 		} else {
 			float row = floor(world_pos.y / block_height + 0.001);

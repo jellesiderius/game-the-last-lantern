@@ -20,6 +20,7 @@ func refresh() -> void:
 				or node is LevelTerrace
 				or node is LevelRamp
 				or node is LevelBridge
+				or node is LevelDoor
 			):
 				target = node
 				break
@@ -31,6 +32,9 @@ func refresh() -> void:
 	title.text = String(target.name)
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(title)
+	if target is LevelDoor:
+		_door_controls()
+		return
 	if target is LevelBridge:
 		var row := HBoxContainer.new()
 		var caption := Label.new()
@@ -94,6 +98,56 @@ func refresh() -> void:
 			EditorInterface.edit_resource(style)
 	)
 	add_child(custom)
+
+
+## Where the selected door leads, its arrival point there, and quick ways to link it.
+func _door_controls() -> void:
+	var door := target as LevelDoor
+	var summary := Label.new()
+	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summary.text = (
+		"Gaat naar: " + door.target_scene.get_file().get_basename()
+		if not door.target_scene.is_empty()
+		else "Nog niet verbonden."
+	)
+	add_child(summary)
+	if not door.target_scene.is_empty():
+		var spawns: Array[StringName] = plugin._scene_spawn_ids(door.target_scene)
+		if not spawns.is_empty():
+			var picker := OptionButton.new()
+			picker.fit_to_longest_item = false
+			picker.clip_text = true
+			for id in spawns:
+				picker.add_item("Aankomst: " + String(id))
+				if id == door.target_spawn:
+					picker.select(picker.item_count - 1)
+			picker.item_selected.connect(
+				func(index): plugin._set_door_link(door, door.target_scene, spawns[index])
+			)
+			add_child(picker)
+		_action("Open doelscene", func(): EditorInterface.open_scene_from_path(door.target_scene))
+	_action(
+		"Kies bestaande scene…",
+		func():
+			plugin.link_door = door
+			plugin.link_dialog.popup_centered_ratio(.6)
+	)
+	_action(
+		"Nieuwe kamer erachter…",
+		func():
+			plugin.room_door = door
+			plugin.room_name.text = ""
+			plugin.room_dialog.popup_centered()
+			plugin.room_name.grab_focus()
+	)
+
+
+func _action(title: String, callback: Callable) -> void:
+	var button := Button.new()
+	button.text = title
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.pressed.connect(callback)
+	add_child(button)
 
 
 func set_arch_height(value: float) -> void:

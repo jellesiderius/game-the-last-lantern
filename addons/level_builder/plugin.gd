@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin
 ## Thin editor UI over saved scenes and Resources. No runtime generator/autoload.
-enum Tool { SELECT, PLACE, PLATEAU, STAIRS, PATH, PATROL, BRIDGE, WATER, SCATTER, BOUNDARY }
+enum Tool { SELECT, PLACE, PLATEAU, STAIRS, PATH, PATROL, BRIDGE, WATER, SCATTER, BOUNDARY, DOOR }
 const TOOL_NAMES := [
 	"Selecteer",
 	"Plaats",
@@ -12,7 +12,8 @@ const TOOL_NAMES := [
 	"Brug",
 	"Water",
 	"Strooi",
-	"Afkadering"
+	"Afkadering",
+	"Deur"
 ]
 const TOOL_HINTS := [
 	"Klik op een plateau, trap, brug, water of pad om het te selecteren; sleep om het op het raster te verplaatsen. Trappen en bruggen aan een plateau gaan mee. Alt+klik = gewone Godot-selectie.",
@@ -24,7 +25,8 @@ const TOOL_HINTS := [
 	"Klik een plateaurand (of de grond) als begin en daarna het tweede punt. Omhoog of omlaag mag; de brug volgt de plateaus. Rood = te steil of door een plateau. Esc annuleert.",
 	"Vierkant: sleep een rechthoek. Pad: klik punten voor een rivier, Esc rondt af. De grond zakt vanzelf in met zachte oevers; schuim en kringen komen vanzelf.",
 	"Kies een prop en klik of sleep om te strooien. Straal bepaalt het gebied; Aantal en Afstand bepalen de dichtheid. Shift+slepen wist alleen dit type. Eén streek = één Undo.",
-	"Kies een prop. Sleep een rechte lijn, of klik hoekpunten en druk Enter om af te ronden. Esc annuleert. Doorgang blokkeren sluit ook de openingen tussen de props."
+	"Kies een prop. Sleep een rechte lijn, of klik hoekpunten en druk Enter om af te ronden. Esc annuleert. Doorgang blokkeren sluit ook de openingen tussen de props.",
+	"Beweeg naar een muur of de rand van de grond en klik: er komt een deur met aankomstpunt. Selecteer de deur om hem te verbinden met een bestaande scene of een nieuwe kamer erachter."
 ]
 const PREPARATION = preload("res://addons/level_builder/asset_preparation.gd")
 const FACTORY = preload("res://addons/level_builder/level_factory.gd")
@@ -94,6 +96,20 @@ var active_asset: LevelAsset
 var inspector: EditorInspectorPlugin
 var placement_gizmos: EditorNode3DGizmoPlugin
 var new_kind := "level"
+var new_type := OptionButton.new()
+var new_connect := CheckBox.new()
+var door_style := OptionButton.new()
+var door_width := SpinBox.new()
+var links_box := VBoxContainer.new()
+var links_signature := ""
+var room_dialog := ConfirmationDialog.new()
+var room_name := LineEdit.new()
+var room_kind := OptionButton.new()
+var room_width := SpinBox.new()
+var room_depth := SpinBox.new()
+var room_door: LevelDoor
+var link_dialog := EditorFileDialog.new()
+var link_door: LevelDoor
 var import_source := ""
 var id_claims := {}
 var maintenance_time := 0.0
@@ -189,7 +205,8 @@ func _enter_tree() -> void:
 		Tool.BRIDGE,
 		Tool.WATER,
 		Tool.PATH,
-		Tool.PATROL
+		Tool.PATROL,
+		Tool.DOOR
 	]:
 		var button := Button.new()
 		button.text = TOOL_NAMES[i]
@@ -260,6 +277,17 @@ func _enter_tree() -> void:
 	_option("Vorm", water_shape, [Tool.WATER], body)
 	_option("Breedte", water_width, [Tool.WATER], body)
 	_option("Diepte", water_depth, [Tool.WATER], body)
+	for title in ["Opening", "Houten deur", "Stenen boog"]:
+		door_style.add_item(title)
+	door_style.select(LevelDoor.Style.WOODEN_DOOR)
+	door_width.min_value = 1
+	door_width.max_value = 6
+	door_width.step = .5
+	door_width.value = 2
+	door_width.suffix = "m breed"
+	door_width.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_option("Deurstijl", door_style, [Tool.DOOR], body)
+	_option("Deurbreedte", door_width, [Tool.DOOR], body)
 	_option("Straal", radius, [Tool.SCATTER], body)
 	_option("Aantal", amount, [Tool.SCATTER], body)
 	_option("Afstand", scatter_spacing, [Tool.SCATTER], body)
@@ -279,7 +307,7 @@ func _enter_tree() -> void:
 	selection_editor.refresh()
 	body.add_child(HSeparator.new())
 	_label("Level", body)
-	_button("Nieuw level", body, func(): _new_dialog("level"))
+	_button("Nieuwe ruimte", body, func(): _new_dialog("level"))
 	_button("Nieuwe areaset", body, func(): _new_dialog("set"))
 	_button(
 		"Bewerk areaset",
@@ -292,6 +320,8 @@ func _enter_tree() -> void:
 	_button("Nieuwe encounter", body, _new_encounter)
 	_button("Controleer level", body, _validate_level)
 	_button("Speel level", body, _play_level)
+	_label("Verbonden ruimtes", body)
+	body.add_child(links_box)
 	status.custom_minimum_size.y = 80 * EditorInterface.get_editor_scale()
 	status.fit_content = true
 	status.bbcode_enabled = false
@@ -340,6 +370,8 @@ func _exit_tree() -> void:
 	new_dialog.queue_free()
 	source_dialog.queue_free()
 	import_dialog.queue_free()
+	room_dialog.queue_free()
+	link_dialog.queue_free()
 
 
 func _process(delta: float) -> void:
@@ -347,6 +379,7 @@ func _process(delta: float) -> void:
 	if maintenance_time > 0:
 		return
 	maintenance_time = .5
+	_refresh_links()
 	var ground := _terrain()
 	if ground and not checked_terrains.has(ground.get_instance_id()):
 		checked_terrains[ground.get_instance_id()] = true
@@ -433,6 +466,7 @@ func _asset_selected(index: int) -> void:
 
 func _scene_changed(root: Node) -> void:
 	_set_tool(Tool.SELECT)
+	_refresh_links.call_deferred(true)
 	if root and CHECKS.has_property(root, &"area_set"):
 		var kit: AreaSet = root.get("area_set")
 		if kit in kit_list:
@@ -469,6 +503,24 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 		return _select_input(camera, event)
 	if tool == Tool.BOUNDARY:
 		return _boundary_input(camera, event)
+	if tool == Tool.DOOR:
+		var door_ground := _terrain()
+		if door_ground == null or not event is InputEventMouse:
+			return EditorPlugin.AFTER_GUI_INPUT_PASS
+		var door_hit: Variant = _hit(camera, event.position, false)
+		if event is InputEventMouseMotion:
+			_update_door_preview(door_ground, door_hit)
+			return EditorPlugin.AFTER_GUI_INPUT_PASS
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed and door_hit != null:
+				var door_local := door_ground.to_local(door_hit)
+				var plan := _door_plan(door_ground, Vector2(door_local.x, door_local.z))
+				if plan.is_empty():
+					_note("Beweeg naar een muur of de rand van de grond.")
+				else:
+					_create_door(door_ground, plan)
+			return EditorPlugin.AFTER_GUI_INPUT_STOP
+		return EditorPlugin.AFTER_GUI_INPUT_PASS
 	if tool == Tool.BRIDGE:
 		# Like stairs: hover shows the anchor (and the bridge once a start is set).
 		var bridge_ground := _terrain()
@@ -1565,10 +1617,16 @@ func _asset_in_front(camera: Camera3D, mouse: Vector2, distance: float) -> bool:
 	var origin := camera.project_ray_origin(mouse)
 	var direction := camera.project_ray_normal(mouse)
 	var ground := _terrain()
+	var candidates: Array = []
 	for id in RenderingServer.instances_cull_ray(
 		origin, origin + direction * distance, camera.get_world_3d().scenario
 	):
-		var mesh := instance_from_id(id) as MeshInstance3D
+		candidates.append(instance_from_id(id))
+	if candidates.is_empty():
+		# The headless dummy renderer keeps no culling structure; walk the scene instead.
+		candidates = root.find_children("*", "MeshInstance3D", true, false)
+	for candidate in candidates:
+		var mesh := candidate as MeshInstance3D
 		if mesh == null or mesh == preview or not root.is_ancestor_of(mesh):
 			continue
 		if ground and ground.is_ancestor_of(mesh):
@@ -1850,6 +1908,312 @@ func _append_outline(
 					var water := ground.get_node(NodePath(String(region.name))) as LevelWater
 					height = water.elevation() - water.surface_drop
 				lines.append(Vector3(point.x, height, point.y))
+
+
+## Nearest ground edge to a terrain point: {side (0 N, 1 E, 2 S, 3 W), along}, or {}.
+func _door_plan(ground: LevelTerrain, point: Vector2) -> Dictionary:
+	var half := ground.size / 2
+	var distances := [
+		absf(point.y + half.y), absf(point.x - half.x), absf(point.y - half.y), absf(point.x + half.x)
+	]
+	var side := 0
+	for i in 4:
+		if distances[i] < distances[side]:
+			side = i
+	if distances[side] > 2.5:
+		return {}
+	var length: float = ground.size.x if side % 2 == 0 else ground.size.y
+	var grid := snap.value if snap.value > 0 else .5
+	var margin := door_width.value / 2 + .4
+	var along := clampf(
+		snappedf(point.x if side % 2 == 0 else point.y, grid), -length / 2 + margin, length / 2 - margin
+	)
+	return {"side": side, "along": along}
+
+
+func _unique_door_id(ground: Node, base: String) -> StringName:
+	var candidate := base
+	var index := 2
+	while ground.has_node(NodePath(candidate)):
+		candidate = base + str(index)
+		index += 1
+	return StringName(candidate)
+
+
+func _create_door(ground: LevelTerrain, plan: Dictionary) -> LevelDoor:
+	var root := EditorInterface.get_edited_scene_root()
+	if root == null:
+		return null
+	var door := FACTORY.add_door(
+		ground, root, plan.side, plan.along, _unique_door_id(ground, "Deur"), "", &"", door_style.selected
+	)
+	door.width = door_width.value
+	var undo := get_undo_redo()
+	undo.create_action("Deur")
+	undo.add_do_method(ground, "add_child", door, true)
+	undo.add_do_property(door, "owner", root)
+	undo.add_undo_method(ground, "remove_child", door)
+	undo.add_do_reference(door)
+	undo.commit_action(false)
+	_clear_preview()
+	_select(door)
+	_refresh_links(true)
+	_note("Deur geplaatst. Kies rechts waar hij heen gaat: een bestaande scene of een nieuwe kamer.")
+	return door
+
+
+func _update_door_preview(ground: LevelTerrain, hit: Variant) -> void:
+	if hit == null:
+		_clear_preview()
+		return
+	var local := ground.to_local(hit)
+	var plan := _door_plan(ground, Vector2(local.x, local.z))
+	if plan.is_empty():
+		_clear_preview()
+		return
+	var half := ground.size / 2
+	var edge: Vector2 = [
+		Vector2(plan.along, -half.y),
+		Vector2(half.x, plan.along),
+		Vector2(plan.along, half.y),
+		Vector2(-half.x, plan.along)
+	][plan.side]
+	var across := Vector3(1, 0, 0) if plan.side % 2 == 0 else Vector3(0, 0, 1)
+	var base := Vector3(edge.x, 0, edge.y)
+	var w := door_width.value / 2
+	var up := Vector3.UP * 2.3
+	var lines := PackedVector3Array(
+		[
+			base - across * w,
+			base - across * w + up,
+			base + across * w,
+			base + across * w + up,
+			base - across * w + up,
+			base + across * w + up
+		]
+	)
+	_draw_preview(lines, Color(1, .85, .3), ground)
+
+
+func _scene_spawn_ids(path: String) -> Array[StringName]:
+	var ids: Array[StringName] = []
+	if not ResourceLoader.exists(path):
+		return ids
+	var packed := load(path) as PackedScene
+	if packed == null:
+		return ids
+	var instance := packed.instantiate(PackedScene.GEN_EDIT_STATE_DISABLED)
+	for node in instance.find_children("*", "Marker3D", true, false):
+		# Spawn points are not tool scripts: in the editor read the property, not spawn_key().
+		var id: Variant = node.get("spawn_id") if node is SceneSpawnPoint else null
+		if id is StringName and not id in ids:
+			ids.append(id)
+	instance.free()
+	return ids
+
+
+func _set_door_link(door: LevelDoor, path: String, spawn: StringName) -> void:
+	if not is_instance_valid(door):
+		return
+	var undo := get_undo_redo()
+	undo.create_action("Verbind deur")
+	undo.add_do_property(door, "target_scene", path)
+	undo.add_do_property(door, "target_spawn", spawn)
+	undo.add_do_property(door, "outside_light", _scene_is_outside(path))
+	undo.add_undo_property(door, "target_scene", door.target_scene)
+	undo.add_undo_property(door, "target_spawn", door.target_spawn)
+	undo.add_undo_property(door, "outside_light", door.outside_light)
+	undo.commit_action()
+	selection_editor.refresh.call_deferred()
+	_refresh_links(true)
+
+
+## A scene without room walls is the outside world: doors there let daylight in.
+func _scene_is_outside(path: String) -> bool:
+	if not FileAccess.file_exists(path):
+		return false
+	var text := FileAccess.get_file_as_string(path)
+	return not "room_walls = true" in text
+
+
+func _link_door_to_scene(door: LevelDoor, path: String) -> void:
+	var ids := _scene_spawn_ids(path)
+	_set_door_link(door, path, ids[0] if not ids.is_empty() else &"Entrance")
+	_note("Deur verbonden met %s. Kies het aankomstpunt in de lijst rechts." % path.get_file())
+
+
+func _door_side(ground: LevelTerrain, door: LevelDoor) -> int:
+	var half := ground.size / 2
+	var p := door.position
+	var distances := [absf(p.z + half.y), absf(p.x - half.x), absf(p.z - half.y), absf(p.x + half.x)]
+	var side := 0
+	for i in 4:
+		if distances[i] < distances[side]:
+			side = i
+	return side
+
+
+## Creates a walled room scene behind a door, with a door back, and links both ways.
+func _create_room_behind(door: LevelDoor, title: String, kind: String, size: Vector2) -> String:
+	var source := EditorInterface.get_edited_scene_root()
+	if not is_instance_valid(door) or source == null or source.scene_file_path.is_empty():
+		_note("Sla het level eerst op en selecteer een deur.")
+		return ""
+	var slug := _slug(title)
+	if slug.is_empty():
+		_note("Vul een naam in voor de kamer.")
+		return ""
+	var path := "res://scenes/levels/" + slug.to_pascal_case() + ".tscn"
+	var area_path := "res://settings/areas/" + slug + ".tres"
+	if FileAccess.file_exists(path) or FileAccess.file_exists(area_path):
+		_note("Er bestaat al een scene of gebied met die naam.")
+		return ""
+	var area := WorldArea.new()
+	area.code = StringName("area." + Crypto.new().generate_random_bytes(16).hex_encode())
+	area.display_name = title.strip_edges()
+	area.scene_path = path
+	var error := ResourceSaver.save(area, area_path, ResourceSaver.FLAG_CHANGE_PATH)
+	if error != OK:
+		_note("Opslaan mislukt: " + error_string(error))
+		return ""
+	area.take_over_path(area_path)
+	var kit := load("res://settings/area_sets/%s.tres" % ("cave" if kind == "dungeon" else "interior")) as AreaSet
+	var root := FACTORY.create_room("interior", kit, area, size)
+	var ground := door.get_parent() as LevelTerrain
+	var side := _door_side(ground, door) if ground else 0
+	var back_id := StringName("Naar" + source.scene_file_path.get_file().get_basename())
+	FACTORY.add_door(
+		root.get_node("Terrain"),
+		root,
+		(side + 2) % 4,
+		0,
+		back_id,
+		source.scene_file_path,
+		door.door_id,
+		LevelDoor.Style.STONE_ARCH if kind == "dungeon" else LevelDoor.Style.WOODEN_DOOR
+	)
+	FACTORY.start_at_door(root, back_id)
+	error = FACTORY.save(root, path)
+	root.free()
+	if error != OK:
+		_note("Kamer opslaan mislukt: " + error_string(error))
+		return ""
+	_set_door_link(door, path, back_id)
+	EditorInterface.save_scene()
+	EditorInterface.get_resource_filesystem().scan()
+	_note("Kamer %s gemaakt en verbonden. Open hem via Verbonden ruimtes." % title.strip_edges())
+	return path
+
+
+func _new_room_root(kind: String, area: WorldArea, path: String, slug: String, size: Vector2) -> Node3D:
+	match kind:
+		"interior":
+			return FACTORY.create_room("interior", load("res://settings/area_sets/interior.tres"), area, size)
+		"dungeon":
+			var dungeon := DungeonDefinition.new()
+			dungeon.id = StringName(slug)
+			dungeon.display_name = area.display_name
+			dungeon.scene_path = path
+			dungeon.entrance = &"DungeonEntrance"
+			var dungeon_path := "res://settings/dungeons/" + slug + ".tres"
+			if ResourceSaver.save(dungeon, dungeon_path, ResourceSaver.FLAG_CHANGE_PATH) == OK:
+				dungeon.take_over_path(dungeon_path)
+			return FACTORY.create_room("dungeon", load("res://settings/area_sets/cave.tres"), area, size, dungeon)
+	return FACTORY.create(_kit(), area, size)
+
+
+## Places a door (interior) or a Drempelpoort (dungeon) in the open level for a new room.
+func _connect_new_room(kind: String, room: Node3D, path: String) -> void:
+	var source := EditorInterface.get_edited_scene_root()
+	var ground := _terrain()
+	var start: Variant = source.get("spawn_position")
+	var spot: Vector3 = ground.to_local(source.to_global(start if start is Vector3 else Vector3.ZERO))
+	spot += Vector3(0, 0, -3)
+	spot.x = clampf(spot.x, -ground.size.x / 2 + 2, ground.size.x / 2 - 2)
+	spot.z = clampf(spot.z, -ground.size.y / 2 + 2, ground.size.y / 2 - 2)
+	var undo := get_undo_redo()
+	if kind == "dungeon":
+		var gate: Node3D = load("res://scenes/world/dungeons/Drempelpoort.tscn").instantiate()
+		var parent := source.get_node_or_null("Gameplay") as Node3D
+		if parent == null:
+			parent = source
+		gate.name = "Drempelpoort"
+		gate.position = parent.to_local(ground.to_global(spot))
+		gate.set("dungeon", room.get("dungeon"))
+		undo.create_action("Drempelpoort naar dungeon")
+		undo.add_do_method(parent, "add_child", gate, true)
+		undo.add_do_property(gate, "owner", source)
+		undo.add_undo_method(parent, "remove_child", gate)
+		undo.add_do_reference(gate)
+		undo.commit_action()
+		_select(gate)
+		return
+	var door_id := _unique_door_id(ground, "Deur")
+	var door := FACTORY.add_door(ground, source, 0, 0, door_id, path, &"NaarBuiten")
+	if not ground.room_walls:
+		# Outdoors the door stands free where the player starts.
+		door.position = spot
+		door.rotation_degrees.y = 0
+	undo.create_action("Deur naar nieuwe ruimte")
+	undo.add_do_method(ground, "add_child", door, true)
+	undo.add_do_property(door, "owner", source)
+	undo.add_undo_method(ground, "remove_child", door)
+	undo.add_do_reference(door)
+	undo.commit_action(false)
+	FACTORY.add_door(room.get_node("Terrain"), room, 2, 0, &"NaarBuiten", source.scene_file_path, door_id)
+	FACTORY.start_at_door(room, &"NaarBuiten")
+	_select(door)
+
+
+## Lists every door, portal and gate in the open scene with a quick Open button.
+func _refresh_links(force := false) -> void:
+	var root := EditorInterface.get_edited_scene_root()
+	var entries: Array = []
+	if root:
+		for node in root.find_children("*", "Area3D", true, false):
+			if not node is ScenePortal:
+				continue
+			var target := ""
+			var dungeon_exit: bool = node.get("dungeon") != null and not node is ThresholdGate
+			if node is ThresholdGate and node.dungeon:
+				target = node.dungeon.scene_path
+			elif not dungeon_exit:
+				target = node.target_scene
+			entries.append([node, target, dungeon_exit])
+	var signature := str(entries.map(func(entry): return [String(entry[0].name), entry[1]]))
+	if signature == links_signature and not force:
+		return
+	links_signature = signature
+	for child in links_box.get_children():
+		links_box.remove_child(child)
+		child.queue_free()
+	if entries.is_empty():
+		var empty := Label.new()
+		empty.text = "Nog geen deuren of poorten."
+		links_box.add_child(empty)
+		return
+	for entry in entries:
+		var node: Node = entry[0]
+		var target: String = entry[1]
+		var row := HBoxContainer.new()
+		var pick := Button.new()
+		pick.flat = true
+		pick.clip_text = true
+		pick.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var suffix := " (niet verbonden)"
+		if entry[2]:
+			suffix = " → terug naar de poort"
+		elif not target.is_empty():
+			suffix = " → " + target.get_file().get_basename()
+		pick.text = String(node.name) + suffix
+		pick.pressed.connect(func(): _select(node))
+		row.add_child(pick)
+		if not target.is_empty() and ResourceLoader.exists(target):
+			var open := Button.new()
+			open.text = "Open"
+			open.pressed.connect(func(): EditorInterface.open_scene_from_path(target))
+			row.add_child(open)
+		links_box.add_child(row)
 
 
 func _select(node: Node) -> void:
@@ -2354,6 +2718,12 @@ func _setup_dialogs() -> void:
 	var new_box := VBoxContainer.new()
 	new_dialog.add_child(new_box)
 	new_box.add_child(new_name)
+	for title in ["Buiten", "Interieur", "Dungeon"]:
+		new_type.add_item(title)
+	new_box.add_child(new_type)
+	new_connect.text = "Verbind met het geopende level"
+	new_connect.button_pressed = true
+	new_box.add_child(new_connect)
 	new_box.add_child(dimensions_row)
 	for spin in [new_width, new_depth]:
 		spin.min_value = 2
@@ -2367,6 +2737,40 @@ func _setup_dialogs() -> void:
 	new_name.placeholder_text = "Naam"
 	new_name.custom_minimum_size = Vector2(380, 50)
 	new_dialog.confirmed.connect(_create_new)
+	EditorInterface.get_base_control().add_child(room_dialog)
+	room_dialog.title = "Nieuwe kamer achter deze deur"
+	var room_box := VBoxContainer.new()
+	room_dialog.add_child(room_box)
+	room_name.placeholder_text = "Naam van de kamer"
+	room_name.custom_minimum_size = Vector2(380, 40)
+	room_box.add_child(room_name)
+	room_kind.add_item("Interieur")
+	room_kind.add_item("Dungeonkamer")
+	room_box.add_child(room_kind)
+	var room_size := HBoxContainer.new()
+	room_box.add_child(room_size)
+	for spin in [room_width, room_depth]:
+		spin.min_value = 4
+		spin.max_value = 64
+		spin.value = 10
+		spin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		room_size.add_child(spin)
+	room_width.suffix = "m breed"
+	room_depth.suffix = "m diep"
+	room_dialog.confirmed.connect(
+		func():
+			_create_room_behind(
+				room_door,
+				room_name.text,
+				"dungeon" if room_kind.selected == 1 else "interior",
+				Vector2(room_width.value, room_depth.value)
+			)
+	)
+	EditorInterface.get_base_control().add_child(link_dialog)
+	link_dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_FILE
+	link_dialog.access = EditorFileDialog.ACCESS_RESOURCES
+	link_dialog.filters = PackedStringArray(["*.tscn ; Scene"])
+	link_dialog.file_selected.connect(func(path): _link_door_to_scene(link_door, path))
 	EditorInterface.get_base_control().add_child(source_dialog)
 	source_dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_FILE
 	source_dialog.access = EditorFileDialog.ACCESS_RESOURCES
@@ -2397,7 +2801,9 @@ func _setup_dialogs() -> void:
 func _new_dialog(kind: String) -> void:
 	new_kind = kind
 	dimensions_row.visible = kind == "level"
-	new_dialog.title = "Nieuw level" if kind == "level" else "Nieuwe areaset"
+	new_type.visible = kind == "level"
+	new_connect.visible = kind == "level"
+	new_dialog.title = "Nieuwe ruimte" if kind == "level" else "Nieuwe areaset"
 	new_name.text = ""
 	new_dialog.popup_centered()
 	new_name.grab_focus()
@@ -2454,9 +2860,22 @@ func _create_new() -> void:
 		var error := ResourceSaver.save(area, area_path, ResourceSaver.FLAG_CHANGE_PATH)
 		if error == OK:
 			area.take_over_path(area_path)
-			var root := FACTORY.create(_kit(), area, Vector2(new_width.value, new_depth.value))
+			var kind: String = ["outdoor", "interior", "dungeon"][new_type.selected]
+			var source := EditorInterface.get_edited_scene_root()
+			var link_new := (
+				new_connect.button_pressed
+				and kind != "outdoor"
+				and source != null
+				and not source.scene_file_path.is_empty()
+				and _terrain() != null
+			)
+			var root := _new_room_root(kind, area, path, slug, Vector2(new_width.value, new_depth.value))
+			if link_new:
+				_connect_new_room(kind, root, path)
 			error = FACTORY.save(root, path)
 			root.free()
+			if link_new and error == OK:
+				EditorInterface.save_scene()
 		if error != OK:
 			_note("Level opslaan mislukt: " + error_string(error))
 			return

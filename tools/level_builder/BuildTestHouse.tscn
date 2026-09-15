@@ -1,0 +1,4 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://tools/level_builder/build_test_house.gd" id="Build"]
+[node name="BuildTestHouse" type="Node"]
+script = ExtResource("Build")

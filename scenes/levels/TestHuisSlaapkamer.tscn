@@ -1,0 +1,267 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/authoring/authored_level.gd" id="1_ve2ux"]
+[ext_resource type="Resource" path="res://settings/areas/test_house_slaapkamer.tres" id="2_ni2aa"]
+[ext_resource type="Resource" path="res://settings/area_sets/interior.tres" id="3_5bgv4"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_terrain.gd" id="4_57q2g"]
+[ext_resource type="Script" path="res://scripts/world/authoring/level_door.gd" id="5_i7l3f"]
+[ext_resource type="Resource" path="res://settings/transitions/door.tres" id="6_jsqeb"]
+[ext_resource type="Script" path="res://scripts/world/scene_spawn_point.gd" id="7_hmbau"]
+[ext_resource type="ArrayMesh" path="res://scenes/levels/TestHuisSlaapkamer.terrain/Terrain.res" id="8_qj76f"]
+[ext_resource type="Shape3D" path="res://scenes/levels/TestHuisSlaapkamer.terrain/Terrain_collision.res" id="9_fitih"]
+[ext_resource type="Script" path="res://scripts/world/checkpoint_anchor.gd" id="10_fqipb"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player/Player.tscn" id="11_3hgp6"]
+[ext_resource type="Script" path="res://scripts/characters/player_controller.gd" id="12_gj4iq"]
+[ext_resource type="Resource" path="res://settings/player_movement.tres" id="13_nrsil"]
+[ext_resource type="Resource" path="res://settings/default_melee.tres" id="14_xt82u"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="15_s231q"]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="16_nttb0"]
+[ext_resource type="PackedScene" path="res://scenes/effects/ImpactSpark.tscn" id="17_ivdxt"]
+[ext_resource type="AudioStream" path="res://assets/audio/impact.wav" id="18_t7l6w"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_e00ff"]
+resource_local_to_scene = true
+size = Vector3(2.6, 3, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ue0cg"]
+size = Vector3(11, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mstno"]
+size = Vector3(0.5, 8, 9)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_geo5v"]
+size = Vector3(4.2, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_iccg5"]
+size = Vector3(4.2, 8, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fu6uo"]
+size = Vector3(0.5, 8, 9)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cpda1"]
+size = Vector3(2.6, 0.2, 1.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jfx7i"]
+size = Vector3(2.6, 8, 0.5)
+
+[sub_resource type="Environment" id="Environment_xvst1"]
+background_mode = 1
+background_color = Color(0.025, 0.055, 0.05, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.56, 0.69, 0.63, 1)
+ambient_light_energy = 0.55
+reflected_light_source = 2
+tonemap_mode = 3
+tonemap_exposure = 1.3
+ssao_enabled = true
+ssao_radius = 0.4
+ssao_intensity = 0.7
+glow_enabled = true
+glow_intensity = 0.35
+fog_light_color = Color(0.21960784, 0.30980393, 0.28235295, 1)
+fog_density = 0.0
+
+[sub_resource type="ParticleProcessMaterial" id="Process"]
+emission_shape = 1
+emission_sphere_radius = 0.025
+direction = Vector3(0, 1, 0)
+spread = 140.0
+initial_velocity_min = 0.8
+initial_velocity_max = 2.0
+gravity = Vector3(0, -3, 0)
+scale_min = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Material"]
+shading_mode = 0
+albedo_color = Color(1, 0.2, 0.4, 1)
+
+[sub_resource type="SphereMesh" id="SparkMesh"]
+material = SubResource("Material")
+radius = 0.024
+height = 0.048
+radial_segments = 8
+rings = 4
+
+[node name="TesthuisSlaapkamer" type="Node3D" unique_id=290221205]
+script = ExtResource("1_ve2ux")
+area = ExtResource("2_ni2aa")
+area_set = ExtResource("3_5bgv4")
+spawn_position = Vector3(-1.2239188e-07, 0, 2.6)
+camera_min = Vector2(-1, -1)
+camera_max = Vector2(1, 1)
+
+[node name="Terrain" type="Node3D" parent="." unique_id=304615092]
+script = ExtResource("4_57q2g")
+area_set = ExtResource("3_5bgv4")
+size = Vector2(10, 8)
+room_walls = true
+wall_height = 2.6
+cutaway_height = 0.5
+room_look = 1
+baked_signature = "982f93d8d3f6d3b44a981f4c5b46a438036181fcb4e153a94f59a63a5f96fa91"
+
+[node name="SlaapkamerZuid" type="Area3D" parent="Terrain" unique_id=1608957020]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 4)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_i7l3f")
+door_id = &"SlaapkamerZuid"
+target_scene = "res://scenes/levels/TestHuisWoonkamer.tscn"
+target_spawn = &"WoonkamerNoord"
+settings = ExtResource("6_jsqeb")
+trigger_size = Vector3(2.6, 3, 1.2)
+
+[node name="Shape" type="CollisionShape3D" parent="Terrain/SlaapkamerZuid" unique_id=544611568]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_e00ff")
+
+[node name="Arrival" type="Marker3D" parent="Terrain/SlaapkamerZuid" unique_id=2076859624]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 1.4)
+script = ExtResource("7_hmbau")
+spawn_id = &"SlaapkamerZuid"
+
+[node name="Baked" type="Node3D" parent="Terrain" unique_id=1654231921]
+metadata/level_builder_generated = true
+
+[node name="Surface" type="MeshInstance3D" parent="Terrain/Baked" unique_id=444801289]
+mesh = ExtResource("8_qj76f")
+
+[node name="GroundCollision" type="StaticBody3D" parent="Terrain/Baked" unique_id=895647391]
+collision_mask = 0
+
+[node name="SurfaceShape" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1359560624]
+shape = ExtResource("9_fitih")
+
+[node name="Boundary1" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=764124231]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -4.25)
+shape = SubResource("BoxShape3D_ue0cg")
+
+[node name="Boundary2" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1850080675]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.25, 3, 0)
+shape = SubResource("BoxShape3D_mstno")
+
+[node name="Boundary3" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1593587545]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 3, 4.25)
+shape = SubResource("BoxShape3D_geo5v")
+
+[node name="Boundary4" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1945140289]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4, 3, 4.25)
+shape = SubResource("BoxShape3D_iccg5")
+
+[node name="Boundary5" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1079777337]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.25, 3, 0)
+shape = SubResource("BoxShape3D_fu6uo")
+
+[node name="Doorway6" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=276565281]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 4.8)
+shape = SubResource("BoxShape3D_cpda1")
+
+[node name="Doorway7" type="CollisionShape3D" parent="Terrain/Baked/GroundCollision" unique_id=1884677995]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 5.85)
+shape = SubResource("BoxShape3D_jfx7i")
+
+[node name="Props" type="Node3D" parent="." unique_id=2136252538]
+
+[node name="Enemies" type="Node3D" parent="." unique_id=759596433]
+
+[node name="Gameplay" type="Node3D" parent="." unique_id=1408828742]
+
+[node name="Routes" type="Node3D" parent="." unique_id=595531600]
+
+[node name="Spawns" type="Node3D" parent="." unique_id=134222610]
+
+[node name="Entrance" type="Marker3D" parent="Spawns" unique_id=1426844832]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2239188e-07, 0, 2.6)
+script = ExtResource("7_hmbau")
+
+[node name="StartCheckpoint" type="Marker3D" parent="Spawns" unique_id=1811994856]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2239188e-07, 0, 2.6)
+script = ExtResource("10_fqipb")
+checkpoint_id = &"start.area.test_house.slaapkamer"
+area = ExtResource("2_ni2aa")
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=257620903 instance=ExtResource("11_3hgp6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2239188e-07, 0, 2.6)
+collision_layer = 2
+collision_mask = 5
+floor_snap_length = 0.15
+script = ExtResource("12_gj4iq")
+settings = ExtResource("13_nrsil")
+moveset = ExtResource("14_xt82u")
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=814822854]
+transform = Transform3D(0.70710677, -0.5416752, 0.45451948, 0, 0.64278764, 0.76604444, -0.70710677, -0.5416752, 0.45451948, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=859758299]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
+projection = 1
+current = true
+size = 11.0
+far = 160.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=637029106]
+environment = SubResource("Environment_xvst1")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=345247650]
+transform = Transform3D(0.8480481, 0.43408445, -0.3039492, 0, 0.57357645, 0.81915206, 0.52991927, -0.69468033, 0.48642042, 0, 0, 0)
+light_color = Color(1, 0.88, 0.68, 1)
+light_energy = 0.6
+shadow_enabled = true
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1361891201 instance=ExtResource("15_s231q")]
+script = ExtResource("16_nttb0")
+
+[node name="DebugVolumes" type="MeshInstance3D" parent="." unique_id=2055458167]
+
+[node name="ImpactPool" type="Node3D" parent="." unique_id=563952158]
+
+[node name="Spark0" type="GPUParticles3D" parent="ImpactPool" unique_id=435127776 instance=ExtResource("17_ivdxt")]
+cast_shadow = 0
+emitting = false
+amount = 9
+lifetime = 0.24
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark1" type="GPUParticles3D" parent="ImpactPool" unique_id=1708549744 instance=ExtResource("17_ivdxt")]
+cast_shadow = 0
+emitting = false
+amount = 9
+lifetime = 0.24
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark2" type="GPUParticles3D" parent="ImpactPool" unique_id=840761185 instance=ExtResource("17_ivdxt")]
+cast_shadow = 0
+emitting = false
+amount = 9
+lifetime = 0.24
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="Spark3" type="GPUParticles3D" parent="ImpactPool" unique_id=1930346434 instance=ExtResource("17_ivdxt")]
+cast_shadow = 0
+emitting = false
+amount = 9
+lifetime = 0.24
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("Process")
+draw_pass_1 = SubResource("SparkMesh")
+
+[node name="ImpactSound" type="AudioStreamPlayer3D" parent="." unique_id=21088899]
+stream = ExtResource("18_t7l6w")
+volume_db = -8.0
+max_distance = 30.0
+
+[node name="RoomLight" type="OmniLight3D" parent="." unique_id=1867819582]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 2.6, -1.2)
+light_color = Color(1, 0.72, 0.4, 1)
+shadow_enabled = true
+omni_range = 7.5

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="WorldArea" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/world_area.gd" id="1_oup10"]
+
+[resource]
+script = ExtResource("1_oup10")
+code = &"area.test_dungeon.hal"
+display_name = "Testkelder hal"
+scene_path = "res://scenes/levels/TestDungeonHal.tscn"

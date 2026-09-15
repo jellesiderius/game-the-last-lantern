@@ -168,3 +168,33 @@ De stairs-replay laat de echte speler over en langs trappen, bruggen en plateaur
 Voer de editorcontrole in een geïsoleerde projectkopie uit wanneer je tegelijk zelf in Godot werkt. De controle gebruikt een unieke tijdelijke fixture per proces. Resultaten en native beelden komen in `captures/level_builder/`. De replay gebruikt een eigen savemap. De replay kan beperkt worden tot camera/helling via `--builder-traversal-only`; gebruik `--max-fps 30`, `60` of `120`. De bestaande headless replay op poort9090 wordt niet gebruikt om native controles te besturen.
 
 De enemyreplay ondersteunt `--builder-ramp-scene=res://scenes/levels/Testje.tscn` voor de twee ramps uit het gemelde level. Hij bewaart een testkopie onder captures en controleert oplopen, afdalen, achtervolgen en terugkeren. `--builder-patrol-only` controleert een lange, eigen patrouille. Actuele resultaten: [LEVEL_BUILDER_VALIDATION.json](LEVEL_BUILDER_VALIDATION.json).
+
+## Ruimtes, deuren en dungeons
+
+**Nieuwe ruimte** maakt een Buiten-level, een Interieur (kamer met muren, planken vloer) of een Dungeon (kamer met `DungeonDefinition`, aankomst en Uitgang). Met **Verbind met het geopende level** komt er meteen een deur (interieur) of Drempelpoort (dungeon) in het open level.
+
+Kamers zweven, zoals in Link's Awakening, in een donkere achtergrond. De noord- en westmuur zijn hoog; zuid en oost zijn laag afgesneden zodat de speler zichtbaar blijft.
+
+Terrain → Kamer → **Room Look**: *Steen* gebruikt het klifmateriaal (dungeons), *Huis* is de look van ForestHouse: lichte muren met donkere balken en een ligger, lage houten muren vooraan, brede planken in drie tinten en een donkere fundering. Interieurs krijgen *Huis* automatisch; de kleuren komen uit de interieur-oppervlaktestijl (klifkleur = muur, randkleur = hout). Elke deur krijgt een vloerstuk naar buiten, hout in een huis en steen elders.
+
+**Deur**: beweeg naar een muur of de rand van de grond en klik. Stijl (opening, houten deur, stenen boog) en breedte staan in de gereedschapsopties. De muur krijgt vanzelf een gat met doorloop-botsing; de deur heeft een eigen aankomstpunt (`door_id`) binnen de kamer.
+
+Selecteer een deur voor:
+- **Kies bestaande scene…** en daarna het aankomstpunt uit de lijst;
+- **Nieuwe kamer erachter…**: maakt een kamer met een deur terug, verbindt beide kanten en slaat alles op;
+- **Open doelscene**.
+
+Deuren naar een scene zonder kamermuren (buiten) krijgen **Outside Light**: een warme lichtbundel valt door de opening op de vloer. Deuren tussen kamers blijven donker met een zwak lichtje in de opening. Grotten gebruiken een Drempelpoort en hebben geen daglicht.
+
+**Verbonden ruimtes** (Level-sectie) toont alle deuren, poorten en uitgangen van de open scene, met **Open** om direct naar de bestemming te gaan.
+
+Testscènes, opnieuw te bouwen met de generators:
+
+```sh
+Godot --headless --path . res://tools/level_builder/BuildTestDungeon.tscn   # TestDungeonIngang → Hal → Gang → Schatkamer
+Godot --headless --path . res://tools/level_builder/BuildTestHouse.tscn     # TestHuisBuiten → Woonkamer → Keuken / Slaapkamer
+Godot --path . res://tests/TestDungeonReplay.tscn
+Godot --path . res://tests/TestHouseReplay.tscn
+```
+
+Let op: de generators overschrijven die testscènes.
